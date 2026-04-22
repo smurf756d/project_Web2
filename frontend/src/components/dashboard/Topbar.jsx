@@ -1,23 +1,24 @@
 const Topbar = () => {
   return (
-    <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-      <div className="w-100" style={{ maxWidth: "350px" }}>
+    <div className="topbar-custom mb-4">
+      <div className="search-wrapper">
         <input
           type="text"
-          className="form-control rounded-3"
+          className="form-control search-input"
           placeholder="Search recipes..."
         />
       </div>
 
       <div className="d-flex align-items-center gap-3">
         <span className="fs-5">🔔</span>
-        <img
-          src="https://i.pravatar.cc/40"
-          alt="user"
-          className="rounded-circle"
-          width="40"
-          height="40"
-        />
+        <div className="d-flex align-items-center gap-2">
+          <div className="user-avatar">👤</div>
+          <div className="small fw-semibold lh-sm">
+            Welcome,
+            <br />
+            Rama!
+          </div>
+        </div>
       </div>
     </div>
   );
