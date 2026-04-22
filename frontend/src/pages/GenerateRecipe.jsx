@@ -27,27 +27,29 @@ function GenerateRecipe() {
             </div>
 
             <div className="filter-row">
-              <label>Diet Preference</label>
+              <label>🌿 Diet Preference</label>
               <select>
                 <option>Healthy</option>
               </select>
             </div>
 
             <div className="filter-row">
-              <label>Max Cooking Time</label>
+             <label>⏰ Max Cooking Time</label>
               <select>
                 <option>30 - 60 mins</option>
               </select>
             </div>
 
             <div className="filter-row">
-              <label>Cuisine Type</label>
+             <label>🍽️ Cuisine Type</label>
               <select>
                 <option>Any</option>
               </select>
             </div>
 
-            <button className="generate-btn">Generate Recipe →</button>
+           <button className="generate-btn">
+                ✨ Generate Recipe →
+         </button>
           </div>
         </div>
 
