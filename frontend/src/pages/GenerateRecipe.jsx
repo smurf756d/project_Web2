@@ -11,6 +11,11 @@ function GenerateRecipe() {
     setIngredientsList([...ingredientsList, ingredient]);
     setIngredient("");
   };
+  
+  const handleRemove = (indexToRemove) => {
+  const updatedList = ingredientsList.filter((item, index) => index !== indexToRemove);
+  setIngredientsList(updatedList);
+};
 
   return (
     <div className="generate-recipe-page">
@@ -37,11 +42,18 @@ function GenerateRecipe() {
             </div>
 
             <div className="ingredients-list">
-              {ingredientsList.map((item, index) => (
-                <span key={index} className="ingredient-tag">
-                  {item}
-                </span>
-              ))}
+                {ingredientsList.map((item, index) => (
+                  <span key={index} className="ingredient-tag">
+                   {item}
+                <button
+                       type="button"
+                       className="remove-tag-btn"
+                       onClick={() => handleRemove(index)}
+                        >
+                            ×
+              </button>
+               </span>
+                       ))}
             </div>
 
             <div className="filter-row">
