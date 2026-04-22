@@ -1,8 +1,34 @@
 function AdminDashboard() {
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h1>Admin Dashboard</h1>
-      <p>Welcome </p>
+
+      <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
+        <div style={{ border: "1px solid white", padding: "10px" }}>
+          <h3>Users</h3>
+          <p>0</p>
+        </div>
+
+        <div style={{ border: "1px solid white", padding: "10px" }}>
+          <h3>Recipes</h3>
+          <p>0</p>
+        </div>
+
+        <div style={{ border: "1px solid white", padding: "10px" }}>
+          <h3>Generated</h3>
+          <p>0</p>
+        </div>
+      </div>
+
+      <div style={{ marginTop: "30px" }}>
+        <h2>Recent Users</h2>
+        <p>No users yet</p>
+      </div>
+
+      <div style={{ marginTop: "30px" }}>
+        <h2>Recent Recipes</h2>
+        <p>No recipes yet</p>
+      </div>
     </div>
   );
 }
