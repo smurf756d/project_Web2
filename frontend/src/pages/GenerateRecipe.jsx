@@ -1,101 +1,78 @@
-import { useState } from "react";
-
+import "../css/GenerateRecipe.css";
 function GenerateRecipe() {
-  const [ingredient, setIngredient] = useState("");
-  const [ingredients, setIngredients] = useState([
-    "Chicken",
-    "Potato",
-    "Onion",
-    "Tomato",
-    "Olive Oil"
-  ]);
-
-  const addIngredient = () => {
-    if (ingredient.trim() === "") {
-      return;
-    }
-
-    setIngredients([...ingredients, ingredient]);
-    setIngredient("");
-  };
-
   return (
-    <div>
-      <h1 className="mb-2">Generate Recipe</h1>
-      <p className="mb-4 text-muted">Responsible: Renad</p>
+    <div className="generate-recipe-page">
+      <div className="page-header mb-4">
+        <h1 className="page-title">Generate Recipe</h1>
+      </div>
 
-      <div className="row">
-        <div className="col-md-6 mb-4">
-          <div className="card shadow-sm p-4 rounded-4 h-100">
-            <h4 className="mb-3">Enter Your Ingredients</h4>
-            <p className="text-muted">Add ingredients you have at home:</p>
+      <div className="row g-4">
+        <div className="col-lg-6">
+          <div className="recipe-form-card">
+            <h3>Enter Your Ingredients</h3>
+            <p>Add ingredients you have at home:</p>
 
-            <div className="input-group mb-3">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Type an ingredient..."
-                value={ingredient}
-                onChange={(e) => setIngredient(e.target.value)}
-              />
-              <button className="btn btn-success" onClick={addIngredient}>
-                Add
-              </button>
+            <div className="ingredient-input-row">
+              <input type="text" placeholder="Type an ingredient..." />
+              <button className="add-btn">+ Add</button>
             </div>
 
-            <div className="mb-4">
-              {ingredients.map((item, index) => (
-                <span key={index} className="badge bg-warning text-dark me-2 mb-2 p-2">
-                  {item}
-                </span>
-              ))}
+            <div className="ingredient-tags">
+              <span className="tag white-tag">Chicken ×</span>
+              <span className="tag orange-tag">Potato ×</span>
+              <span className="tag pink-tag">Onion ×</span>
+              <span className="tag red-tag">Tomato ×</span>
+              <span className="tag green-tag">Olive Oil ×</span>
+              <span className="tag add-more-tag">+ Add more</span>
             </div>
 
-            <div className="mb-3">
-              <label className="form-label">Diet Preference</label>
-              <select className="form-select">
+            <div className="filter-row">
+              <label>Diet Preference</label>
+              <select>
                 <option>Healthy</option>
-                <option>Vegan</option>
-                <option>Keto</option>
-                <option>Any</option>
               </select>
             </div>
 
-            <div className="mb-3">
-              <label className="form-label">Max Cooking Time</label>
-              <select className="form-select">
-                <option>0 - 30 mins</option>
+            <div className="filter-row">
+              <label>Max Cooking Time</label>
+              <select>
                 <option>30 - 60 mins</option>
-                <option>60+ mins</option>
               </select>
             </div>
 
-            <div className="mb-4">
-              <label className="form-label">Cuisine Type</label>
-              <select className="form-select">
+            <div className="filter-row">
+              <label>Cuisine Type</label>
+              <select>
                 <option>Any</option>
-                <option>Italian</option>
-                <option>Asian</option>
-                <option>Arabic</option>
               </select>
             </div>
 
-            <button className="btn btn-success w-100 py-2">
-              Generate Recipe
-            </button>
+            <button className="generate-btn">Generate Recipe →</button>
           </div>
         </div>
 
-        <div className="col-md-6 mb-4">
-          <div className="card shadow-sm p-4 rounded-4 h-100">
-            <h4 className="mb-3">Recipe Preview</h4>
+        <div className="col-lg-6">
+          <div className="preview-card">
+            <h3>Recipe Preview</h3>
 
-            <div className="d-flex flex-column justify-content-center align-items-center text-center bg-light rounded-4 p-4" style={{ minHeight: "400px" }}>
-              <div className="mb-3 fs-1">🍽️</div>
-              <h5>Your recipe will appear here!</h5>
-              <p className="text-muted">
+            <div className="preview-inner">
+              <div className="preview-image">🍽</div>
+              <h4>Your recipe will appear here!</h4>
+
+              <div className="preview-lines">
+                <div></div>
+                <div></div>
+              </div>
+
+              <div className="preview-boxes">
+                <div className="small-preview-box"></div>
+                <div className="small-preview-box"></div>
+                <div className="small-preview-box"></div>
+              </div>
+
+              <div className="preview-footer">
                 Click "Generate Recipe" to see results.
-              </p>
+              </div>
             </div>
           </div>
         </div>
