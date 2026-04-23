@@ -8,13 +8,15 @@ function MyRecipes() {
     <div className="d-flex">
       <Sidebar />
 
-      <div className="container p-4">
+      <div className="flex-grow-1 p-4">
         <Topbar />
 
-        <div className="row">
-          {recipesMock.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} />
-          ))}
+        <div className="container">
+          <div className="row">
+            {recipesMock.map((recipe) => (
+              <RecipeCard key={recipe.id} recipe={recipe} />
+            ))}
+          </div>
         </div>
       </div>
     </div>

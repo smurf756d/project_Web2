@@ -10,13 +10,13 @@ function RecipeCard({ recipe }) {
         />
 
         <div className="card-body">
-          <h5 className="card-title fw-bold">{recipe.title}</h5>
+          <h5 className="fw-bold">{recipe.title}</h5>
 
-          <p className="text-muted mb-3">
+          <p className="text-muted">
             ⏱ {recipe.time} min | 🔥 {recipe.calories} cal
           </p>
 
-          <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex justify-content-between">
             <button className="btn btn-success btn-sm">View</button>
 
             <div>
