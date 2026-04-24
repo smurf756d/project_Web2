@@ -1,3 +1,4 @@
+import StatsCards from "./StatsCards";
 import { recentUsers, recentRecipes } from "../data/adminData";
 import { useState } from "react";
 
