@@ -7,6 +7,8 @@ function AdminDashboard() {
     generated: 0,
   });
 
+  const recentUsers = ["User 1", "User 2"];
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Admin Dashboard</h1>
@@ -31,8 +33,9 @@ function AdminDashboard() {
       <div style={{ marginTop: "30px" }}>
         <h2>Recent Users</h2>
         <div style={{ border: "1px solid white", padding: "15px", width: "300px" }}>
-         <p>User 1</p>
-         <p>User 2</p>
+        {recentUsers.map((user, index) => (
+  <p key={index}>{user}</p>
+))}
         </div>
       </div>
 
