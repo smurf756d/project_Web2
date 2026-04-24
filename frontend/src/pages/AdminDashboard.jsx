@@ -31,7 +31,8 @@ function AdminDashboard() {
       <div style={{ marginTop: "30px" }}>
         <h2>Recent Users</h2>
         <div style={{ border: "1px solid white", padding: "15px", width: "300px" }}>
-          <p>No users yet</p>
+         <p>User 1</p>
+         <p>User 2</p>
         </div>
       </div>
 
