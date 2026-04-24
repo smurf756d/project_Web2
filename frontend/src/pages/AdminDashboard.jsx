@@ -1,15 +1,15 @@
 import { useState } from "react";
 
 function AdminDashboard() {
-  const [stats] = useState({
-    users: 0,
-    recipes: 0,
-    generated: 0,
-  });
-
+  
   const recentUsers = ["User 1", "User 2"];
   const recentRecipes = ["Pasta", "Pizza"];
 
+const stats = {
+  users: recentUsers.length,
+  recipes: recentRecipes.length,
+  generated: 0,
+};
   return (
     <div style={{ padding: "20px" }}>
       <h1>Admin Dashboard</h1>
