@@ -1,4 +1,12 @@
+import { useState } from "react";
+
 function AdminDashboard() {
+  const [stats] = useState({
+    users: 0,
+    recipes: 0,
+    generated: 0,
+  });
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Admin Dashboard</h1>
@@ -6,36 +14,34 @@ function AdminDashboard() {
       <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
         <div style={{ border: "1px solid white", padding: "20px", width: "100px", textAlign: "center" }}>
           <h3>Users</h3>
-          <p>0</p>
+          <p>{stats.users}</p>
         </div>
 
         <div style={{ border: "1px solid white", padding: "20px", width: "100px", textAlign: "center" }}>
           <h3>Recipes</h3>
-          <p>0</p>
+          <p>{stats.recipes}</p>
         </div>
 
         <div style={{ border: "1px solid white", padding: "20px", width: "100px", textAlign: "center" }}>
           <h3>Generated</h3>
-          <p>0</p>
+          <p>{stats.generated}</p>
         </div>
       </div>
 
-     <div style={{ marginTop: "30px" }}>
-  <h2>Recent Users</h2>
-  <div style={{ border: "1px solid white", padding: "15px", width: "300px" }}>
-    <p>No users yet</p>
-  </div>
-</div>
+      <div style={{ marginTop: "30px" }}>
+        <h2>Recent Users</h2>
+        <div style={{ border: "1px solid white", padding: "15px", width: "300px" }}>
+          <p>No users yet</p>
+        </div>
+      </div>
 
-    <div style={{ marginTop: "30px" }}>
-  <h2>Recent Recipes</h2>
-  <div style={{ border: "1px solid white", padding: "15px", width: "300px" }}>
-    <p>No recipes yet</p>
-  </div>
-</div>
-
-  </div> 
-  
+      <div style={{ marginTop: "30px" }}>
+        <h2>Recent Recipes</h2>
+        <div style={{ border: "1px solid white", padding: "15px", width: "300px" }}>
+          <p>No recipes yet</p>
+        </div>
+      </div>
+    </div>
   );
 }
 
