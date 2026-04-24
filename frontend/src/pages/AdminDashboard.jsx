@@ -1,10 +1,8 @@
+import { recentUsers, recentRecipes } from "../data/adminData";
 import { useState } from "react";
 
 function AdminDashboard() {
   
-  const recentUsers = ["User 1", "User 2"];
-  const recentRecipes = ["Pasta", "Pizza"];
-
 const stats = {
   users: recentUsers.length,
   recipes: recentRecipes.length,
