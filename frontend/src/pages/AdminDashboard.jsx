@@ -1,4 +1,3 @@
-import "./AdminDashboard.css";
 import RecentRecipes from "./RecentRecipes";
 import RecentUsers from "./RecentUsers";
 import StatsCards from "./StatsCards";
@@ -12,8 +11,8 @@ const stats = {
   generated: 0,
 };
   return (
-  <div className="admin-page">
-      <h1 className="admin-title">Admin Dashboard</h1>
+  <div className="container py-4">
+   <h1 className="mb-4">Admin Dashboard</h1>
     <StatsCards stats={stats} />
 
     <RecentUsers users={recentUsers} />
