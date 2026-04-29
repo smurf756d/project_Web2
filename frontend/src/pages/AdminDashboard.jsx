@@ -1,3 +1,4 @@
+import MostLikedRecipes from "./MostLikedRecipes";
 import RecentRecipes from "./RecentRecipes";
 import RecentUsers from "./RecentUsers";
 import StatsCards from "./StatsCards";
@@ -73,14 +74,16 @@ const stats = {
 
   </div>
 
-  <div className="col-md-4">
+<div className="col-md-4">
 
-    <div className="card p-3">
-      <h5 className="mb-3">Recent Recipes</h5>
-      <RecentRecipes recipes={recentRecipes} />
-    </div>
-
+  <div className="card p-3 mb-4">
+    <h5 className="mb-3">Recent Recipes</h5>
+    <RecentRecipes recipes={recentRecipes} />
   </div>
+
+  <MostLikedRecipes />
+
+</div>
 
 </div>
 </div>
