@@ -81,7 +81,10 @@ const stats = {
     <RecentRecipes recipes={recentRecipes} />
   </div>
 
+ <div className="card p-3">
+  <h5 className="mb-3">Most Liked Recipes</h5>
   <MostLikedRecipes />
+</div>
 
 </div>
 
