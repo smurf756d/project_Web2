@@ -1,7 +1,6 @@
 function MostLikedRecipes() {
   return (
     <div className="card p-3 mt-4">
-      <h5 className="mb-3">Most Liked Recipes</h5>
 
       <div className="list-group">
         <div className="list-group-item d-flex justify-content-between">
