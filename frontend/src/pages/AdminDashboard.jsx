@@ -11,8 +11,8 @@ const stats = {
   generated: 0,
 };
   return (
-  <div className="container py-4">
-   <h1 className="mb-4">Admin Dashboard</h1>
+  <div className="container py-4 text-dark">
+   <h1 className="mb-4 text-center text-dark">Admin Dashboard</h1>
     <StatsCards stats={stats} />
 
     <RecentUsers users={recentUsers} />
