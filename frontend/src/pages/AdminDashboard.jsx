@@ -15,9 +15,15 @@ const stats = {
    <h1 className="mb-4 text-center text-dark">Admin Dashboard</h1>
     <StatsCards stats={stats} />
 
-    <RecentUsers users={recentUsers} />
+   <div className="card p-3 mb-4">
+  <h5 className="mb-3">Recent Users</h5>
+  <RecentUsers users={recentUsers} />
+</div>
 
+<div className="card p-3">
+  <h5 className="mb-3">Recent Recipes</h5>
   <RecentRecipes recipes={recentRecipes} />
+</div>
 
     </div>
   );
