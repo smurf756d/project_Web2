@@ -1,3 +1,4 @@
+import "./AdminDashboard.css";
 import RecentRecipes from "./RecentRecipes";
 import RecentUsers from "./RecentUsers";
 import StatsCards from "./StatsCards";
@@ -12,8 +13,7 @@ const stats = {
 };
   return (
   <div className="admin-page">
-      <h1>Admin Dashboard</h1>
-
+      <h1 className="admin-title">Admin Dashboard</h1>
     <StatsCards stats={stats} />
 
     <RecentUsers users={recentUsers} />
