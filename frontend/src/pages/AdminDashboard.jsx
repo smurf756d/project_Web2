@@ -11,7 +11,7 @@ const stats = {
   generated: 0,
 };
   return (
-    <div style={{ padding: "20px" }}>
+  <div className="admin-page">
       <h1>Admin Dashboard</h1>
 
     <StatsCards stats={stats} />
