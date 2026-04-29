@@ -1,11 +1,15 @@
 function RecentRecipes({ recipes }) {
   return (
-    <div style={{ marginTop: "30px" }}>
-      <div style={{ border: "1px solid white", padding: "15px", width: "300px" }}>
-        {recipes.map((recipe, index) => (
-          <p key={index}>{recipe}</p>
-        ))}
-      </div>
+    <div className="list-group">
+      {recipes.map((recipe, index) => (
+        <div
+          key={index}
+          className="list-group-item d-flex justify-content-between align-items-center"
+        >
+          <span>{recipe}</span>
+          <span className="badge bg-primary rounded-pill">Recipe</span>
+        </div>
+      ))}
     </div>
   );
 }
