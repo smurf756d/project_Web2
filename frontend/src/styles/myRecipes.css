@@ -1,17 +1,18 @@
 .my-recipes-page {
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   display: flex;
   background: linear-gradient(135deg, #eef7e8 0%, #f9fbf7 60%, #f2f6ee 100%);
   color: #253125;
 }
 
+/* Sidebar */
 .my-sidebar {
   width: 245px;
   min-width: 245px;
   min-height: 100vh;
   background: rgba(255, 255, 255, 0.92);
-  border-right: 1px solid #dfe8db;
+  border-right: 1px solid #e7efe3;
   padding: 28px 18px;
   position: sticky;
   top: 0;
@@ -109,18 +110,27 @@
   box-shadow: 0 8px 16px rgba(52, 86, 52, 0.12);
 }
 
+/* Main */
 .my-recipes-main {
   flex: 1;
-  min-height: 100vh;
-  padding: 38px 48px;
+  min-height: 100%;
+  padding: 34px 44px;
   overflow-x: hidden;
 }
 
+/* Topbar */
 .my-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #e7efe3;
+  transition: background 0.2s ease;
+}
+
+.my-topbar:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .my-topbar h2 {
@@ -183,11 +193,19 @@
   box-shadow: 0 8px 16px rgba(52, 86, 52, 0.12);
 }
 
+/* Toolbar */
 .recipes-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 18px;
   margin-bottom: 30px;
+  border-bottom: 1px solid #eef3eb;
+  transition: background 0.2s ease;
+}
+
+.recipes-toolbar:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .filter-box {
@@ -239,6 +257,7 @@
   transform: scale(0.97);
 }
 
+/* Cards */
 .recipes-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(280px, 1fr));
@@ -275,6 +294,7 @@
 
 .recipe-body {
   padding: 22px 22px 20px;
+  border-top: 1px solid #f3f6f1;
 }
 
 .recipe-body h5 {
@@ -358,6 +378,7 @@
   background: #ffe9e6;
 }
 
+/* Pagination */
 .pagination-area {
   display: flex;
   justify-content: center;
@@ -390,6 +411,7 @@
   cursor: not-allowed;
 }
 
+/* Delete Modal */
 .modal-backdrop-custom {
   position: fixed;
   inset: 0;
@@ -414,6 +436,7 @@
     opacity: 0;
     transform: scale(0.92) translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -460,6 +483,7 @@
   color: white;
 }
 
+/* Empty State */
 .empty-state {
   background: white;
   border-radius: 18px;
@@ -473,6 +497,7 @@
   color: #5fae67;
 }
 
+/* Responsive */
 @media (max-width: 992px) {
   .my-recipes-page {
     flex-direction: column;
