@@ -1,25 +1,50 @@
 function Sidebar() {
   return (
-    <div
-      className="bg-light vh-100 p-4 border-end"
-      style={{ width: "240px", minWidth: "240px" }}
-    >
-      <h3 className="fw-bold mb-4 text-success">Smart Kitchen</h3>
+    <aside className="my-sidebar">
+      <div className="brand-box">
+        <div className="brand-icon">🥗</div>
+        <div>
+          <h4>Smart</h4>
+          <span>Kitchen Hub</span>
+        </div>
+      </div>
 
-      <ul className="nav flex-column">
-        <li className="nav-item mb-3">
-          <span className="nav-link active fw-semibold text-success">
-            My Recipes
-          </span>
-        </li>
-        <li className="nav-item mb-3">
-          <span className="nav-link text-dark">Generate Recipe</span>
-        </li>
-        <li className="nav-item mb-3">
-          <span className="nav-link text-dark">Favorites</span>
-        </li>
-      </ul>
-    </div>
+      <nav className="sidebar-menu">
+        <a className="sidebar-link active">
+          <i className="bi bi-journal-bookmark"></i>
+          My Recipes
+        </a>
+
+        <a className="sidebar-link">
+          <i className="bi bi-magic"></i>
+          Generate Recipe
+        </a>
+
+        <a className="sidebar-link">
+          <i className="bi bi-speedometer2"></i>
+          Dashboard
+        </a>
+
+        <a className="sidebar-link">
+          <i className="bi bi-heart"></i>
+          Favorites
+        </a>
+
+        <a className="sidebar-link">
+          <i className="bi bi-question-circle"></i>
+          Help & Tips
+        </a>
+      </nav>
+
+      <div className="sidebar-bottom">
+        <button className="round-btn">
+          <i className="bi bi-gear"></i>
+        </button>
+        <button className="round-btn">
+          <i className="bi bi-moon"></i>
+        </button>
+      </div>
+    </aside>
   );
 }
 

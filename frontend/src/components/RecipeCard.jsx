@@ -1,32 +1,34 @@
-function RecipeCard({ recipe }) {
+function RecipeCard({ recipe, onDelete }) {
   return (
-    <div className="col-lg-4 col-md-6 col-sm-12 mb-4">
-      <div className="card shadow-sm border-0 h-100">
-        <img
-          src={recipe.image}
-          className="card-img-top"
-          alt={recipe.title}
-          style={{ height: "180px", objectFit: "cover" }}
-        />
+    <div className="recipe-card">
+      <img src={recipe.image} alt={recipe.title} className="recipe-img" />
 
-        <div className="card-body">
-          <h5 className="fw-bold">{recipe.title}</h5>
+      <div className="recipe-body">
+        <h5>{recipe.title}</h5>
 
-          <p className="text-muted">
-            ⏱ {recipe.time} min | 🔥 {recipe.calories} cal
-          </p>
+        <div className="recipe-info">
+          <span>
+            <i className="bi bi-clock"></i> {recipe.time} min
+          </span>
+          <span>
+            <i className="bi bi-fire"></i> {recipe.calories} cal
+          </span>
+        </div>
 
-          <div className="d-flex justify-content-between">
-            <button className="btn btn-success btn-sm">View</button>
+        <div className="recipe-actions">
+          <button className="view-btn">View Recipe</button>
 
-            <div>
-              <button className="btn btn-outline-primary btn-sm me-2">
-                Edit
-              </button>
-              <button className="btn btn-outline-danger btn-sm">
-                Delete
-              </button>
-            </div>
+          <div>
+            <button className="small-action edit">
+              <i className="bi bi-pencil-square"></i>
+            </button>
+
+            <button
+              className="small-action delete"
+              onClick={() => onDelete(recipe)}
+            >
+              <i className="bi bi-trash"></i>
+            </button>
           </div>
         </div>
       </div>
