@@ -41,4 +41,5 @@ export const recipesMock = [
     time: 8,
     calories: 210,
   },
+  
 ];

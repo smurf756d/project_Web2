@@ -32,8 +32,18 @@ function MyRecipes() {
     setSelectedRecipe(null);
   };
 
+  const handleToggleFavorite = (id) => {
+    setRecipes((prevRecipes) =>
+      prevRecipes.map((recipe) =>
+        recipe.id === id
+          ? { ...recipe, isFavorite: !recipe.isFavorite }
+          : recipe
+      )
+    );
+  };
+
   return (
-    <main className="my-recipes-page">
+    <div className="my-recipes-page">
       <section className="my-recipes-main">
         <Topbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
@@ -61,6 +71,7 @@ function MyRecipes() {
                 key={recipe.id}
                 recipe={recipe}
                 onDelete={setSelectedRecipe}
+                onToggleFavorite={handleToggleFavorite}
               />
             ))}
           </section>
@@ -120,7 +131,7 @@ function MyRecipes() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
 

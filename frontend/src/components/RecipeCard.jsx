@@ -1,7 +1,14 @@
-function RecipeCard({ recipe, onDelete }) {
+function RecipeCard({ recipe, onDelete, onToggleFavorite }) {
   return (
     <div className="recipe-card">
-      <img src={recipe.image} alt={recipe.title} className="recipe-img" />
+      <img
+        src={recipe.image}
+        alt={recipe.title}
+        className="recipe-img"
+        onError={(e) => {
+          e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
+        }}
+      />
 
       <div className="recipe-body">
         <h5>{recipe.title}</h5>
@@ -28,6 +35,20 @@ function RecipeCard({ recipe, onDelete }) {
               onClick={() => onDelete(recipe)}
             >
               <i className="bi bi-trash"></i>
+            </button>
+
+            {/* ❤️ Favorite Button */}
+            <button
+              className={`small-action ${
+                recipe.isFavorite ? "fav-active" : ""
+              }`}
+              onClick={() => onToggleFavorite(recipe.id)}
+            >
+              <i
+                className={`bi ${
+                  recipe.isFavorite ? "bi-heart-fill" : "bi-heart"
+                }`}
+              ></i>
             </button>
           </div>
         </div>

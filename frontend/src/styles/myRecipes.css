@@ -1,15 +1,20 @@
 .my-recipes-page {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100%;
   background: linear-gradient(135deg, #eef7e8 0%, #f9fbf7 60%, #f2f6ee 100%);
   color: #253125;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .my-recipes-main {
   width: 100%;
-  min-height: 100vh;
-  padding: 34px 44px;
+  max-width: 1120px;
+  min-height: calc(100vh - 60px);
+  margin: 0 auto;
+  padding: 0;
   overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* Topbar */
@@ -17,8 +22,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 20px;
-  margin-bottom: 25px;
+  padding-bottom: 18px;
+  margin-bottom: 22px;
   border-bottom: 1px solid #e7efe3;
   transition: background 0.2s ease;
 }
@@ -29,7 +34,7 @@
 
 .my-topbar h2 {
   margin: 0;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 900;
   letter-spacing: -0.5px;
 }
@@ -47,11 +52,11 @@
 }
 
 .search-box {
-  width: 330px;
+  width: 280px;
   background: white;
   border: 1px solid #dbe5d7;
   border-radius: 15px;
-  padding: 12px 16px;
+  padding: 11px 14px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -72,8 +77,8 @@
 }
 
 .icon-btn {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 15px;
   border: 1px solid #dbe5d7;
   background: white;
@@ -87,13 +92,12 @@
   box-shadow: 0 8px 16px rgba(52, 86, 52, 0.12);
 }
 
-/* Toolbar */
 .recipes-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 18px;
-  margin-bottom: 30px;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
   border-bottom: 1px solid #eef3eb;
   transition: background 0.2s ease;
 }
@@ -102,8 +106,13 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+.fav-active {
+  background: #ffe9e6;
+  color: red;
+}
+
 .filter-box {
-  width: 245px;
+  width: 230px;
   background: white;
   border: 1px solid #dbe5d7;
   border-radius: 14px;
@@ -134,7 +143,7 @@
   background: #5fae67;
   color: white;
   border-radius: 14px;
-  padding: 13px 22px;
+  padding: 12px 20px;
   font-size: 14px;
   font-weight: 800;
   box-shadow: 0 10px 18px rgba(95, 174, 103, 0.25);
@@ -154,30 +163,31 @@
 /* Cards */
 .recipes-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(280px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
   align-items: stretch;
+  width: 100%;
 }
 
 .recipe-card {
   background: white;
-  border-radius: 22px;
+  border-radius: 20px;
   overflow: hidden;
-  min-height: 410px;
+  min-height: 350px;
   box-shadow: 0 14px 28px rgba(52, 86, 52, 0.11);
   border: 1px solid #eef3eb;
   transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
 }
 
 .recipe-card:hover {
-  transform: translateY(-10px);
+  transform: translateY(-8px);
   box-shadow: 0 24px 42px rgba(52, 86, 52, 0.2);
   border-color: #cfe8c8;
 }
 
 .recipe-img {
   width: 100%;
-  height: 220px;
+  height: 170px;
   object-fit: cover;
   transition: transform 0.35s ease;
 }
@@ -187,23 +197,24 @@
 }
 
 .recipe-body {
-  padding: 22px 22px 20px;
+  padding: 18px 18px 16px;
   border-top: 1px solid #f3f6f1;
 }
 
 .recipe-body h5 {
-  margin-bottom: 14px;
-  font-size: 20px;
+  margin-bottom: 12px;
+  font-size: 18px;
   font-weight: 900;
   color: #273127;
 }
 
 .recipe-info {
   display: flex;
-  gap: 18px;
+  gap: 14px;
   color: #6d796a;
-  font-size: 14px;
-  margin-bottom: 26px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .recipe-info i {
@@ -221,8 +232,8 @@
   background: #5fae67;
   color: white;
   border-radius: 13px;
-  padding: 11px 17px;
-  font-size: 14px;
+  padding: 10px 15px;
+  font-size: 13px;
   font-weight: 800;
   transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
 }
@@ -239,10 +250,10 @@
 
 .small-action {
   border: none;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   border-radius: 13px;
-  margin-left: 8px;
+  margin-left: 6px;
   background: #f3f6f1;
   transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
 }
@@ -277,14 +288,14 @@
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 34px;
+  margin-top: 30px;
 }
 
 .pagination-area button {
   border: 1px solid #dbe5d7;
   background: white;
   border-radius: 12px;
-  padding: 9px 15px;
+  padding: 8px 13px;
   color: #4d5c4d;
   transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
@@ -313,6 +324,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 999;
 }
 
 .delete-modal {
@@ -381,7 +393,7 @@
 .empty-state {
   background: white;
   border-radius: 18px;
-  padding: 50px;
+  padding: 42px;
   text-align: center;
   color: #6d796a;
 }
@@ -398,6 +410,10 @@
     flex-direction: column;
     align-items: stretch;
     gap: 14px;
+  }
+
+  .topbar-actions {
+    width: 100%;
   }
 
   .search-box,
