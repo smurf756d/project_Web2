@@ -3,12 +3,6 @@
   padding: 0;
   box-sizing: border-box;
 }
-label{
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 500;
-}
 
 body {
   background: #dceecf;
@@ -97,47 +91,31 @@ body {
   transform: translateY(-1px);
 }
 
-.ingredient-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.ingredients-list {
   margin-bottom: 18px;
 }
 
-.tag {
-  padding: 8px 14px;
+.ingredient-tag {
+  background: #eaf4ec;
+  color: #2f2f2f;
+  padding: 8px 12px;
   border-radius: 14px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
+  margin: 5px;
   display: inline-flex;
   align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.white-tag {
-  background: #ffffff;
-}
-
-.orange-tag {
-  background: #f4dcc7;
-}
-
-.pink-tag {
-  background: #f2d9dc;
-}
-
-.red-tag {
-  background: #f2d4cc;
-}
-
-.green-tag {
-  background: #dce8c9;
-}
-
-.add-more-tag {
-  background: #f7f3f1;
-  border: 1px dashed #cfc7c2;
-  color: #666;
+.remove-tag-btn {
+  border: none;
+  background: transparent;
+  color: #444;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
 }
 
 .filter-row {
@@ -248,42 +226,23 @@ body {
   color: #555;
 }
 
-.ingredients-list {
-  margin-bottom: 18px;
+.recipe-result {
+  color: #333;
 }
 
-.ingredient-tag {
-  background: #eaf4ec;
-  color: #2f2f2f;
-  padding: 8px 12px;
-  border-radius: 14px;
-  margin: 5px;
-  display: inline-block;
-  font-size: 14px;
-  font-weight: 500;
+.recipe-result h4 {
+  font-size: 24px;
+  font-weight: 700;
 }
 
-.ingredient-tag {
-  background: #eaf4ec;
-  color: #2f2f2f;
-  padding: 8px 12px;
-  border-radius: 14px;
-  margin: 5px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
+.recipe-result ul,
+.recipe-result ol {
+  margin-top: 8px;
+  padding-left: 20px;
 }
 
-.remove-tag-btn {
-  border: none;
-  background: transparent;
-  color: #444;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
+.recipe-result li {
+  margin-bottom: 6px;
 }
 
 @media (max-width: 992px) {
