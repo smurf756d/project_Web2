@@ -28,8 +28,14 @@ async function getAllRecipes() {
   return await Recipe.find().sort({ createdAt: -1 });
 }
 
+async function deleteRecipe(id) {
+  return await Recipe.findByIdAndDelete(id);
+}
+
+
 module.exports = {
   generateRecipe,
   saveRecipe,
   getAllRecipes,
+  deleteRecipe,
 };
