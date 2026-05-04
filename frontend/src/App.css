@@ -3,10 +3,17 @@ body {
   font-family: Arial, sans-serif;
 }
 
-.dashboard-main {
-  background: #fff;
+.user-dashboard-page {
+  background: #ffffff;
   min-height: 100vh;
   padding: 24px;
+}
+
+.dashboard-label {
+  color: #4f8f45;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .welcome-banner {
@@ -17,7 +24,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 24px;
 }
 
 .welcome-title {
@@ -33,14 +40,14 @@ body {
 }
 
 .welcome-image {
-  width: 180px;
-  height: 110px;
+  width: 190px;
+  height: 120px;
   object-fit: cover;
   border-radius: 18px;
 }
 
-.custom-card {
-  background: #fff;
+.dashboard-card {
+  background: #ffffff;
   border: 1px solid #e3ebdf;
   border-radius: 18px;
   padding: 18px;
@@ -53,13 +60,13 @@ body {
   font-weight: 700;
 }
 
-.recipe-generator-card {
+.quick-generate-card {
   background: #f9fdf7;
 }
 
-.ingredients-box {
+.ingredients-preview-box {
   border: 1px solid #e2eadf;
-  background: #fff;
+  background: #ffffff;
   border-radius: 14px;
   padding: 14px;
   display: flex;
@@ -75,10 +82,10 @@ body {
   font-size: 14px;
 }
 
-.ingredient-add {
+.ingredient-more {
   display: block;
   width: 100%;
-  color: #666;
+  color: #6b7280;
   font-size: 14px;
 }
 
@@ -87,10 +94,14 @@ body {
   font-weight: 600;
 }
 
-.quick-stats-card .stat-box {
+.stat-box {
   border-radius: 14px;
   padding: 14px;
   margin-bottom: 12px;
+}
+
+.stat-box:last-child {
+  margin-bottom: 0;
 }
 
 .stat-green {
@@ -101,12 +112,12 @@ body {
   background: #eef4ff;
 }
 
-.stat-red {
-  background: #fff1ed;
+.stat-orange {
+  background: #fff4ec;
 }
 
-.recipe-card-custom {
-  background: #fff;
+.recipe-card {
+  background: #ffffff;
   border: 1px solid #e3ebdf;
   border-radius: 18px;
   overflow: hidden;
@@ -124,6 +135,10 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 14px;
+}
+
+.recipe-list-item:last-child {
+  margin-bottom: 0;
 }
 
 .small-recipe-img {
