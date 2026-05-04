@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import Topbar from "../components/layout/Topbar";
 import RecipeCard from "../components/RecipeCard";
 import { recipesMock } from "../data/recipesMock";
-import "../styles/myRecipes.css";
+import "../styles/recipesPages.css";
 
 function MyRecipes() {
   const [recipes, setRecipes] = useState(recipesMock);
