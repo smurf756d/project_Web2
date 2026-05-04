@@ -6,7 +6,11 @@ const RecommendedRecipes = ({ recipes }) => {
           Suggested Recipes for You
         </h5>
 
-        <button type="button" className="btn btn-link text-success p-0">
+        <button
+          type="button"
+          className="btn btn-link text-success p-0"
+          onClick={() => alert("This will open all recipes later.")}
+        >
           View All
         </button>
       </div>
@@ -31,6 +35,9 @@ const RecommendedRecipes = ({ recipes }) => {
                 <button
                   type="button"
                   className="btn btn-outline-success w-100 rounded-3"
+                  onClick={() =>
+                    alert(`Opening ${recipe.title} details later.`)
+                  }
                 >
                   View Recipe
                 </button>

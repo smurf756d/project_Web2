@@ -3,7 +3,7 @@ import RecommendedRecipes from "../components/dashboard/RecommendedRecipes";
 import DietPreferencesCard from "../components/dashboard/DietPreferencesCard";
 import MyRecipesCard from "../components/dashboard/MyRecipesCard";
 import QuickGenerateCard from "../components/dashboard/QuickGenerateCard";
-
+import "./UserDashboard.css";
 const UserDashboard = () => {
   const user = {
     name: "Rama",
