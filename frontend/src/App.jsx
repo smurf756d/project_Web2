@@ -1,7 +1,7 @@
-import UserDashboard from "./pages/UserDashboard";
+import Home from "./pages/Home";
 
 function App() {
-  return <UserDashboard />;
+  return <Home />;
 }
 
 export default App;
