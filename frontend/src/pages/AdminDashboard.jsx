@@ -1,4 +1,4 @@
-import "./Admin.css";
+import "../styles/Admin.css";
 import StatsCards from "../components/StatsCards";
 import RecentUsers from "../components/RecentUsers";
 import RecentRecipes from "../components/RecentRecipes";
@@ -13,8 +13,11 @@ const stats = {
   generated: 0,
 };
   return (
-  <div className="container py-4 text-dark" style={{ backgroundColor: "#f4f8f4", minHeight: "100vh" }}>
-  <h1 className="mb-4 text-center text-dark fw-semibold">Admin Dashboard</h1>
+  <div className="py-4 text-dark admin-dashboard">
+    <div className="dashboard-heading text-center mb-4">
+  <h1>Admin Dashboard</h1>
+  <p>Overview of users, recipes, and activity🌿</p>
+</div>
    <div className="d-flex justify-content-between align-items-center mb-4">
   
   <input
@@ -35,7 +38,7 @@ const stats = {
   <div className="col-md-8">
 
     <div className="card p-3 mb-4">
-      <h5 className="mb-3">Most Used Ingredients</h5>
+      <h5 className="mb-3">Most Used Ingredients ⭐</h5>
 
       <div className="mb-2">
         <div className="d-flex justify-content-between">
@@ -43,7 +46,7 @@ const stats = {
           <span>130</span>
         </div>
         <div className="progress">
-          <div className="progress-bar bg-success" style={{ width: "85%" }}></div>
+          <div className="progress-bar" style={{ width: "85%" }}></div>
         </div>
       </div>
 
@@ -53,7 +56,7 @@ const stats = {
           <span>110</span>
         </div>
        <div className="progress">
-  <div className="progress-bar" style={{ width: "85%", backgroundColor: "#6fbf73" }}></div>
+  <div className="progress-bar" style={{ width: "70%", backgroundColor: "#6fbf73" }}></div>
 </div>
       </div>
 
@@ -63,13 +66,16 @@ const stats = {
           <span>70</span>
         </div>
         <div className="progress">
-          <div className="progress-bar bg-success" style={{ width: "45%" }}></div>
+          <div className="progress-bar " style={{ width: "45%" }}></div>
         </div>
       </div>
     </div>
 
     <div className="card p-3 mb-4">
-      <h5 className="mb-3">Recent Users</h5>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+  <h5 className="mb-0">👥 Recent Users</h5>
+  <button className="btn btn-sm btn-outline-success">View All</button>
+</div>
       <RecentUsers users={recentUsers} />
     </div>
 
@@ -78,12 +84,12 @@ const stats = {
 <div className="col-md-4">
 
   <div className="card p-3 mb-4">
-    <h5 className="mb-3">Recent Recipes</h5>
+    <h5 className="mb-3">🍽️ Recent Recipes</h5>
     <RecentRecipes recipes={recentRecipes} />
   </div>
 
  <div className="card p-3">
-  <h5 className="mb-3">Most Liked Recipes</h5>
+  <h5 className="mb-3">❤️ Most Liked Recipes</h5>
   <MostLikedRecipes />
 </div>
 

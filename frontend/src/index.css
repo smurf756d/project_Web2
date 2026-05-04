@@ -52,17 +52,11 @@
 
 body {
   margin: 0;
+  font-family: 'Poppins', sans-serif !important;
 }
-
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  width: 100%;
   min-height: 100svh;
-  display: flex;
-  flex-direction: column;
   box-sizing: border-box;
 }
 
@@ -108,4 +102,8 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
 }
