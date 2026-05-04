@@ -64,30 +64,6 @@ body {
   background: #f9fdf7;
 }
 
-.ingredients-preview-box {
-  border: 1px solid #e2eadf;
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 14px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.ingredient-tag {
-  background: #f3f5f2;
-  border: 1px solid #e0e6dd;
-  border-radius: 10px;
-  padding: 6px 10px;
-  font-size: 14px;
-}
-
-.ingredient-more {
-  display: block;
-  width: 100%;
-  color: #6b7280;
-  font-size: 14px;
-}
 
 .custom-green-btn {
   border-radius: 12px;

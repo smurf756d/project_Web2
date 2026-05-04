@@ -88,9 +88,7 @@ const UserDashboard = () => {
   ];
 
   const handleGoToGenerateRecipe = () => {
-    // Later this will become React Router navigation:
-    // navigate("/generate-recipe");
-    alert("This will navigate to Generate Recipe page later.");
+    alert("Redirecting to Generate Recipe page...");
   };
 
   return (
