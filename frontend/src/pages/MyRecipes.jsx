@@ -8,6 +8,14 @@ function MyRecipes() {
   const [recipes, setRecipes] = useState(recipesMock);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [viewingRecipe, setViewingRecipe] = useState(null);
+  const [editingRecipe, setEditingRecipe] = useState(null);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    ingredients: "",
+    time: "",
+    calories: "",
+  });
   const [currentPage, setCurrentPage] = useState(1);
 
   const recipesPerPage = 3;
@@ -33,13 +41,75 @@ function MyRecipes() {
   };
 
   const handleToggleFavorite = (id) => {
-    setRecipes((prevRecipes) =>
-      prevRecipes.map((recipe) =>
+    setRecipes((prevRecipes) => {
+      const updatedRecipes = prevRecipes.map((recipe) =>
         recipe.id === id
           ? { ...recipe, isFavorite: !recipe.isFavorite }
           : recipe
+      );
+
+      const favoriteRecipes = updatedRecipes.filter(
+        (recipe) => recipe.isFavorite
+      );
+
+      localStorage.setItem("favorites", JSON.stringify(favoriteRecipes));
+
+      return updatedRecipes;
+    });
+  };
+
+  const openEditModal = (recipe) => {
+    setEditingRecipe(recipe);
+    setEditForm({
+      title: recipe.title,
+      ingredients: recipe.ingredients || "",
+      time: recipe.time,
+      calories: recipe.calories,
+    });
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+
+    setEditForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+
+    if (!editForm.title.trim()) {
+      alert("Recipe name is required");
+      return;
+    }
+
+    if (!editForm.ingredients.trim()) {
+      alert("Ingredients are required");
+      return;
+    }
+
+    if (Number(editForm.time) <= 0 || Number(editForm.calories) <= 0) {
+      alert("Time and calories must be greater than 0");
+      return;
+    }
+
+    setRecipes((prevRecipes) =>
+      prevRecipes.map((recipe) =>
+        recipe.id === editingRecipe.id
+          ? {
+              ...recipe,
+              title: editForm.title.trim(),
+              ingredients: editForm.ingredients.trim(),
+              time: Number(editForm.time),
+              calories: Number(editForm.calories),
+            }
+          : recipe
       )
     );
+
+    setEditingRecipe(null);
   };
 
   return (
@@ -72,6 +142,8 @@ function MyRecipes() {
                 recipe={recipe}
                 onDelete={setSelectedRecipe}
                 onToggleFavorite={handleToggleFavorite}
+                onEdit={openEditModal}
+                onView={setViewingRecipe}
               />
             ))}
           </section>
@@ -110,6 +182,46 @@ function MyRecipes() {
         </section>
       </section>
 
+      {viewingRecipe && (
+        <div className="modal-backdrop-custom">
+          <div className="view-modal">
+            <img
+              src={viewingRecipe.image}
+              alt={viewingRecipe.title}
+              onError={(e) => {
+                e.target.src =
+                  "https://via.placeholder.com/400x230?text=No+Image";
+              }}
+            />
+
+            <h3>{viewingRecipe.title}</h3>
+
+            <div className="view-info">
+              <span>
+                <i className="bi bi-clock"></i> {viewingRecipe.time} min
+              </span>
+              <span>
+                <i className="bi bi-fire"></i> {viewingRecipe.calories} cal
+              </span>
+            </div>
+
+            <div className="view-section">
+              <h5>Ingredients</h5>
+              <p>{viewingRecipe.ingredients || "No ingredients listed."}</p>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => setViewingRecipe(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {selectedRecipe && (
         <div className="modal-backdrop-custom">
           <div className="delete-modal">
@@ -129,6 +241,62 @@ function MyRecipes() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {editingRecipe && (
+        <div className="modal-backdrop-custom">
+          <form className="edit-modal" onSubmit={handleSaveEdit}>
+            <h5>Edit Recipe</h5>
+
+            <label>Recipe Name</label>
+            <input
+              type="text"
+              name="title"
+              value={editForm.title}
+              onChange={handleEditChange}
+            />
+
+            <label>Ingredients</label>
+            <textarea
+              name="ingredients"
+              value={editForm.ingredients}
+              onChange={handleEditChange}
+              placeholder="Example: chicken, rice, tomato..."
+            />
+
+            <label>Cooking Time</label>
+            <input
+              type="number"
+              name="time"
+              value={editForm.time}
+              onChange={handleEditChange}
+              min="1"
+            />
+
+            <label>Calories</label>
+            <input
+              type="number"
+              name="calories"
+              value={editForm.calories}
+              onChange={handleEditChange}
+              min="1"
+            />
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="cancel-btn"
+                onClick={() => setEditingRecipe(null)}
+              >
+                Cancel
+              </button>
+
+              <button type="submit" className="save-edit-btn">
+                Save Changes
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

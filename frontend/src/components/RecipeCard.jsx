@@ -1,4 +1,4 @@
-function RecipeCard({ recipe, onDelete, onToggleFavorite }) {
+function RecipeCard({ recipe, onDelete, onToggleFavorite, onEdit, onView }) {
   return (
     <div className="recipe-card">
       <img
@@ -23,10 +23,12 @@ function RecipeCard({ recipe, onDelete, onToggleFavorite }) {
         </div>
 
         <div className="recipe-actions">
-          <button className="view-btn">View Recipe</button>
+          <button className="view-btn" onClick={() => onView(recipe)}>
+            View Recipe
+          </button>
 
           <div>
-            <button className="small-action edit">
+            <button className="small-action edit" onClick={() => onEdit(recipe)}>
               <i className="bi bi-pencil-square"></i>
             </button>
 
@@ -37,7 +39,6 @@ function RecipeCard({ recipe, onDelete, onToggleFavorite }) {
               <i className="bi bi-trash"></i>
             </button>
 
-            {/* ❤️ Favorite Button */}
             <button
               className={`small-action ${
                 recipe.isFavorite ? "fav-active" : ""
