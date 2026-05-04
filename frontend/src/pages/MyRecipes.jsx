@@ -5,7 +5,14 @@ import { recipesMock } from "../data/recipesMock";
 import "../styles/recipesPages.css";
 
 function MyRecipes() {
-  const [recipes, setRecipes] = useState(recipesMock);
+ const [recipes, setRecipes] = useState(() => {
+  const savedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+  return recipesMock.map((recipe) => ({
+    ...recipe,
+    isFavorite: savedFavorites.some((fav) => fav.id === recipe.id),
+  }));
+ });
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [viewingRecipe, setViewingRecipe] = useState(null);
