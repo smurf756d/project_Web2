@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import Sidebar from "../components/layout/Sidebar";
 import Topbar from "../components/layout/Topbar";
 import RecipeCard from "../components/RecipeCard";
 import { recipesMock } from "../data/recipesMock";
@@ -34,10 +33,8 @@ function MyRecipes() {
   };
 
   return (
-    <div className="my-recipes-page">
-      <Sidebar />
-
-      <main className="my-recipes-main">
+    <main className="my-recipes-page">
+      <section className="my-recipes-main">
         <Topbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
         <section className="recipes-toolbar">
@@ -100,7 +97,7 @@ function MyRecipes() {
             Next
           </button>
         </section>
-      </main>
+      </section>
 
       {selectedRecipe && (
         <div className="modal-backdrop-custom">
@@ -123,7 +120,7 @@ function MyRecipes() {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }
 
