@@ -1,6 +1,7 @@
 import "./Home.css";
-
+import { useNavigate } from "react-router-dom";
 const Home = () => {
+    const navigate = useNavigate();
   const features = [
     {
       icon: "🥘",
@@ -21,7 +22,6 @@ const Home = () => {
 
   return (
     <main className="home-page">
-      {/* Navbar */}
       <nav className="home-navbar container">
         <div className="home-logo">
           <span className="logo-icon">🍃</span>
@@ -47,7 +47,6 @@ const Home = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section className="container home-hero">
         <div className="row align-items-center g-5">
           <div className="col-12 col-lg-6">
@@ -65,16 +64,13 @@ const Home = () => {
               </p>
 
               <div className="d-flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  className="btn btn-success home-main-btn"
-                  onClick={() =>
-                    alert("This will go to Generate Recipe page later.")
-                  }
-                >
-                  Get Started →
-                </button>
-
+               <button
+  type="button"
+  className="btn btn-success home-main-btn"
+  onClick={() => navigate("/dashboard")}
+>
+  Get Started →
+</button>
                 <button
                   type="button"
                   className="btn btn-light border home-secondary-btn"
@@ -125,7 +121,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features Section (TARGET OF SCROLL) */}
       <section
         id="features-section"
         className="container home-features"
