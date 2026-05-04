@@ -15,7 +15,7 @@ app.use("/api/recipes", recipeRoutes);
 
 
 mongoose
-  .connect("process.env.MONGO_URL")
+.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error(err));
 

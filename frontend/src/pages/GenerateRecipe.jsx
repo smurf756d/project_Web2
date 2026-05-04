@@ -21,8 +21,11 @@ function GenerateRecipe() {
     setIngredientsList(updatedList);
   };
 
- const handleGenerateRecipe = async () => {
-  if (ingredientsList.length === 0) return;
+const handleGenerateRecipe = async () => {
+  if (ingredientsList.length === 0) {
+    alert("Please add at least one ingredient first");
+    return;
+  }
 
   try {
     const res = await fetch("/api/recipes/generate", {
@@ -38,11 +41,16 @@ function GenerateRecipe() {
       }),
     });
 
-    const data = await res.json();
-    setRecipePreview(data);
+    if (!res.ok) {
+      throw new Error("Failed to generate recipe");
+    }
 
+    const data = await res.json();
+    console.log("Generated recipe:", data);
+    setRecipePreview(data);
   } catch (err) {
     console.error(err);
+    alert("Error generating recipe. Check backend.");
   }
 };
 
@@ -134,35 +142,61 @@ function GenerateRecipe() {
             <h3>Recipe Preview</h3>
 
             <div className="preview-inner">
-              {recipePreview ? (
-                <div className="recipe-result text-start">
-                  <div className="preview-image">🍽️</div>
+             {recipePreview ? (
+  <div className="recipe-result text-start">
+    <div className="preview-image">🍽️</div>
 
-                  <h4 className="mb-3">{recipePreview.title}</h4>
+    <h4 className="mb-3">{recipePreview.title}</h4>
 
-                  <p><strong>Diet:</strong> {recipePreview.diet}</p>
-                  <p><strong>Cuisine:</strong> {recipePreview.cuisine}</p>
-                  <p><strong>Cooking Time:</strong> {recipePreview.cookingTime}</p>
-                  <p><strong>Calories:</strong> {recipePreview.calories}</p>
+    <p><strong>Diet:</strong> {recipePreview.diet}</p>
+    <p><strong>Cuisine:</strong> {recipePreview.cuisine}</p>
+    <p><strong>Cooking Time:</strong> {recipePreview.cookingTime}</p>
+    <p><strong>Calories:</strong> {recipePreview.calories}</p>
 
-                  <div className="mb-3">
-                    <strong>Ingredients:</strong>
-                    <ul>
-                      {recipePreview.ingredients.map((item, index) => (
-                        <li key={index}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
+    <div className="mb-3">
+      <strong>Ingredients:</strong>
+      <ul>
+        {recipePreview.ingredients.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
+      </ul>
+    </div>
 
-                  <div>
-                    <strong>Steps:</strong>
-                    <ol>
-                      {recipePreview.steps.map((step, index) => (
-                        <li key={index}>{step}</li>
-                      ))}
-                    </ol>
-                  </div>
-                </div>
+    <div>
+      <strong>Steps:</strong>
+      <ol>
+        {recipePreview.steps.map((step, index) => (
+          <li key={index}>{step}</li>
+        ))}
+      </ol>
+    </div>
+
+    <button
+      className="generate-btn"
+      onClick={async () => {
+        try {
+          const res = await fetch("/api/recipes", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(recipePreview),
+          });
+
+          if (!res.ok) {
+            throw new Error("Failed to save recipe");
+          }
+
+          alert("Recipe saved successfully!");
+        } catch (err) {
+          console.error(err);
+          alert("Error saving recipe");
+        }
+      }}
+    >
+      💾 Save Recipe
+    </button>
+  </div>
               ) : (
                 <>
                   <div className="preview-image">🍽️</div>
