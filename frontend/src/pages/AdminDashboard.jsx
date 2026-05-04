@@ -1,7 +1,8 @@
-import MostLikedRecipes from "./MostLikedRecipes";
-import RecentRecipes from "./RecentRecipes";
-import RecentUsers from "./RecentUsers";
-import StatsCards from "./StatsCards";
+import "./Admin.css";
+import StatsCards from "../components/StatsCards";
+import RecentUsers from "../components/RecentUsers";
+import RecentRecipes from "../components/RecentRecipes";
+import MostLikedRecipes from "../components/MostLikedRecipes";
 import { recentUsers, recentRecipes } from "../data/adminData";
 
 function AdminDashboard() {
@@ -12,8 +13,8 @@ const stats = {
   generated: 0,
 };
   return (
-  <div className="container py-4 text-dark">
-   <h1 className="mb-4 text-center text-dark">Admin Dashboard</h1>
+  <div className="container py-4 text-dark" style={{ backgroundColor: "#f4f8f4", minHeight: "100vh" }}>
+  <h1 className="mb-4 text-center text-dark fw-semibold">Admin Dashboard</h1>
    <div className="d-flex justify-content-between align-items-center mb-4">
   
   <input
@@ -51,9 +52,9 @@ const stats = {
           <span>Broccoli</span>
           <span>110</span>
         </div>
-        <div className="progress">
-          <div className="progress-bar bg-success" style={{ width: "70%" }}></div>
-        </div>
+       <div className="progress">
+  <div className="progress-bar" style={{ width: "85%", backgroundColor: "#6fbf73" }}></div>
+</div>
       </div>
 
       <div>
