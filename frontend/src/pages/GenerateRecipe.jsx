@@ -8,7 +8,7 @@ function GenerateRecipe() {
   const [maxCookingTime, setMaxCookingTime] = useState("30 - 60 mins");
   const [cuisineType, setCuisineType] = useState("Any");
   const [recipePreview, setRecipePreview] = useState(null);
-
+const [loading, setLoading] = useState(false);
   const handleAdd = () => {
     if (ingredient.trim() === "") return;
 
@@ -28,6 +28,8 @@ const handleGenerateRecipe = async () => {
   }
 
   try {
+    setLoading(true);
+
     const res = await fetch("/api/recipes/generate", {
       method: "POST",
       headers: {
@@ -46,11 +48,12 @@ const handleGenerateRecipe = async () => {
     }
 
     const data = await res.json();
-    console.log("Generated recipe:", data);
     setRecipePreview(data);
   } catch (err) {
     console.error(err);
-    alert("Error generating recipe. Check backend.");
+    alert("Error generating recipe");
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -131,9 +134,14 @@ const handleGenerateRecipe = async () => {
               </select>
             </div>
 
-            <button className="generate-btn" onClick={handleGenerateRecipe}>
-              ✨ Generate Recipe →
-            </button>
+        
+<button
+  className="generate-btn"
+  onClick={handleGenerateRecipe}
+  disabled={loading}
+>
+  {loading ? "Generating..." : "✨ Generate Recipe →"}
+</button>
           </div>
         </div>
 
