@@ -1,14 +1,18 @@
 .admin-dashboard {
   width: 100%;
-  max-width: 1120px;
+  max-width: 1180px;
   min-height: calc(100vh - 60px);
   margin: 0 auto;
-  padding: 0;
+  padding: 24px;
   background: #f7fbf5;
   border-radius: 22px;
   color: #253125;
   box-sizing: border-box;
   overflow-x: hidden;
+}
+
+.dashboard-heading {
+  margin-bottom: 34px;
 }
 
 .dashboard-heading h1 {
@@ -37,6 +41,39 @@
   margin: 0;
 }
 
+.dashboard-actions {
+  padding: 0 18px;
+  margin-bottom: 28px !important;
+}
+
+.dashboard-actions .form-control {
+  width: 44% !important;
+  max-width: 520px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid #dfe8dc;
+  box-shadow: 0 4px 12px rgba(70, 100, 70, 0.08);
+}
+
+.dashboard-actions .btn-success {
+  margin-right: 6px;
+  background-color: #68a96f;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 22px;
+  font-weight: 600;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.dashboard-actions .btn-success:hover {
+  background-color: #5d9964;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(70, 100, 70, 0.22);
+}
+
 .admin-dashboard .card {
   border: none !important;
   border-radius: 16px;
@@ -53,31 +90,14 @@
 .admin-dashboard .row {
   width: 100%;
   margin: 0;
+  --bs-gutter-x: 1.4rem;
+  --bs-gutter-y: 1.4rem;
 }
 
 .admin-dashboard .col-md-8,
 .admin-dashboard .col-md-4 {
   padding-left: 10px;
   padding-right: 10px;
-}
-
-.admin-dashboard .form-control {
-  height: 38px;
-  border-radius: 12px;
-  border: 1px solid #dfe8dc;
-  box-shadow: 0 4px 12px rgba(70, 100, 70, 0.08);
-}
-
-.admin-dashboard .btn-success {
-  background-color: #68a96f;
-  border: none;
-  border-radius: 10px;
-  padding: 8px 18px;
-  font-weight: 600;
-}
-
-.admin-dashboard .btn-success:hover {
-  background-color: #5d9964;
 }
 
 .admin-dashboard .progress {
@@ -106,21 +126,24 @@
 
 @media (max-width: 992px) {
   .admin-dashboard {
-    padding: 0;
+    padding: 14px;
   }
 
-  .admin-dashboard .d-flex.justify-content-between.align-items-center.mb-4 {
+  .admin-dashboard .dashboard-actions {
     flex-direction: column;
     align-items: stretch !important;
     gap: 12px;
+    padding: 0;
   }
 
-  .admin-dashboard .form-control.w-50 {
+  .dashboard-actions .form-control {
     width: 100% !important;
+    max-width: 100%;
   }
 
-  .admin-dashboard .btn-success {
+  .dashboard-actions .btn-success {
     width: 100%;
+    margin-right: 0;
   }
 
   .admin-dashboard .col-md-8,
