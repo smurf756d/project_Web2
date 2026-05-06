@@ -4,18 +4,12 @@ import Home from "./pages/Home";
 import UserDashboard from "./pages/UserDashboard";
 import GenerateRecipe from "./pages/GenerateRecipe";
 import AdminDashboard from "./pages/AdminDashboard";
+import MyRecipes from "./pages/MyRecipes";
+import Favorites from "./pages/Favorites";
 import HelpTips from "./pages/HelpTips";
 
 function BrowseRecipes() {
   return <h2>Browse Recipes Page</h2>;
-}
-
-function MyRecipes() {
-  return <h2>My Recipes Page</h2>;
-}
-
-function Favorites() {
-  return <h2>Favorites Page</h2>;
 }
 
 function App() {
