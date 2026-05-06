@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import UserDashboard from "./pages/UserDashboard";
 import GenerateRecipe from "./pages/GenerateRecipe";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function BrowseRecipes() {
   return <h2>Browse Recipes Page</h2>;
@@ -33,6 +34,7 @@ function App() {
           <Route path="my-recipes" element={<MyRecipes />} />
           <Route path="favorites" element={<Favorites />} />
           <Route path="help" element={<Help />} />
+          <Route path="admin-dashboard" element={<AdminDashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>
