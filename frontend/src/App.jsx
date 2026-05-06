@@ -1,15 +1,32 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import UserDashboard from "./pages/UserDashboard";
+import GenerateRecipe from "./pages/GenerateRecipe";
+import AdminDashboard from "./pages/AdminDashboard";
 import MyRecipes from "./pages/MyRecipes";
 import Favorites from "./pages/Favorites";
 import HelpTips from "./pages/HelpTips";
+
+function BrowseRecipes() {
+  return <h2>Browse Recipes Page</h2>;
+}
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MyRecipes />} />
-        <Route path="/favorites" element={<Favorites />} />
-        <Route path="/help" element={<HelpTips />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="home" element={<Home />} />
+          <Route path="dashboard" element={<UserDashboard />} />
+          <Route path="generate-recipe" element={<GenerateRecipe />} />
+          <Route path="browse-recipes" element={<BrowseRecipes />} />
+          <Route path="my-recipes" element={<MyRecipes />} />
+          <Route path="favorites" element={<Favorites />} />
+          <Route path="help" element={<HelpTips />} />
+          <Route path="admin-dashboard" element={<AdminDashboard />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
