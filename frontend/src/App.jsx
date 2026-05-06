@@ -1,14 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import UserDashboard from "./pages/UserDashboard";
 import GenerateRecipe from "./pages/GenerateRecipe";
-
-function Home() {
-  return <h2>Home Page</h2>;
-}
-
-function Dashboard() {
-  return <h2>User Dashboard</h2>;
-}
 
 function BrowseRecipes() {
   return <h2>Browse Recipes Page</h2>;
@@ -32,7 +26,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="home" element={<Home />} />
+          <Route path="dashboard" element={<UserDashboard />} />
           <Route path="generate-recipe" element={<GenerateRecipe />} />
           <Route path="browse-recipes" element={<BrowseRecipes />} />
           <Route path="my-recipes" element={<MyRecipes />} />
