@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import UserDashboard from "./pages/UserDashboard";
 import GenerateRecipe from "./pages/GenerateRecipe";
 import AdminDashboard from "./pages/AdminDashboard";
+import HelpTips from "./pages/HelpTips";
 
 function BrowseRecipes() {
   return <h2>Browse Recipes Page</h2>;
@@ -15,10 +16,6 @@ function MyRecipes() {
 
 function Favorites() {
   return <h2>Favorites Page</h2>;
-}
-
-function Help() {
-  return <h2>Help & Tips Page</h2>;
 }
 
 function App() {
@@ -33,7 +30,7 @@ function App() {
           <Route path="browse-recipes" element={<BrowseRecipes />} />
           <Route path="my-recipes" element={<MyRecipes />} />
           <Route path="favorites" element={<Favorites />} />
-          <Route path="help" element={<Help />} />
+          <Route path="help" element={<HelpTips />} />
           <Route path="admin-dashboard" element={<AdminDashboard />} />
         </Route>
       </Routes>
