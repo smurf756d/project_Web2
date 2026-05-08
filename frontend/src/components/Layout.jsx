@@ -1,4 +1,4 @@
-import "../css/Layout.css";
+import "../styles/Layout.css";
 import { Link, Outlet } from "react-router-dom";
 
 function Layout() {

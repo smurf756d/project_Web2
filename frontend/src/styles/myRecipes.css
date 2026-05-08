@@ -6,6 +6,7 @@
   overflow-x: hidden;
   box-sizing: border-box;
   border-radius: 24px;
+  padding: 24px;
 }
 
 .my-recipes-main {
@@ -13,7 +14,7 @@
   max-width: 1120px;
   min-height: calc(100vh - 60px);
   margin: 0 auto;
-  padding: 24px;
+  padding: 0;
   overflow-x: hidden;
   box-sizing: border-box;
 }
