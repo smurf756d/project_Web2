@@ -1,5 +1,10 @@
 const express = require("express");
+
 const { protect } = require("../../middleware/auth.middleware");
+
+const {
+  validateCreateRecipe,
+} = require("../../validators/myRecipe.validator");
 
 const {
   createMyRecipe,
@@ -13,7 +18,11 @@ const router = express.Router();
 router
   .route("/")
   .get(protect, getMyRecipes)
-  .post(protect, createMyRecipe);
+  .post(
+    protect,
+    validateCreateRecipe,
+    createMyRecipe
+  );
 
 router
   .route("/:id")
