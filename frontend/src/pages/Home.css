@@ -6,9 +6,10 @@
   background:
     radial-gradient(circle at top left, rgba(137, 194, 129, 0.25), transparent 34%),
     linear-gradient(135deg, #eef7e8 0%, #f9fff6 100%);
-  padding: 0;
+  padding: 24px;
   overflow-x: hidden;
   box-sizing: border-box;
+  border-radius: 24px;
 }
 
 .home-navbar {
@@ -53,7 +54,7 @@
   background: #ffffff;
   border: 1px solid #e3ebdf;
   border-radius: 28px;
-  padding: 36px;
+  padding: 42px;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
 }
 
@@ -247,6 +248,7 @@
 @media (max-width: 991px) {
   .home-page {
     max-width: 100%;
+    padding: 18px;
   }
 
   .home-hero {
@@ -267,6 +269,9 @@
 }
 
 @media (max-width: 576px) {
+  .home-page{
+    padding: 14px;
+  }
   .home-navbar {
     flex-direction: column;
     gap: 14px;
