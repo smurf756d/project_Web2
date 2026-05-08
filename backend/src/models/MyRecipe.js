@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const recipeSchema = new mongoose.Schema(
+const myRecipeSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -33,12 +33,6 @@ const recipeSchema = new mongoose.Schema(
       required: true,
     },
 
-    isFavorite: {
-      type: Boolean,
-      default: false,
-    },
-
-    // Link recipe to the logged-in user
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -50,4 +44,4 @@ const recipeSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Recipe", recipeSchema);
+module.exports = mongoose.model("MyRecipe", myRecipeSchema);

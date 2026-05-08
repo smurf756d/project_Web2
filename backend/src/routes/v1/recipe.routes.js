@@ -1,8 +1,8 @@
 const express = require("express");
 
-const router = express.Router();
-
 const { protect } = require("../../middleware/auth.middleware");
+
+const router = express.Router();
 
 /**
  * @route   GET /api/v1/recipes

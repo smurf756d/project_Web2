@@ -1,29 +1,19 @@
 require("dotenv").config();
-const express = require("express");
 const mongoose = require("mongoose");
+const app = require("./app");
 
-const PORT = 5000;
-const app = express();
-
-const recipeRoutes = require("./routes/recipes");
-
-
-app.use(express.json());
-
-
-app.use("/api/recipes", recipeRoutes);
-
+const PORT = process.env.PORT || 5000;
 
 mongoose
-.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error(err));
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB connected");
 
-
-app.get("/", (req, res) => {
-  res.send("API is running");
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection failed:", err.message);
+    process.exit(1);
+  });

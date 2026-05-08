@@ -3,17 +3,13 @@ const Recipe = require("../models/Recipe");
 async function generateRecipe(data) {
   const { ingredients, diet, cookingTime, cuisine } = data;
 
-  // لاحقاً AI
+  // Placeholder for future AI integration
   return {
     title: "AI Generated Recipe",
     ingredients,
-    steps: [
-      "Prepare ingredients",
-      "Cook everything",
-      "Serve and enjoy"
-    ],
-    cookingTime,
-    calories: "400 kcal",
+    instructions: "Prepare ingredients. Cook everything. Serve and enjoy.",
+    time: cookingTime,
+    calories: 400,
     diet,
     cuisine,
   };
@@ -24,14 +20,16 @@ async function saveRecipe(recipe) {
   return await newRecipe.save();
 }
 
-async function getAllRecipes() {
-  return await Recipe.find().sort({ createdAt: -1 });
+async function getAllRecipes(userId) {
+  return await Recipe.find({ user: userId }).sort({ createdAt: -1 });
 }
 
-async function deleteRecipe(id) {
-  return await Recipe.findByIdAndDelete(id);
+async function deleteRecipe(id, userId) {
+  return await Recipe.findOneAndDelete({
+    _id: id,
+    user: userId,
+  });
 }
-
 
 module.exports = {
   generateRecipe,

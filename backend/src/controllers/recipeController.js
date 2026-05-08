@@ -10,13 +10,32 @@ async function generateRecipe(req, res) {
   }
 }
 
+/**
+ * @desc    Create new recipe
+ * @route   POST /api/v1/recipes
+ * @access  Private
+ */
 async function createRecipe(req, res) {
   try {
-    const recipe = await recipeService.saveRecipe(req.body);
-    res.status(201).json(recipe);
+    const recipe = await recipeService.saveRecipe({
+      ...req.body,
+
+      // Link recipe to logged-in user
+      user: req.user._id,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Recipe created successfully",
+      data: recipe,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 }
 
