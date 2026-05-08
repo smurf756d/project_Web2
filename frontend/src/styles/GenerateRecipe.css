@@ -268,3 +268,32 @@ body {
     width: 100%;
   }
 }
+
+.form-error-message {
+  color: #b42318;
+  background: #fff1f1;
+  border: 1px solid #ffd2d2;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 12px auto 0;
+  max-width: 520px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.form-success-message {
+  color: #2f714b;
+  background: #eef8f1;
+  border: 1px solid #cce8d4;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 12px auto 0;
+  max-width: 520px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.generate-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

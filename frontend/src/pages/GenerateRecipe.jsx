@@ -8,13 +8,28 @@ function GenerateRecipe() {
   const [maxCookingTime, setMaxCookingTime] = useState("30 - 60 mins");
   const [cuisineType, setCuisineType] = useState("Any");
   const [recipePreview, setRecipePreview] = useState(null);
-const [loading, setLoading] = useState(false);
-  const handleAdd = () => {
-    if (ingredient.trim() === "") return;
+ const [loading, setLoading] = useState(false);
+ const [saving, setSaving] = useState(false);
+ const [errorMessage, setErrorMessage] = useState("");
+ const [successMessage, setSuccessMessage] = useState("");
 
-    setIngredientsList([...ingredientsList, ingredient]);
-    setIngredient("");
-  };
+  const handleAdd = () => {
+  const trimmedIngredient = ingredient.trim();
+
+  if (trimmedIngredient === "") {
+    setErrorMessage("Please enter an ingredient.");
+    return;
+  }
+
+  if (ingredientsList.includes(trimmedIngredient)) {
+    setErrorMessage("This ingredient is already added.");
+    return;
+  }
+
+  setIngredientsList([...ingredientsList, trimmedIngredient]);
+  setIngredient("");
+  setErrorMessage("");
+};
 
   const handleRemove = (indexToRemove) => {
     const updatedList = ingredientsList.filter((item, index) => index !== indexToRemove);
@@ -23,12 +38,14 @@ const [loading, setLoading] = useState(false);
 
 const handleGenerateRecipe = async () => {
   if (ingredientsList.length === 0) {
-    alert("Please add at least one ingredient first");
+    setErrorMessage("Please add at least one ingredient first.");
     return;
   }
 
   try {
     setLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
 
     const res = await fetch("/api/recipes/generate", {
       method: "POST",
@@ -43,17 +60,50 @@ const handleGenerateRecipe = async () => {
       }),
     });
 
+    const data = await res.json();
+
     if (!res.ok) {
-      throw new Error("Failed to generate recipe");
+      throw new Error(data.message || "Failed to generate recipe");
     }
 
-    const data = await res.json();
-    setRecipePreview(data);
+    setRecipePreview(data.data);
   } catch (err) {
-    console.error(err);
-    alert("Error generating recipe");
+    setErrorMessage(err.message || "Error generating recipe.");
   } finally {
     setLoading(false);
+  }
+};
+
+const handleSaveRecipe = async () => {
+  if (!recipePreview) {
+    setErrorMessage("No recipe to save.");
+    return;
+  }
+
+  try {
+    setSaving(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    const res = await fetch("/api/recipes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(recipePreview),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to save recipe");
+    }
+
+    setSuccessMessage("Recipe saved successfully!");
+  } catch (err) {
+    setErrorMessage(err.message || "Error saving recipe.");
+  } finally {
+    setSaving(false);
   }
 };
 
@@ -61,6 +111,8 @@ const handleGenerateRecipe = async () => {
     <div className="generate-recipe-page">
       <div className="page-header mb-4">
         <h1 className="page-title">Generate Recipe</h1>
+        {errorMessage && <p className="form-error-message">{errorMessage}</p>}
+         {successMessage && <p className="form-success-message">{successMessage}</p>}
       </div>
 
       <div className="row g-4">
@@ -179,31 +231,13 @@ const handleGenerateRecipe = async () => {
       </ol>
     </div>
 
-    <button
-      className="generate-btn"
-      onClick={async () => {
-        try {
-          const res = await fetch("/api/recipes", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(recipePreview),
-          });
-
-          if (!res.ok) {
-            throw new Error("Failed to save recipe");
-          }
-
-          alert("Recipe saved successfully!");
-        } catch (err) {
-          console.error(err);
-          alert("Error saving recipe");
-        }
-      }}
-    >
-      💾 Save Recipe
-    </button>
+   <button
+  className="generate-btn"
+  onClick={handleSaveRecipe}
+  disabled={saving}
+>
+  {saving ? "Saving..." : "💾 Save Recipe"}
+</button>
   </div>
               ) : (
                 <>
