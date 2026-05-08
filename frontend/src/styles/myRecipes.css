@@ -5,6 +5,7 @@
   color: #253125;
   overflow-x: hidden;
   box-sizing: border-box;
+  border-radius: 24px;
 }
 
 .my-recipes-main {
@@ -12,7 +13,7 @@
   max-width: 1120px;
   min-height: calc(100vh - 60px);
   margin: 0 auto;
-  padding: 0;
+  padding: 24px;
   overflow-x: hidden;
   box-sizing: border-box;
 }
@@ -534,6 +535,9 @@
 }
 
 @media (max-width: 992px) {
+  .my-recipes-main{
+    padding: 18px;
+  }
   .my-topbar,
   .recipes-toolbar {
     flex-direction: column;
