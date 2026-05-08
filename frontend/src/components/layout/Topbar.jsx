@@ -1,4 +1,4 @@
-function Topbar({ searchTerm, onSearchChange }) {
+function Topbar() {
   return (
     <header className="my-topbar">
       <div>
@@ -7,16 +7,6 @@ function Topbar({ searchTerm, onSearchChange }) {
       </div>
 
       <div className="topbar-actions">
-        <div className="search-box">
-          <i className="bi bi-search"></i>
-          <input
-            type="text"
-            placeholder="Search recipes..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
-
         <button className="icon-btn">
           <i className="bi bi-bell"></i>
         </button>
