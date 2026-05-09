@@ -9,12 +9,12 @@ import { useNavigate } from "react-router-dom";
 const UserDashboard = () => {
   const navigate = useNavigate();
 
-  const user = {
-    name: "Rama",
-    savedRecipes: 0,
-    generatedToday: 0,
-    favoriteDish: "Not selected yet",
-  };
+ const user = {
+  name: localStorage.getItem("userName") || "User",
+  savedRecipes: 0,
+  generatedToday: 0,
+  favoriteDish: "Not selected yet",
+};
 
   const stats = [
     {
