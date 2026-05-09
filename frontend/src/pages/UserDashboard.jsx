@@ -1,38 +1,22 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import StatsCards from "../components/dashboard/StatsCards";
 import RecommendedRecipes from "../components/dashboard/RecommendedRecipes";
 import DietPreferencesCard from "../components/dashboard/DietPreferencesCard";
 import MyRecipesCard from "../components/dashboard/MyRecipesCard";
 import QuickGenerateCard from "../components/dashboard/QuickGenerateCard";
+import { getDashboardData } from "../services/dashboardService";
 import "./UserDashboard.css";
-import { useNavigate } from "react-router-dom";
+
 const UserDashboard = () => {
   const navigate = useNavigate();
-  const user = {
-    name: "Rama",
-    savedRecipes: 12,
-    generatedToday: 3,
-    favoriteDish: "Grilled Chicken",
-  };
 
-  const stats = [
-    {
-      label: "Saved Recipes",
-      value: user.savedRecipes,
-      variant: "green",
-    },
-    {
-      label: "Generated Today",
-      value: user.generatedToday,
-      variant: "blue",
-    },
-    {
-      label: "Favorite Dish",
-      value: user.favoriteDish,
-      variant: "orange",
-    },
-  ];
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const suggestedRecipes = [
+  const suggestedRecipesFallback = [
     {
       id: 1,
       title: "Chicken Stir Fry",
@@ -59,39 +43,92 @@ const UserDashboard = () => {
     },
   ];
 
-  const dietPreferences = [
-    { id: 1, label: "Vegetarian", enabled: false },
-    { id: 2, label: "Low Carb", enabled: true },
-    { id: 3, label: "High Protein", enabled: true },
-  ];
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-  const myRecipes = [
-    {
-      id: 1,
-      title: "Grilled Chicken",
-      date: "Apr 20, 2025",
-      image:
-        "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200",
-    },
-    {
-      id: 2,
-      title: "Quinoa Salad",
-      date: "Apr 18, 2025",
-      image:
-        "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=200",
-    },
-    {
-      id: 3,
-      title: "Veggie Soup",
-      date: "Apr 15, 2025",
-      image:
-        "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200",
-    },
-  ];
+        if (!token) {
+          setError("You must be logged in to view the dashboard.");
+          setLoading(false);
+          return;
+        }
+
+        const response = await getDashboardData(token);
+        setDashboardData(response.data.data);
+      } catch (err) {
+        setError("Failed to load dashboard data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
 
   const handleGoToGenerateRecipe = () => {
-    alert("Redirecting to Generate Recipe page...");
-  };
+  navigate("/generate-recipe");
+};
+  if (loading) {
+    return (
+      <main className="user-dashboard-page">
+        <div className="dashboard-card text-center">
+          <p className="mb-0">Loading dashboard...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="user-dashboard-page">
+        <div className="dashboard-card text-center">
+          <h5 className="text-danger mb-2">Dashboard Error</h5>
+          <p className="mb-0">{error}</p>
+        </div>
+      </main>
+    );
+  }
+
+  const user = dashboardData.user;
+
+  const stats = [
+    {
+      label: "Saved Recipes",
+      value: dashboardData.stats.savedRecipes,
+      variant: "green",
+    },
+    {
+      label: "Generated Today",
+      value: dashboardData.stats.generatedToday,
+      variant: "blue",
+    },
+    {
+      label: "Favorite Dish",
+      value: dashboardData.stats.favoriteDish,
+      variant: "orange",
+    },
+  ];
+
+  const suggestedRecipes =
+    dashboardData.suggestedRecipes.length > 0
+      ? dashboardData.suggestedRecipes
+      : suggestedRecipesFallback;
+
+  const dietPreferences = dashboardData.dietPreferences.map((item, index) => ({
+    id: index + 1,
+    label: item.label,
+    enabled: item.enabled,
+  }));
+
+  const myRecipes = dashboardData.myRecipes.map((recipe) => ({
+    id: recipe._id,
+    title: recipe.title,
+    date: new Date(recipe.createdAt).toLocaleDateString(),
+    image:
+      recipe.image ||
+      "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200",
+  }));
 
   return (
     <main className="user-dashboard-page">
