@@ -302,7 +302,11 @@ export default function RegisterForm({ setActiveTab }) {
                     {loading ? <span className="spinner"></span> : "Create Account →"}
                 </button>
             </form>
-            <SocialButtons />
+
+
+            <div className="social-area">
+                <SocialButtons />
+            </div>
         </div>
     );
 }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./components/Layout";
@@ -12,33 +13,52 @@ import HelpTips from "./pages/HelpTips";
 import AuthPage from "./pages/AuthPage";
 
 function BrowseRecipes() {
-  return <h2>Browse Recipes Page</h2>;
+    return <h2>Browse Recipes Page</h2>;
 }
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
 
-        {/* Auth */}
-        <Route path="/auth" element={<AuthPage />} />
+    useEffect(() => {
+        const hash = window.location.hash;
 
-        {/* Main Layout */}
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="home" element={<Home />} />
-          <Route path="dashboard" element={<UserDashboard />} />
-          <Route path="generate-recipe" element={<GenerateRecipe />} />
-          <Route path="browse-recipes" element={<BrowseRecipes />} />
-          <Route path="my-recipes" element={<MyRecipes />} />
-          <Route path="favorites" element={<Favorites />} />
-          <Route path="help" element={<HelpTips />} />
-          <Route path="admin-dashboard" element={<AdminDashboard />} />
-        </Route>
+        if (hash.includes("token=")) {
+            const token = hash.split("token=")[1];
 
-      </Routes>
-    </BrowserRouter>
-  );
+            localStorage.setItem("token", token);
+
+            window.history.replaceState(
+                {},
+                document.title,
+                window.location.pathname
+            );
+
+            alert("Google login successful");
+        }
+    }, []);
+
+    return (
+        <BrowserRouter>
+            <Routes>
+
+                {/* Auth */}
+                <Route path="/auth" element={<AuthPage />} />
+
+                {/* Main Layout */}
+                <Route path="/" element={<Layout />}>
+                    <Route index element={<Home />} />
+                    <Route path="home" element={<Home />} />
+                    <Route path="dashboard" element={<UserDashboard />} />
+                    <Route path="generate-recipe" element={<GenerateRecipe />} />
+                    <Route path="browse-recipes" element={<BrowseRecipes />} />
+                    <Route path="my-recipes" element={<MyRecipes />} />
+                    <Route path="favorites" element={<Favorites />} />
+                    <Route path="help" element={<HelpTips />} />
+                    <Route path="admin-dashboard" element={<AdminDashboard />} />
+                </Route>
+
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
 export default App;

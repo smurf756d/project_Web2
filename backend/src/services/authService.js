@@ -114,42 +114,13 @@ const handleGoogleUser = async (profile) => {
     return user;
 };
 
-/**
- * Finds or creates a user from Facebook profile.
- */
-const handleFacebookUser = async (profile) => {
-    const email = profile.emails?.[0]?.value;
-    const profileImage = profile.photos?.[0]?.value;
 
-    let user = await User.findOne({ facebookId: profile.id });
 
-    if (!user && email) {
-        user = await User.findOne({ email });
-    }
-
-    if (!user) {
-        user = await User.create({
-            fullName: profile.displayName || "Facebook User",
-            email,
-            facebookId: profile.id,
-            provider: "facebook",
-            profileImage: profileImage || null,
-            isEmailVerified: true,
-        });
-    } else {
-        user.facebookId = profile.id;
-        user.provider = user.provider || "facebook";
-        user.profileImage = user.profileImage || profileImage;
-        await user.save();
-    }
-
-    return user;
-};
 
 module.exports = {
     registerUser,
     loginUser,
     getUserProfile,
     handleGoogleUser,
-    handleFacebookUser,
+
 };

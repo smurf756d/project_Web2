@@ -29,7 +29,7 @@ app.use(
  * Allows the backend to read JSON request bodies.
  * The limit is increased because profile images may be sent as base64 temporarily.
  */
-app.use(express.json({ limit: "5mb" }));
+app.use(express.json({ limit: "20mb" }));
 
 /**
  * Session is required for Passport OAuth redirect flow.

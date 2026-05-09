@@ -51,8 +51,7 @@ export default function LoginForm({ setActiveTab }) {
 
             alert("Login successful");
 
-            //  home route:
-            // navigate("/home");
+
         } catch (error) {
             setErrors({
                 api: error.response?.data?.message || "Login failed. Please try again.",
@@ -140,14 +139,26 @@ export default function LoginForm({ setActiveTab }) {
                     <label>
                         <input type="checkbox" defaultChecked /> Remember me
                     </label>
-                    <button type="button">Forgot password?</button>
+                    <button
+                        type="button"
+                        onClick={() =>
+                            alert("Password reset feature will be available soon.")
+                        }
+                    >
+                        Forgot password?
+                    </button>
                 </div>
 
                 <button className="main-btn login-btn" disabled={loading}>
                     {loading ? <span className="spinner"></span> : "Login"}
                 </button>
             </form>
-            <SocialButtons />
+
+
+
+    <div className="social-area">
+        <SocialButtons />
+    </div>
 
         </div>
     );
