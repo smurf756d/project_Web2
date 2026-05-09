@@ -7,7 +7,11 @@ const {
   generateRecipe,
   createRecipe,
   getRecipes,
+  getRecipeById,
+  updateRecipe,
+  patchRecipe,
   deleteRecipe,
+  deleteAllRecipes,
 } = require("../controllers/generateRecipeController");
 
 /**
@@ -43,9 +47,16 @@ const {
  *         cuisine:
  *           type: string
  *           example: Arabic
- *
  *     Recipe:
  *       type: object
+ *       required:
+ *         - title
+ *         - ingredients
+ *         - steps
+ *         - cookingTime
+ *         - calories
+ *         - diet
+ *         - cuisine
  *       properties:
  *         title:
  *           type: string
@@ -91,11 +102,7 @@ const {
  *         description: Recipe generated successfully
  *       400:
  *         description: Invalid input data
- *       500:
- *         description: Internal server error
  */
-
-//Generate recipe endpoint
 router.post("/generate", validateGenerateRecipe, generateRecipe);
 
 /**
@@ -115,8 +122,6 @@ router.post("/generate", validateGenerateRecipe, generateRecipe);
  *         description: Recipe saved successfully
  *       400:
  *         description: Invalid recipe data
- *       500:
- *         description: Internal server error
  */
 router.post("/", createRecipe);
 
@@ -129,10 +134,85 @@ router.post("/", createRecipe);
  *     responses:
  *       200:
  *         description: List of saved recipes
- *       500:
- *         description: Internal server error
  */
 router.get("/", getRecipes);
+
+/**
+ * @swagger
+ * /api/recipes/{id}:
+ *   get:
+ *     summary: Get recipe by id
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: MongoDB recipe id
+ *     responses:
+ *       200:
+ *         description: Recipe found
+ *       404:
+ *         description: Recipe not found
+ */
+router.get("/:id", getRecipeById);
+
+/**
+ * @swagger
+ * /api/recipes/{id}:
+ *   put:
+ *     summary: Update full recipe by id
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: MongoDB recipe id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Recipe'
+ *     responses:
+ *       200:
+ *         description: Recipe updated successfully
+ *       404:
+ *         description: Recipe not found
+ */
+router.put("/:id", updateRecipe);
+
+/**
+ * @swagger
+ * /api/recipes/{id}:
+ *   patch:
+ *     summary: Update selected recipe fields by id
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: MongoDB recipe id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             example:
+ *               calories: "350 kcal"
+ *     responses:
+ *       200:
+ *         description: Recipe partially updated successfully
+ *       404:
+ *         description: Recipe not found
+ */
+router.patch("/:id", patchRecipe);
 
 /**
  * @swagger
@@ -152,9 +232,19 @@ router.get("/", getRecipes);
  *         description: Recipe deleted successfully
  *       404:
  *         description: Recipe not found
- *       500:
- *         description: Internal server error
  */
 router.delete("/:id", deleteRecipe);
+
+/**
+ * @swagger
+ * /api/recipes:
+ *   delete:
+ *     summary: Delete all recipes
+ *     tags: [Recipes]
+ *     responses:
+ *       200:
+ *         description: All recipes deleted successfully
+ */
+router.delete("/", deleteAllRecipes);
 
 module.exports = router;
