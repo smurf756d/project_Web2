@@ -1,22 +1,40 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import StatsCards from "../components/dashboard/StatsCards";
 import RecommendedRecipes from "../components/dashboard/RecommendedRecipes";
 import DietPreferencesCard from "../components/dashboard/DietPreferencesCard";
 import MyRecipesCard from "../components/dashboard/MyRecipesCard";
 import QuickGenerateCard from "../components/dashboard/QuickGenerateCard";
-import { getDashboardData } from "../services/dashboardService";
 import "./UserDashboard.css";
+import { useNavigate } from "react-router-dom";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
 
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const user = {
+    name: "Rama",
+    savedRecipes: 0,
+    generatedToday: 0,
+    favoriteDish: "Not selected yet",
+  };
 
-  const suggestedRecipesFallback = [
+  const stats = [
+    {
+      label: "Saved Recipes",
+      value: user.savedRecipes,
+      variant: "green",
+    },
+    {
+      label: "Generated Today",
+      value: user.generatedToday,
+      variant: "blue",
+    },
+    {
+      label: "Favorite Dish",
+      value: user.favoriteDish,
+      variant: "orange",
+    },
+  ];
+
+  const suggestedRecipes = [
     {
       id: 1,
       title: "Chicken Stir Fry",
@@ -43,99 +61,28 @@ const UserDashboard = () => {
     },
   ];
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          setError("You must be logged in to view the dashboard.");
-          setLoading(false);
-          return;
-        }
-
-        const response = await getDashboardData(token);
-        setDashboardData(response.data.data);
-      } catch (err) {
-        setError("Failed to load dashboard data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboard();
-  }, []);
-
-  const handleGoToGenerateRecipe = () => {
-  navigate("/generate-recipe");
-};
-  if (loading) {
-    return (
-      <main className="user-dashboard-page">
-        <div className="dashboard-card text-center">
-          <p className="mb-0">Loading dashboard...</p>
-        </div>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className="user-dashboard-page">
-        <div className="dashboard-card text-center">
-          <h5 className="text-danger mb-2">Dashboard Error</h5>
-          <p className="mb-0">{error}</p>
-        </div>
-      </main>
-    );
-  }
-
-  const user = dashboardData.user;
-
-  const stats = [
-    {
-      label: "Saved Recipes",
-      value: dashboardData.stats.savedRecipes,
-      variant: "green",
-    },
-    {
-      label: "Generated Today",
-      value: dashboardData.stats.generatedToday,
-      variant: "blue",
-    },
-    {
-      label: "Favorite Dish",
-      value: dashboardData.stats.favoriteDish,
-      variant: "orange",
-    },
+  const dietPreferences = [
+    { id: 1, label: "Vegetarian", enabled: false },
+    { id: 2, label: "Low Carb", enabled: false },
+    { id: 3, label: "High Protein", enabled: false },
   ];
 
-  const suggestedRecipes =
-    dashboardData.suggestedRecipes.length > 0
-      ? dashboardData.suggestedRecipes
-      : suggestedRecipesFallback;
+  const myRecipes = [];
 
-  const dietPreferences = dashboardData.dietPreferences.map((item, index) => ({
-    id: index + 1,
-    label: item.label,
-    enabled: item.enabled,
-  }));
-
-  const myRecipes = dashboardData.myRecipes.map((recipe) => ({
-    id: recipe._id,
-    title: recipe.title,
-    date: new Date(recipe.createdAt).toLocaleDateString(),
-    image:
-      recipe.image ||
-      "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200",
-  }));
+  const handleGoToGenerateRecipe = () => {
+    navigate("/generate-recipe");
+  };
 
   return (
     <main className="user-dashboard-page">
       <section className="welcome-banner mb-4">
         <div>
           <p className="dashboard-label mb-2">User Dashboard</p>
-          <h2 className="welcome-title">Welcome back, {user.name}! 👋</h2>
+
+          <h2 className="welcome-title">
+            Welcome back, {user.name}! 👋
+          </h2>
+
           <p className="welcome-subtitle">
             Manage your recipes, preferences, and personalized cooking journey.
           </p>
@@ -153,6 +100,7 @@ const UserDashboard = () => {
           <QuickGenerateCard onGenerateClick={handleGoToGenerateRecipe} />
         </div>
 
+
         <div className="col-12 col-xl-4">
           <StatsCards stats={stats} />
         </div>
@@ -166,7 +114,19 @@ const UserDashboard = () => {
         </div>
 
         <div className="col-12 col-lg-7">
-          <MyRecipesCard recipes={myRecipes} />
+          {myRecipes.length === 0 ? (
+            <div className="dashboard-card text-center py-5 h-100">
+              <div className="empty-recipes-icon">🍳</div>
+
+              <h5 className="mt-3 mb-2">No recipes yet</h5>
+
+              <p className="text-muted mb-0">
+                Start generating recipes and your saved meals will appear here.
+              </p>
+            </div>
+          ) : (
+            <MyRecipesCard recipes={myRecipes} />
+          )}
         </div>
       </div>
     </main>
