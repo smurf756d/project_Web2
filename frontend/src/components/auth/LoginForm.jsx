@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { login } from "../../services/authService";
+import {
+    login,
+    getProfile,
+} from "../../services/authService";
 import SocialButtons from "./SocialButtons";
 
 export default function LoginForm({ setActiveTab }) {
@@ -39,7 +42,12 @@ export default function LoginForm({ setActiveTab }) {
         try {
             setLoading(true);
             const res = await login(form);
-            localStorage.setItem("token", res.data.token);
+            const profile = await getProfile(res.data.token);
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(profile.data.user)
+            );
 
             alert("Login successful");
 
@@ -139,13 +147,8 @@ export default function LoginForm({ setActiveTab }) {
                     {loading ? <span className="spinner"></span> : "Login"}
                 </button>
             </form>
-
             <SocialButtons />
 
-            <p className="switch-text">
-                Don’t have an account?{" "}
-                <button onClick={() => setActiveTab("register")}>Register</button>
-            </p>
         </div>
     );
 }
