@@ -1,59 +1,36 @@
 const Recipe = require("../models/Recipe");
 
-async function getDashboardStats(req, res) {
+async function getDashboardStats(req, res, next) {
   try {
     const totalRecipes = await Recipe.countDocuments();
 
-    const recentRecipes = await Recipe.find(
-  {},
-  {
-    title: 1,
-    calories: 1,
-    cookingTime: 1,
-    cuisine: 1,
-    createdAt: 1,
-  }
-)
-  .sort({ createdAt: -1 })
-  .limit(5);
-
-res.status(200).json({
-  totalRecipes,
-  totalUsers: 0,
-  generatedRecipes: totalRecipes,
-  recentRecipes,
-});
-  } catch (error) {
-    console.error("Dashboard stats error:", error);
-
-    res.status(500).json({
-      message: "Failed to fetch dashboard stats",
+    res.status(200).json({
+      success: true,
+      data: {
+        totalRecipes,
+        totalUsers: 0,
+        generatedRecipes: totalRecipes,
+      },
     });
+  } catch (error) {
+    next(error);
   }
 }
 
-async function getRecentRecipes(req, res) {
+async function getRecentRecipes(req, res, next) {
   try {
-    const recipes = await Recipe.find(
-  {},
-  {
-    title: 1,
-    calories: 1,
-    cookingTime: 1,
-    cuisine: 1,
-    createdAt: 1,
-  }
-)
-  .sort({ createdAt: -1 })
-  .limit(5);
+    const recentRecipes = await Recipe.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select("title cookingTime calories cuisine createdAt");
 
-    res.status(200).json(recipes);
-  } catch (error) {
-    console.error("Recent recipes error:", error);
-
-    res.status(500).json({
-      message: "Failed to fetch recent recipes",
+    res.status(200).json({
+      success: true,
+      count: recentRecipes.length,
+      data: recentRecipes,
     });
+  } catch (error) {
+    next(error);
   }
 }
 

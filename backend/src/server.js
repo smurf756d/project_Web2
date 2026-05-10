@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 
+const errorHandler = require("./middleware/errorHandler");
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -38,7 +40,6 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use("/api/recipes", recipeRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -48,6 +49,8 @@ mongoose
 app.get("/", (req, res) => {
   res.send("API is running");
 });
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
