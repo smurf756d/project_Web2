@@ -1,13 +1,8 @@
 const dashboardService = require("../services/dashboardService");
 
-/**
- * Get dashboard data for the logged-in user.
- */
 const getDashboard = async (req, res, next) => {
   try {
-    const dashboardData = await dashboardService.getDashboardData(
-      req.user
-    );
+    const dashboardData = await dashboardService.getDashboardData(req.user);
 
     res.status(200).json({
       success: true,
@@ -18,6 +13,24 @@ const getDashboard = async (req, res, next) => {
   }
 };
 
+const updatePreferences = async (req, res, next) => {
+  try {
+    const preferences = await dashboardService.updateDietPreferences(
+      req.user._id,
+      req.body
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Diet preferences updated successfully",
+      data: preferences,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboard,
+  updatePreferences,
 };

@@ -19,4 +19,31 @@ const router = express.Router();
  */
 router.get("/", protect, dashboardController.getDashboard);
 
+/**
+ * @swagger
+ * /api/dashboard/preferences:
+ *   put:
+ *     summary: Update user diet preferences
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               vegetarian:
+ *                 type: boolean
+ *               lowCarb:
+ *                 type: boolean
+ *               highProtein:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Diet preferences updated successfully
+ */
+router.put("/preferences", protect, dashboardController.updatePreferences);
+
 module.exports = router;

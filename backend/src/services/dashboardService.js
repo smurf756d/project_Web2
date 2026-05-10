@@ -31,21 +31,68 @@ const suggestedRecipesPool = [
   },
 ];
 
-const getDashboardData = async (user) => {
-  const myRecipes = await Recipe.find({ createdBy: user._id })
-    .sort({ createdAt: -1 })
-    .limit(3);
-
-  let preferences = await UserPreference.findOne({ user: user._id });
+const getOrCreatePreferences = async (userId) => {
+  let preferences = await UserPreference.findOne({ user: userId });
 
   if (!preferences) {
     preferences = await UserPreference.create({
-      user: user._id,
+      user: userId,
       vegetarian: false,
       lowCarb: false,
       highProtein: false,
     });
   }
+
+  return preferences;
+};
+
+const formatPreferences = (preferences) => [
+  {
+    key: "vegetarian",
+    label: "Vegetarian",
+    enabled: preferences.vegetarian,
+  },
+  {
+    key: "lowCarb",
+    label: "Low Carb",
+    enabled: preferences.lowCarb,
+  },
+  {
+    key: "highProtein",
+    label: "High Protein",
+    enabled: preferences.highProtein,
+  },
+];
+
+const getDashboardData = async (user) => {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  const myRecipes = await Recipe.find({ createdBy: user._id })
+    .sort({ createdAt: -1 })
+    .limit(3);
+
+  const savedRecipesCount = await Recipe.countDocuments({
+    createdBy: user._id,
+  });
+
+  const generatedTodayCount = await Recipe.countDocuments({
+    createdBy: user._id,
+    createdAt: {
+      $gte: startOfToday,
+      $lte: endOfToday,
+    },
+  });
+
+  const favoriteRecipe = await Recipe.findOne({
+    createdBy: user._id,
+    isFavorite: true,
+  }).sort({ updatedAt: -1 });
+
+  const preferences = await getOrCreatePreferences(user._id);
 
   return {
     user: {
@@ -56,23 +103,38 @@ const getDashboardData = async (user) => {
     },
 
     stats: {
-      savedRecipes: myRecipes.length,
-      generatedToday: 0,
-      favoriteDish: myRecipes[0]?.title || "Not selected yet",
+      savedRecipes: savedRecipesCount,
+      generatedToday: generatedTodayCount,
+      favoriteDish: favoriteRecipe?.title || "Not selected yet",
     },
 
     suggestedRecipes: suggestedRecipesPool,
 
-    dietPreferences: [
-      { label: "Vegetarian", enabled: preferences.vegetarian },
-      { label: "Low Carb", enabled: preferences.lowCarb },
-      { label: "High Protein", enabled: preferences.highProtein },
-    ],
+    dietPreferences: formatPreferences(preferences),
 
     myRecipes,
   };
 };
 
+const updateDietPreferences = async (userId, preferenceData) => {
+  const updatedPreferences = await UserPreference.findOneAndUpdate(
+    { user: userId },
+    {
+      vegetarian: Boolean(preferenceData.vegetarian),
+      lowCarb: Boolean(preferenceData.lowCarb),
+      highProtein: Boolean(preferenceData.highProtein),
+    },
+    {
+      new: true,
+      upsert: true,
+      runValidators: true,
+    }
+  );
+
+  return formatPreferences(updatedPreferences);
+};
+
 module.exports = {
   getDashboardData,
+  updateDietPreferences,
 };
