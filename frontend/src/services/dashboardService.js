@@ -9,3 +9,11 @@ export const getDashboardData = (token) => {
     },
   });
 };
+
+export const updateDietPreferences = (token, preferences) => {
+  return axios.put(`${API}/preferences`, preferences, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

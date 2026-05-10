@@ -6,7 +6,10 @@ import RecommendedRecipes from "../components/dashboard/RecommendedRecipes";
 import DietPreferencesCard from "../components/dashboard/DietPreferencesCard";
 import MyRecipesCard from "../components/dashboard/MyRecipesCard";
 import QuickGenerateCard from "../components/dashboard/QuickGenerateCard";
-import { getDashboardData } from "../services/dashboardService";
+import {
+  getDashboardData,
+  updateDietPreferences,
+} from "../services/dashboardService";
 import "./UserDashboard.css";
 
 const mockDashboardData = {
@@ -48,9 +51,9 @@ const mockDashboardData = {
     },
   ],
   dietPreferences: [
-    { label: "Vegetarian", enabled: false },
-    { label: "Low Carb", enabled: false },
-    { label: "High Protein", enabled: false },
+    { key: "vegetarian", label: "Vegetarian", enabled: false },
+    { key: "lowCarb", label: "Low Carb", enabled: false },
+    { key: "highProtein", label: "High Protein", enabled: false },
   ],
   myRecipes: [],
 };
@@ -87,6 +90,42 @@ const UserDashboard = () => {
     navigate("/generate-recipe");
   };
 
+  const handleSavePreferences = async (updatedPreferences) => {
+    const token = localStorage.getItem("token");
+
+    const preferencesPayload = {
+      vegetarian:
+        updatedPreferences.find((item) => item.key === "vegetarian")
+          ?.enabled || false,
+      lowCarb:
+        updatedPreferences.find((item) => item.key === "lowCarb")?.enabled ||
+        false,
+      highProtein:
+        updatedPreferences.find((item) => item.key === "highProtein")
+          ?.enabled || false,
+    };
+
+    if (!token) {
+      setDashboardData((prev) => ({
+        ...prev,
+        dietPreferences: updatedPreferences,
+      }));
+
+      return;
+    }
+
+    try {
+      const response = await updateDietPreferences(token, preferencesPayload);
+
+      setDashboardData((prev) => ({
+        ...prev,
+        dietPreferences: response.data.data,
+      }));
+    } catch (error) {
+      console.error("Failed to update preferences", error);
+    }
+  };
+
   if (loading) {
     return (
       <main className="user-dashboard-page">
@@ -119,6 +158,7 @@ const UserDashboard = () => {
 
   const dietPreferences = dashboardData.dietPreferences.map((item, index) => ({
     id: index + 1,
+    key: item.key,
     label: item.label,
     enabled: item.enabled,
   }));
@@ -168,7 +208,10 @@ const UserDashboard = () => {
 
       <div className="row g-3 mt-1">
         <div className="col-12 col-lg-5">
-          <DietPreferencesCard preferences={dietPreferences} />
+          <DietPreferencesCard
+            preferences={dietPreferences}
+            onSavePreferences={handleSavePreferences}
+          />
         </div>
 
         <div className="col-12 col-lg-7">

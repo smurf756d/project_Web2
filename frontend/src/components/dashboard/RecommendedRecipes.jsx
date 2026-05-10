@@ -9,18 +9,6 @@ const RecommendedRecipes = ({ recipes }) => {
         <h5 className="section-main-title mb-0">
           Suggested Recipes for You
         </h5>
-
-        <button
-          type="button"
-          className="btn btn-link text-success p-0"
-          onClick={() => {
-            document
-              .getElementById("suggested-recipes-section")
-              .scrollIntoView({ behavior: "smooth" });
-          }}
-        >
-          View All
-        </button>
       </div>
 
       <div className="row g-3">
@@ -62,7 +50,9 @@ const RecommendedRecipes = ({ recipes }) => {
               className="recipe-modal-image"
             />
 
-            <h3 className="recipe-modal-title">{selectedRecipe.title}</h3>
+            <h3 className="recipe-modal-title">
+              {selectedRecipe.title}
+            </h3>
 
             <div className="recipe-modal-meta">
               <span>🕒 {selectedRecipe.time}</span>
@@ -71,9 +61,9 @@ const RecommendedRecipes = ({ recipes }) => {
 
             <div className="recipe-modal-info">
               <h5>Ingredients</h5>
+
               <p>
-                {selectedRecipe.ingredients ||
-                  "chicken, rice, vegetables, olive oil"}
+                {selectedRecipe.ingredients}
               </p>
             </div>
 
