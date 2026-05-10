@@ -1,80 +1,150 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Topbar from "../components/layout/Topbar";
 import RecipeCard from "../components/RecipeCard";
-import { recipesMock } from "../data/recipesMock";
+import {
+  getMyRecipes,
+  updateMyRecipe,
+  deleteMyRecipe,
+} from "../api/myRecipeApi";
 import "../styles/recipesPages.css";
 
 function MyRecipes() {
- const [recipes, setRecipes] = useState(() => {
-  const savedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+  /**
+   * Store recipes fetched from backend
+   */
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  return recipesMock.map((recipe) => ({
-    ...recipe,
-    isFavorite: savedFavorites.some((fav) => fav.id === recipe.id),
-  }));
- });
+  /**
+   * Search input value
+   */
   const [searchTerm, setSearchTerm] = useState("");
+
+  /**
+   * Selected recipe for delete confirmation modal
+   */
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+
+  /**
+   * Selected recipe for view modal
+   */
   const [viewingRecipe, setViewingRecipe] = useState(null);
+
+  /**
+   * Selected recipe for edit modal
+   */
   const [editingRecipe, setEditingRecipe] = useState(null);
+
+  /**
+   * Edit form state
+   */
   const [editForm, setEditForm] = useState({
     title: "",
     ingredients: "",
+    instructions: "",
     time: "",
     calories: "",
   });
-  const [currentPage, setCurrentPage] = useState(1);
 
+  /**
+   * Pagination state
+   */
+  const [currentPage, setCurrentPage] = useState(1);
   const recipesPerPage = 3;
 
+  /**
+   * Fetch recipes whenever page changes
+   */
+  useEffect(() => {
+    fetchRecipes();
+  }, [currentPage]);
+
+  /**
+ * Load logged-in user's recipes from backend
+ */
+const fetchRecipes = async () => {
+  try {
+    setLoading(true);
+
+    const data = await getMyRecipes(currentPage, recipesPerPage);
+
+    setRecipes(data.data || []);
+  } catch (error) {
+    console.error("Failed to fetch recipes", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  /**
+   * Filter recipes locally by title
+   */
   const filteredRecipes = useMemo(() => {
     return recipes.filter((recipe) =>
       recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [recipes, searchTerm]);
 
-  const totalPages = Math.ceil(filteredRecipes.length / recipesPerPage);
+ 
+  /**
+ * Recipes already come paginated from backend
+ */
+const visibleRecipes = filteredRecipes;
 
-  const visibleRecipes = filteredRecipes.slice(
-    (currentPage - 1) * recipesPerPage,
-    currentPage * recipesPerPage
-  );
+/**
+ * Keep at least one page visible
+ */
+const totalPages = 1;
+  /**
+   * Delete recipe from backend
+   */
+  const handleDelete = async () => {
+    try {
+      await deleteMyRecipe(selectedRecipe._id);
 
-  const handleDelete = () => {
-    setRecipes((prevRecipes) =>
-      prevRecipes.filter((recipe) => recipe.id !== selectedRecipe.id)
-    );
-    setSelectedRecipe(null);
+      setRecipes((prevRecipes) =>
+        prevRecipes.filter((recipe) => recipe._id !== selectedRecipe._id)
+      );
+
+      setSelectedRecipe(null);
+    } catch (error) {
+      console.error("Failed to delete recipe", error);
+    }
   };
 
+  /**
+   * Toggle favorite locally for now
+   */
   const handleToggleFavorite = (id) => {
-    setRecipes((prevRecipes) => {
-      const updatedRecipes = prevRecipes.map((recipe) =>
-        recipe.id === id
+    setRecipes((prevRecipes) =>
+      prevRecipes.map((recipe) =>
+        recipe._id === id
           ? { ...recipe, isFavorite: !recipe.isFavorite }
           : recipe
-      );
-
-      const favoriteRecipes = updatedRecipes.filter(
-        (recipe) => recipe.isFavorite
-      );
-
-      localStorage.setItem("favorites", JSON.stringify(favoriteRecipes));
-
-      return updatedRecipes;
-    });
+      )
+    );
   };
 
+  /**
+   * Open edit modal and fill form with selected recipe data
+   */
   const openEditModal = (recipe) => {
     setEditingRecipe(recipe);
+
     setEditForm({
-      title: recipe.title,
-      ingredients: recipe.ingredients || "",
-      time: recipe.time,
-      calories: recipe.calories,
+      title: recipe.title || "",
+      ingredients: Array.isArray(recipe.ingredients)
+        ? recipe.ingredients.join(", ")
+        : recipe.ingredients || "",
+      instructions: recipe.instructions || "",
+      time: recipe.time || "",
+      calories: recipe.calories || "",
     });
   };
 
+  /**
+   * Update edit form values
+   */
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
@@ -84,7 +154,10 @@ function MyRecipes() {
     }));
   };
 
-  const handleSaveEdit = (e) => {
+  /**
+   * Save updated recipe to backend
+   */
+  const handleSaveEdit = async (e) => {
     e.preventDefault();
 
     if (!editForm.title.trim()) {
@@ -97,26 +170,40 @@ function MyRecipes() {
       return;
     }
 
+    if (!editForm.instructions.trim()) {
+      alert("Instructions are required");
+      return;
+    }
+
     if (Number(editForm.time) <= 0 || Number(editForm.calories) <= 0) {
       alert("Time and calories must be greater than 0");
       return;
     }
 
-    setRecipes((prevRecipes) =>
-      prevRecipes.map((recipe) =>
-        recipe.id === editingRecipe.id
-          ? {
-              ...recipe,
-              title: editForm.title.trim(),
-              ingredients: editForm.ingredients.trim(),
-              time: Number(editForm.time),
-              calories: Number(editForm.calories),
-            }
-          : recipe
-      )
-    );
+    try {
+      const updatedRecipe = {
+        title: editForm.title.trim(),
+        ingredients: editForm.ingredients
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        instructions: editForm.instructions.trim(),
+        time: Number(editForm.time),
+        calories: Number(editForm.calories),
+      };
 
-    setEditingRecipe(null);
+      const response = await updateMyRecipe(editingRecipe._id, updatedRecipe);
+
+      setRecipes((prevRecipes) =>
+        prevRecipes.map((recipe) =>
+          recipe._id === editingRecipe._id ? response.data : recipe
+        )
+      );
+
+      setEditingRecipe(null);
+    } catch (error) {
+      console.error("Failed to update recipe", error);
+    }
   };
 
   return (
@@ -141,12 +228,19 @@ function MyRecipes() {
           </button>
         </section>
 
-        {visibleRecipes.length > 0 ? (
+        {loading ? (
+  <div className="empty-state">
+    <h4>Loading recipes...</h4>
+  </div>
+) : visibleRecipes.length > 0 ? (
           <section className="recipes-grid">
             {visibleRecipes.map((recipe) => (
               <RecipeCard
-                key={recipe.id}
-                recipe={recipe}
+                key={recipe._id}
+                recipe={{
+                  ...recipe,
+                  id: recipe._id,
+                }}
                 onDelete={setSelectedRecipe}
                 onToggleFavorite={handleToggleFavorite}
                 onEdit={openEditModal}
@@ -170,7 +264,7 @@ function MyRecipes() {
             Prev
           </button>
 
-          {[...Array(totalPages || 1)].map((_, index) => (
+          {[...Array(totalPages)].map((_, index) => (
             <button
               key={index}
               className={currentPage === index + 1 ? "active" : ""}
@@ -181,7 +275,7 @@ function MyRecipes() {
           ))}
 
           <button
-            disabled={currentPage === totalPages || totalPages === 0}
+            disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((page) => page + 1)}
           >
             Next
@@ -214,7 +308,16 @@ function MyRecipes() {
 
             <div className="view-section">
               <h5>Ingredients</h5>
-              <p>{viewingRecipe.ingredients || "No ingredients listed."}</p>
+              <p>
+                {Array.isArray(viewingRecipe.ingredients)
+                  ? viewingRecipe.ingredients.join(", ")
+                  : viewingRecipe.ingredients || "No ingredients listed."}
+              </p>
+            </div>
+
+            <div className="view-section">
+              <h5>Instructions</h5>
+              <p>{viewingRecipe.instructions || "No instructions listed."}</p>
             </div>
 
             <div className="modal-actions">
@@ -270,6 +373,14 @@ function MyRecipes() {
               value={editForm.ingredients}
               onChange={handleEditChange}
               placeholder="Example: chicken, rice, tomato..."
+            />
+
+            <label>Instructions</label>
+            <textarea
+              name="instructions"
+              value={editForm.instructions}
+              onChange={handleEditChange}
+              placeholder="Write recipe instructions..."
             />
 
             <label>Cooking Time</label>
