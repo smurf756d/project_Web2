@@ -1,6 +1,10 @@
+import { useState } from "react";
+
 const RecommendedRecipes = ({ recipes }) => {
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+
   return (
-    <section className="mb-4">
+    <section id="suggested-recipes-section" className="mb-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="section-main-title mb-0">
           Suggested Recipes for You
@@ -9,7 +13,11 @@ const RecommendedRecipes = ({ recipes }) => {
         <button
           type="button"
           className="btn btn-link text-success p-0"
-          onClick={() => alert("This will open all recipes later.")}
+          onClick={() => {
+            document
+              .getElementById("suggested-recipes-section")
+              .scrollIntoView({ behavior: "smooth" });
+          }}
         >
           View All
         </button>
@@ -35,9 +43,7 @@ const RecommendedRecipes = ({ recipes }) => {
                 <button
                   type="button"
                   className="btn btn-outline-success w-100 rounded-3"
-                  onClick={() =>
-                    alert(`Opening ${recipe.title} details later.`)
-                  }
+                  onClick={() => setSelectedRecipe(recipe)}
                 >
                   View Recipe
                 </button>
@@ -46,6 +52,41 @@ const RecommendedRecipes = ({ recipes }) => {
           </div>
         ))}
       </div>
+
+      {selectedRecipe && (
+        <div className="recipe-modal-overlay">
+          <div className="recipe-modal-card">
+            <img
+              src={selectedRecipe.image}
+              alt={selectedRecipe.title}
+              className="recipe-modal-image"
+            />
+
+            <h3 className="recipe-modal-title">{selectedRecipe.title}</h3>
+
+            <div className="recipe-modal-meta">
+              <span>🕒 {selectedRecipe.time}</span>
+              <span>🔥 {selectedRecipe.calories}</span>
+            </div>
+
+            <div className="recipe-modal-info">
+              <h5>Ingredients</h5>
+              <p>
+                {selectedRecipe.ingredients ||
+                  "chicken, rice, vegetables, olive oil"}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="recipe-modal-close"
+              onClick={() => setSelectedRecipe(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

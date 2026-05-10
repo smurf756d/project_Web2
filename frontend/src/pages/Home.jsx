@@ -42,8 +42,15 @@ const Home = () => {
           <button
             type="button"
             className="btn btn-success home-nav-btn"
-            onClick={() => navigate("/auth?mode=register")}
-          >
+onClick={() => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    navigate("/generate-recipe");
+  } else {
+    navigate("/auth?mode=login");
+  }
+}}          >
             Register
           </button>
         </div>
