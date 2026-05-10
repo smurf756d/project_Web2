@@ -4,11 +4,25 @@ async function getDashboardStats(req, res) {
   try {
     const totalRecipes = await Recipe.countDocuments();
 
-    res.status(200).json({
-      totalRecipes,
-      totalUsers: 0,
-      generatedRecipes: 0,
-    });
+    const recentRecipes = await Recipe.find(
+  {},
+  {
+    title: 1,
+    calories: 1,
+    cookingTime: 1,
+    cuisine: 1,
+    createdAt: 1,
+  }
+)
+  .sort({ createdAt: -1 })
+  .limit(5);
+
+res.status(200).json({
+  totalRecipes,
+  totalUsers: 0,
+  generatedRecipes: totalRecipes,
+  recentRecipes,
+});
   } catch (error) {
     console.error("Dashboard stats error:", error);
 
@@ -18,6 +32,32 @@ async function getDashboardStats(req, res) {
   }
 }
 
+async function getRecentRecipes(req, res) {
+  try {
+    const recipes = await Recipe.find(
+  {},
+  {
+    title: 1,
+    calories: 1,
+    cookingTime: 1,
+    cuisine: 1,
+    createdAt: 1,
+  }
+)
+  .sort({ createdAt: -1 })
+  .limit(5);
+
+    res.status(200).json(recipes);
+  } catch (error) {
+    console.error("Recent recipes error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch recent recipes",
+    });
+  }
+}
+
 module.exports = {
   getDashboardStats,
+  getRecentRecipes,
 };
