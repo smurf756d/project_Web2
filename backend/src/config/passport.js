@@ -1,11 +1,9 @@
-const dotenv = require("dotenv");
-dotenv.config();
+
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 const {
     handleGoogleUser,
-
 } = require("../services/authService");
 
 /**
@@ -40,8 +38,6 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== "your_googl
             }
         )
     );
-
-
 }
 
 module.exports = passport;

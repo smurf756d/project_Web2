@@ -35,6 +35,9 @@ const validateRegister = (body) => {
     return errors;
 };
 
+/**
+ * Validate login request body.
+ */
 const validateLogin = (body) => {
     const errors = [];
 

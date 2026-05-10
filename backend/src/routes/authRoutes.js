@@ -10,6 +10,7 @@ const {
 } = require("../controllers/authController");
 
 const authenticate = require("../middleware/authenticate");
+const authorize = require("../middleware/authorize");
 const validate = require("../middleware/validate");
 
 const {
@@ -159,9 +160,7 @@ router.get(
     (req, res) => {
         const token = generateToken(req.user);
 
-        res.redirect(
-            `${process.env.CLIENT_SUCCESS_URL}#token=${token}`
-        );
+        res.redirect(`${process.env.CLIENT_SUCCESS_URL}#token=${token}`);
     }
 );
 
@@ -178,5 +177,33 @@ router.get(
 router.get("/google/failure", (req, res) => {
     res.redirect(process.env.CLIENT_FAILURE_URL);
 });
+
+/**
+ * @swagger
+ * /api/v1/auth/admin:
+ *   get:
+ *     summary: Admin-only protected route
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Admin access granted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Access denied
+ */
+router.get(
+    "/admin",
+    authenticate,
+    authorize("admin"),
+    (req, res) => {
+        res.status(200).json({
+            message: "Welcome Admin",
+            user: req.user,
+        });
+    }
+);
 
 module.exports = router;

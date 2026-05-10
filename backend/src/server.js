@@ -64,7 +64,7 @@ app.get("/", (req, res) => {
 
 /**
  * Authentication routes.
- * Includes local auth, protected profile route, Google OAuth, and Facebook OAuth.
+ * Includes local auth, protected profile route, Google OAuth.
  */
 app.use("/api/v1/auth", authRoutes);
 

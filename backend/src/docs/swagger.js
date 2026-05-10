@@ -6,7 +6,7 @@ const swaggerOptions = {
         info: {
             title: "Smart Kitchen Hub API",
             version: "1.0.0",
-            description: "Authentication API documentation",
+            description: "Smart Kitchen Hub backend API documentation",
         },
         servers: [
             {

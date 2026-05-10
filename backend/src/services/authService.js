@@ -91,6 +91,7 @@ const handleGoogleUser = async (profile) => {
 
     let user = await User.findOne({ googleId: profile.id });
 
+    // If the email already exists, link the Google account to the same user.
     if (!user && email) {
         user = await User.findOne({ email });
     }
@@ -114,13 +115,9 @@ const handleGoogleUser = async (profile) => {
     return user;
 };
 
-
-
-
 module.exports = {
     registerUser,
     loginUser,
     getUserProfile,
     handleGoogleUser,
-
 };

@@ -12,7 +12,7 @@ const authenticate = (req, res, next) => {
             message: "No token provided",
         });
     }
-
+// Extract token from Authorization header
     const token = authHeader.split(" ")[1];
 
     try {

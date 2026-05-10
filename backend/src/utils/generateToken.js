@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 /**
  * Generates JWT token for authenticated users.
- * The token is used later to access protected routes.
+ * The token contains user identity and role information.
  */
 const generateToken = (user) => {
     return jwt.sign(
