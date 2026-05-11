@@ -7,8 +7,20 @@ const myRecipeService = require("../services/myRecipe.service");
  */
 async function createMyRecipe(req, res) {
   try {
-    const { title, ingredients, instructions, time, calories } = req.body;
+    const {
+      title,
+      category,
+      type,
+      cuisine,
+      ingredients,
+      instructions,
+      time,
+      calories,
+    } = req.body;
 
+    /**
+     * Validate required recipe fields
+     */
     if (!title || !ingredients || !instructions || !time || !calories) {
       return res.status(400).json({
         success: false,
@@ -16,10 +28,21 @@ async function createMyRecipe(req, res) {
       });
     }
 
-    const recipe = await myRecipeService.createMyRecipe({
-      ...req.body,
-      user: req.user._id,
-    });
+    /**
+     * Create recipe and link it to logged-in user.
+     * category is used for static card images:
+     * arabic, italian, asian, any
+     */
+   const recipe = await myRecipeService.createMyRecipe({
+  title,
+  category: category || cuisine || type || "any",
+  ingredients,
+  instructions,
+  time,
+  calories,
+  image: req.body.image || "",
+  user: req.user._id,
+});
 
     res.status(201).json({
       success: true,
@@ -35,18 +58,36 @@ async function createMyRecipe(req, res) {
 }
 
 /**
- * @desc    Get logged-in user's recipes
- * @route   GET /api/v1/my-recipes
+ * @desc    Get logged-in user's recipes with pagination, search, and filters
+ * @route   GET /api/v1/my-recipes?page=1&limit=5
  * @access  Private
  */
 async function getMyRecipes(req, res) {
   try {
-    const recipes = await myRecipeService.getMyRecipes(req.user._id);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+
+    const filters = {
+      search: req.query.search,
+      maxCalories: req.query.maxCalories,
+      maxTime: req.query.maxTime,
+      sort: req.query.sort,
+    };
+
+    const result = await myRecipeService.getMyRecipes(
+      req.user._id,
+      page,
+      limit,
+      filters
+    );
 
     res.status(200).json({
       success: true,
-      results: recipes.length,
-      data: recipes,
+      totalRecipes: result.totalRecipes,
+      currentPage: result.currentPage,
+      totalPages: result.totalPages,
+      results: result.recipes.length,
+      data: result.recipes,
     });
   } catch (error) {
     res.status(500).json({

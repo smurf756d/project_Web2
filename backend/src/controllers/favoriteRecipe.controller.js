@@ -33,18 +33,33 @@ async function addFavorite(req, res) {
 }
 
 /**
- * @desc    Get logged-in user's favorite recipes
- * @route   GET /api/v1/favorites
+ * @desc    Get logged-in user's favorite recipes with pagination
+ * @route   GET /api/v1/favorites?page=1&limit=5
  * @access  Private
  */
 async function getFavorites(req, res) {
   try {
-    const favorites = await favoriteRecipeService.getFavorites(req.user._id);
+    /**
+     * Read pagination query parameters
+     * Default page = 1
+     * Default limit = 5
+     */
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+
+    const result = await favoriteRecipeService.getFavorites(
+      req.user._id,
+      page,
+      limit
+    );
 
     res.status(200).json({
       success: true,
-      results: favorites.length,
-      data: favorites,
+      totalFavorites: result.totalFavorites,
+      currentPage: result.currentPage,
+      totalPages: result.totalPages,
+      results: result.favorites.length,
+      data: result.favorites,
     });
   } catch (error) {
     res.status(500).json({

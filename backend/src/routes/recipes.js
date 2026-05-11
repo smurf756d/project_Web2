@@ -1,20 +1,17 @@
 const express = require("express");
-
 const router = express.Router();
 
-const { protect } = require("../../middleware/auth.middleware");
+const {
+  generateRecipe,
+  createRecipe,
+  getRecipes,
+  deleteRecipe,
+} = require("../controllers/recipeController");
 
-/**
- * @route   GET /api/v1/recipes
- * @desc    Get all recipes for logged-in user
- * @access  Private
- */
-router.get("/", protect, (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Protected recipes route accessed",
-    user: req.user,
-  });
-});
+// routes
+router.post("/generate", generateRecipe);
+router.post("/", createRecipe);
+router.get("/", getRecipes);
+router.delete("/:id",deleteRecipe);
 
 module.exports = router;

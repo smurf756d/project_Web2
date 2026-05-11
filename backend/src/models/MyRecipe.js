@@ -7,7 +7,10 @@ const myRecipeSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
+    category: {
+      type: String,
+      default: "any",
+    },
     image: {
       type: String,
       default: "",
