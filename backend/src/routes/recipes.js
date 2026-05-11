@@ -8,6 +8,11 @@ const {
   deleteRecipe,
 } = require("../controllers/recipeController");
 
+const {
+  validateRecipe,
+  validateGenerateRecipe,
+} = require("../middleware/validateRecipe");
+
 /**
  * @swagger
  * tags:
@@ -66,8 +71,9 @@ const {
  *         description: Recipe deleted successfully
  */
 
-router.post("/generate", generateRecipe);
-router.post("/", createRecipe);
+router.post("/generate", validateGenerateRecipe, generateRecipe);
+
+router.post("/", validateRecipe, createRecipe);
 router.get("/", getRecipes);
 router.delete("/:id", deleteRecipe);
 
