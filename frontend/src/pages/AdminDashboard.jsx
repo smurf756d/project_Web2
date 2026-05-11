@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 function AdminDashboard() {
 const [stats, setStats] = useState(null);
 const [loading, setLoading] = useState(true);
+const [recentRecipesData, setRecentRecipesData] = useState([]);
 
 useEffect(() => {
   async function fetchDashboardStats() {
@@ -17,6 +18,13 @@ useEffect(() => {
       const data = await response.json();
 
       setStats(data.data);
+      const recentRecipesResponse = await fetch(
+  "http://localhost:5000/api/admin/recent-recipes"
+);
+
+const recentRecipesResult = await recentRecipesResponse.json();
+
+setRecentRecipesData(recentRecipesResult.data);
     } catch (error) {
       console.error("Failed to fetch dashboard stats:", error);
     } finally {
@@ -110,7 +118,7 @@ const dashboardStats = {
 
   <div className="card p-3 mb-4">
     <h5 className="mb-3">🍽️ Recent Recipes</h5>
-    <RecentRecipes recipes={recentRecipes} />
+   <RecentRecipes recipes={recentRecipesData} />
   </div>
 
  <div className="card p-3">
