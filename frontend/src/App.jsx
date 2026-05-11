@@ -16,112 +16,108 @@ import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AdminRoute from "./routes/AdminRoute";
 
-function BrowseRecipes() {
-    return <h2>Browse Recipes Page</h2>;
-}
-
 function App() {
-    useEffect(() => {
-        const handleGoogleLogin = async () => {
-            const hash = window.location.hash;
+  useEffect(() => {
+    const handleGoogleLogin = async () => {
+      const hash = window.location.hash;
 
-            if (hash.includes("token=")) {
-                const token = hash.split("token=")[1];
+      if (hash.includes("token=")) {
+        const token = hash.split("token=")[1];
 
-                localStorage.setItem("token", token);
+        localStorage.setItem("token", token);
 
-                try {
-                    const response = await axios.get(
-                        "http://localhost:5000/api/v1/auth/profile",
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                        }
-                    );
-
-                    localStorage.setItem(
-                        "user",
-                        JSON.stringify(response.data.user)
-                    );
-                } catch (error) {
-                    console.error("Failed to fetch user profile");
-                }
-
-                window.history.replaceState(
-                    {},
-                    document.title,
-                    window.location.pathname
-                );
-
-                alert("Google login successful");
+        try {
+          const response = await axios.get(
+            "http://localhost:5000/api/v1/auth/profile",
+            {
+              headers: {
+                Authorization: Bearer ${token},
+              },
             }
-        };
+          );
 
-        handleGoogleLogin();
-    }, []);
+          localStorage.setItem(
+            "user",
+            JSON.stringify(response.data.user)
+          );
+        } catch (error) {
+          console.error("Failed to fetch user profile");
+        }
 
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/auth" element={<AuthPage />} />
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
 
-                <Route path="/" element={<Layout />}>
-                    <Route index element={<Home />} />
-                    <Route path="home" element={<Home />} />
+        alert("Google login successful");
+      }
+    };
 
-                    <Route
-                        path="dashboard"
-                        element={
-                            <ProtectedRoute>
-                                <UserDashboard />
-                            </ProtectedRoute>
-                        }
-                    />
+    handleGoogleLogin();
+  }, []);
 
-                    <Route
-                        path="generate-recipe"
-                        element={
-                            <ProtectedRoute>
-                                <GenerateRecipe />
-                            </ProtectedRoute>
-                        }
-                    />
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Auth */}
+        <Route path="/auth" element={<AuthPage />} />
 
-                    <Route path="browse-recipes" element={<BrowseRecipes />} />
+        {/* Main Layout */}
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="home" element={<Home />} />
 
-                    <Route
-                        path="my-recipes"
-                        element={
-                            <ProtectedRoute>
-                                <MyRecipes />
-                            </ProtectedRoute>
-                        }
-                    />
+          <Route
+            path="dashboard"
+            element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-                    <Route
-                        path="favorites"
-                        element={
-                            <ProtectedRoute>
-                                <Favorites />
-                            </ProtectedRoute>
-                        }
-                    />
+          <Route
+            path="generate-recipe"
+            element={
+              <ProtectedRoute>
+                <GenerateRecipe />
+              </ProtectedRoute>
+            }
+          />
 
-                    <Route path="help" element={<HelpTips />} />
+          <Route
+            path="my-recipes"
+            element={
+              <ProtectedRoute>
+                <MyRecipes />
+              </ProtectedRoute>
+            }
+          />
 
-                    <Route
-                        path="admin-dashboard"
-                        element={
-                            <AdminRoute>
-                                <AdminDashboard />
-                            </AdminRoute>
-                        }
-                    />
-                </Route>
-            </Routes>
-        </BrowserRouter>
-    );
+          <Route
+            path="favorites"
+            element={
+              <ProtectedRoute>
+                <Favorites />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="help" element={<HelpTips />} />
+
+          <Route
+            path="admin-dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
