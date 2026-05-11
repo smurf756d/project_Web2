@@ -31,7 +31,7 @@ function App() {
             "http://localhost:5000/api/v1/auth/profile",
             {
               headers: {
-                Authorization: Bearer ${token},
+                Authorization: `Bearer ${token}`,
               },
             }
           );
