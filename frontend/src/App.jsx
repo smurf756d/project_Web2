@@ -60,10 +60,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth */}
         <Route path="/auth" element={<AuthPage />} />
 
-        {/* Main Layout */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="home" element={<Home />} />
