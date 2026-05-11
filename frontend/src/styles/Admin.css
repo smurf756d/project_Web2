@@ -152,3 +152,42 @@
     padding-right: 0;
   }
 }
+.admin-dashboard .card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.admin-dashboard .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(70, 100, 70, 0.18);
+}
+
+.admin-dashboard .list-group-item {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.admin-dashboard .list-group-item:hover {
+  background-color: #f3faf1;
+  transform: translateX(4px);
+}
+
+.admin-dashboard .progress-bar {
+  transition: width 0.4s ease, filter 0.2s ease;
+}
+
+.admin-dashboard .progress:hover .progress-bar {
+  filter: brightness(0.95);
+}
+
+.dashboard-actions .form-control:focus {
+  border-color: #83c58a;
+  box-shadow: 0 0 0 0.2rem rgba(131, 197, 138, 0.22);
+}
+
+.admin-dashboard h3 {
+  color: #4f8f57;
+  font-weight: 800;
+}
+
+.admin-dashboard .badge {
+  padding: 7px 10px;
+}

@@ -3,10 +3,12 @@ import StatsCards from "../components/StatsCards";
 import RecentUsers from "../components/RecentUsers";
 import RecentRecipes from "../components/RecentRecipes";
 import MostLikedRecipes from "../components/MostLikedRecipes";
-import { recentUsers, recentRecipes } from "../data/adminData";
+import { recentUsers } from "../data/adminData";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
 const [stats, setStats] = useState(null);
 const [loading, setLoading] = useState(true);
 const [recentRecipesData, setRecentRecipesData] = useState([]);
@@ -55,9 +57,12 @@ const dashboardStats = {
     placeholder="Search..."
   />
 
-  <button className="btn btn-success">
-    + Add New Recipe
-  </button>
+ <button
+  className="btn btn-success"
+  onClick={() => navigate("/generate-recipe")}
+>
+  + Add New Recipe
+</button>
 
 </div>
 {loading ? (
