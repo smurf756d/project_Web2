@@ -143,7 +143,7 @@ export default function RegisterForm({ setActiveTab }) {
                                 onChange={handleImage}
                             />
 
-                            <small>Upload profile photo optional</small>
+                            <small>Upload profile photo (optional)</small>
                         </>
                     )}
 
@@ -303,12 +303,10 @@ export default function RegisterForm({ setActiveTab }) {
                 </button>
             </form>
 
-            <SocialButtons />
 
-            <p className="switch-text">
-                Already have an account?{" "}
-                <button onClick={() => setActiveTab("login")}>Login</button>
-            </p>
+            <div className="social-area">
+                <SocialButtons />
+            </div>
         </div>
     );
 }

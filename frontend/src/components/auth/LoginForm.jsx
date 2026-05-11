@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { login } from "../../services/authService";
+import {
+    login,
+    getProfile,
+} from "../../services/authService";
 import SocialButtons from "./SocialButtons";
 
 export default function LoginForm({ setActiveTab }) {
@@ -39,12 +42,16 @@ export default function LoginForm({ setActiveTab }) {
         try {
             setLoading(true);
             const res = await login(form);
-            localStorage.setItem("token", res.data.token);
+            const profile = await getProfile(res.data.token);
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(profile.data.user)
+            );
 
             alert("Login successful");
 
-            //  home route:
-            // navigate("/home");
+
         } catch (error) {
             setErrors({
                 api: error.response?.data?.message || "Login failed. Please try again.",
@@ -132,7 +139,14 @@ export default function LoginForm({ setActiveTab }) {
                     <label>
                         <input type="checkbox" defaultChecked /> Remember me
                     </label>
-                    <button type="button">Forgot password?</button>
+                    <button
+                        type="button"
+                        onClick={() =>
+                            alert("Password reset feature will be available soon.")
+                        }
+                    >
+                        Forgot password?
+                    </button>
                 </div>
 
                 <button className="main-btn login-btn" disabled={loading}>
@@ -140,12 +154,12 @@ export default function LoginForm({ setActiveTab }) {
                 </button>
             </form>
 
-            <SocialButtons />
 
-            <p className="switch-text">
-                Don’t have an account?{" "}
-                <button onClick={() => setActiveTab("register")}>Register</button>
-            </p>
+
+    <div className="social-area">
+        <SocialButtons />
+    </div>
+
         </div>
     );
 }
