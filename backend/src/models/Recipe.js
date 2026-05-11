@@ -8,6 +8,11 @@ const recipeSchema = new mongoose.Schema(
       trim: true,
     },
 
+ image: {
+  type: String,
+  default: "",
+     },
+
     ingredients: {
       type: [String],
       required: true,
@@ -32,6 +37,11 @@ const recipeSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
+   sourceIngredients: {
+  type: [String],
+  default: [],
+},
 
     cuisine: {
       type: String,

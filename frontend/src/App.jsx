@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./components/Layout";
-
 import Home from "./pages/Home";
 import UserDashboard from "./pages/UserDashboard";
 import GenerateRecipe from "./pages/GenerateRecipe";
@@ -11,9 +10,6 @@ import Favorites from "./pages/Favorites";
 import HelpTips from "./pages/HelpTips";
 import AuthPage from "./pages/AuthPage";
 
-function BrowseRecipes() {
-  return <h2>Browse Recipes Page</h2>;
-}
 
 function App() {
   return (
@@ -29,7 +25,6 @@ function App() {
           <Route path="home" element={<Home />} />
           <Route path="dashboard" element={<UserDashboard />} />
           <Route path="generate-recipe" element={<GenerateRecipe />} />
-          <Route path="browse-recipes" element={<BrowseRecipes />} />
           <Route path="my-recipes" element={<MyRecipes />} />
           <Route path="favorites" element={<Favorites />} />
           <Route path="help" element={<HelpTips />} />

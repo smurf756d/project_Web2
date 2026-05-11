@@ -22,6 +22,22 @@ async function generateRecipe(req, res, next) {
     next(error);
   }
 }
+/**
+ * Refines a generated recipe based on user feedback.
+ */
+async function refineRecipe(req, res, next) {
+  try {
+    const recipe = await recipeService.refineRecipe(req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Recipe refined successfully",
+      data: recipe,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
 /**
  * Saves a generated recipe to MongoDB.
@@ -158,6 +174,7 @@ async function deleteAllRecipes(req, res, next) {
 
 module.exports = {
   generateRecipe,
+  refineRecipe,
   createRecipe,
   getRecipes,
   getRecipeById,

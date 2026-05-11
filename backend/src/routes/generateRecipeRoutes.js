@@ -5,6 +5,7 @@ const validateGenerateRecipe = require("../middlewares/validateGenerateRecipe");
 
 const {
   generateRecipe,
+  refineRecipe,
   createRecipe,
   getRecipes,
   getRecipeById,
@@ -123,6 +124,36 @@ router.post("/generate", validateGenerateRecipe, generateRecipe);
  *       400:
  *         description: Invalid recipe data
  */
+
+/**
+ * @swagger
+ * /api/recipes/refine:
+ *   post:
+ *     summary: Refine a generated recipe based on user feedback
+ *     tags: [Recipes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - recipe
+ *               - userMessage
+ *             properties:
+ *               recipe:
+ *                 $ref: '#/components/schemas/Recipe'
+ *               userMessage:
+ *                 type: string
+ *                 example: "I do not have rice, replace it with pasta"
+ *     responses:
+ *       200:
+ *         description: Recipe refined successfully
+ *       400:
+ *         description: Invalid refine request
+ */
+router.post("/refine", refineRecipe);
+
 router.post("/", createRecipe);
 
 /**
