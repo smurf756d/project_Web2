@@ -4,14 +4,35 @@ import RecentUsers from "../components/RecentUsers";
 import RecentRecipes from "../components/RecentRecipes";
 import MostLikedRecipes from "../components/MostLikedRecipes";
 import { recentUsers, recentRecipes } from "../data/adminData";
+import { useEffect, useState } from "react";
 
 function AdminDashboard() {
-  
-const stats = {
-  users: recentUsers.length,
-  recipes: recentRecipes.length,
-  generated: 0,
+const [stats, setStats] = useState(null);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  async function fetchDashboardStats() {
+    try {
+      const response = await fetch("http://localhost:5000/api/admin/stats");
+      const data = await response.json();
+
+      setStats(data.data);
+    } catch (error) {
+      console.error("Failed to fetch dashboard stats:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchDashboardStats();
+}, []);
+
+const dashboardStats = {
+  users: stats?.totalUsers ?? 0,
+  recipes: stats?.totalRecipes ?? 0,
+  generated: stats?.generatedRecipes ?? 0,
 };
+
   return (
   <div className="py-4 text-dark admin-dashboard">
     <div className="dashboard-heading text-center mb-4">
@@ -31,7 +52,11 @@ const stats = {
   </button>
 
 </div>
-<StatsCards stats={stats} />
+{loading ? (
+  <p className="text-center">Loading dashboard stats...</p>
+) : (
+  <StatsCards stats={dashboardStats} />
+)}
 
 <div className="row">
 
