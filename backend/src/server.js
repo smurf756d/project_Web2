@@ -18,6 +18,12 @@ app.use(express.json());
 app.use("/api/recipes", recipeRoutes);
 app.use("/api/admin", adminRoutes);
 
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found",
+  });
+});
 
 const swaggerOptions = {
   definition: {
