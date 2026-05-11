@@ -4,14 +4,16 @@ import RecentUsers from "../components/RecentUsers";
 import RecentRecipes from "../components/RecentRecipes";
 import MostLikedRecipes from "../components/MostLikedRecipes";
 import { recentUsers } from "../data/adminData";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const recentUsersRef = useRef(null);
 const [stats, setStats] = useState(null);
 const [loading, setLoading] = useState(true);
 const [recentRecipesData, setRecentRecipesData] = useState([]);
+const [showAllUsers, setShowAllUsers] = useState(false);
 
 useEffect(() => {
   async function fetchDashboardStats() {
@@ -109,12 +111,23 @@ const dashboardStats = {
       </div>
     </div>
 
-    <div className="card p-3 mb-4">
+    <div className="card p-3 mb-4" ref={recentUsersRef}>
       <div className="d-flex justify-content-between align-items-center mb-3">
   <h5 className="mb-0">👥 Recent Users</h5>
-  <button className="btn btn-sm btn-outline-success">View All</button>
+<button
+  className="btn btn-sm btn-outline-success"
+  onClick={() => setShowAllUsers(!showAllUsers)}
+>
+  {showAllUsers ? "Show Less" : "View All"}
+</button>
 </div>
-      <RecentUsers users={recentUsers} />
+<RecentUsers
+  users={
+    showAllUsers
+      ? recentUsers
+      : recentUsers.slice(0, 2)
+  }
+/>
     </div>
 
   </div>
@@ -123,7 +136,7 @@ const dashboardStats = {
 
   <div className="card p-3 mb-4">
     <h5 className="mb-3">🍽️ Recent Recipes</h5>
-   <RecentRecipes recipes={recentRecipesData} />
+   <RecentRecipes recipes={recentRecipesData.slice(0, 3)} />
   </div>
 
  <div className="card p-3">
