@@ -2,6 +2,11 @@ const express = require("express");
 const router = express.Router();
 
 const {
+  protect,
+  authorizeAdmin,
+} = require("../middleware/authMiddleware");
+
+const {
   getDashboardStats,
   getRecentRecipes,
 } = require("../controllers/adminController");
@@ -25,7 +30,12 @@ const {
  *       500:
  *         description: Failed to fetch dashboard stats
  */
-router.get("/stats", getDashboardStats);
+router.get(
+  "/stats",
+  protect,
+  authorizeAdmin,
+  getDashboardStats
+);
 
 /**
  * @swagger
@@ -40,6 +50,11 @@ router.get("/stats", getDashboardStats);
  *         description: Failed to fetch recent recipes
  */
 
-router.get("/recent-recipes", getRecentRecipes);
+router.get(
+  "/recent-recipes",
+  protect,
+  authorizeAdmin,
+  getRecentRecipes
+);
 
 module.exports = router;
