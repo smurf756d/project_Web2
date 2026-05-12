@@ -7,10 +7,7 @@ const myRecipeSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    category: {
-      type: String,
-      default: "any",
-    },
+
     image: {
       type: String,
       default: "",
@@ -35,7 +32,9 @@ const myRecipeSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-
+/**
+ * Link recipe to logged-in user
+ */
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -47,4 +46,7 @@ const myRecipeSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("MyRecipe", myRecipeSchema);
+module.exports = mongoose.model(
+    "MyRecipe", 
+    myRecipeSchema
+);

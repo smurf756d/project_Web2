@@ -10,7 +10,8 @@ const User = require("../models/User");
  */
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } =
+      req.body;
 
     // Validate required fields before creating user
     if (!name || !email || !password) {
@@ -21,7 +22,8 @@ const register = async (req, res) => {
     }
 
     // Prevent duplicate accounts with same email
-    const existingUser = await User.findOne({ email });
+    const existingUser =
+      await User.findOne({ email });
 
     if (existingUser) {
       return res.status(409).json({
@@ -31,7 +33,8 @@ const register = async (req, res) => {
     }
 
     // Hash password before storing it in database
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
 
     // Create and save new user
     const user = await User.create({
@@ -42,7 +45,8 @@ const register = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully",
+      message:
+        "User registered successfully",
       data: {
         id: user._id,
         name: user.name,
@@ -50,10 +54,14 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error(
+      "Register failed:",
+      error.message
+    );
+
     res.status(500).json({
       success: false,
       message: "Server error",
-      error: error.message,
     });
   }
 };
@@ -65,36 +73,43 @@ const register = async (req, res) => {
  */
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } =
+      req.body;
 
     // Validate login input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email and password are required",
+        message:
+          "Email and password are required",
       });
     }
 
     // Check if user exists
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      email,
+    });
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message:
+          "Invalid email or password",
       });
     }
 
     // Compare entered password with hashed password
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const isPasswordValid =
+      await bcrypt.compare(
+        password,
+        user.password
+      );
 
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message:
+          "Invalid email or password",
       });
     }
 
@@ -112,7 +127,8 @@ const login = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "User logged in successfully",
+      message:
+        "User logged in successfully",
       data: {
         token,
         user: {
@@ -124,10 +140,14 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error(
+      "Login failed:",
+      error.message
+    );
+
     res.status(500).json({
       success: false,
       message: "Server error",
-      error: error.message,
     });
   }
 };

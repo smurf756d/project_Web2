@@ -1,11 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
-import Topbar from "../components/layout/Topbar";
+import { useEffect, useState } from "react";
 import RecipeCard from "../components/RecipeCard";
+
 import {
   getMyRecipes,
   updateMyRecipe,
   deleteMyRecipe,
 } from "../api/myRecipeApi";
+
+import {
+  addFavorite,
+  removeFavorite,
+  getFavorites,
+} from "../api/favoriteRecipeApi";
+
 import "../styles/recipesPages.css";
 
 function MyRecipes() {
@@ -19,6 +26,7 @@ function MyRecipes() {
    * Search input value
    */
   const [searchTerm, setSearchTerm] = useState("");
+
 
   /**
    * Selected recipe for delete confirmation modal
@@ -50,25 +58,74 @@ function MyRecipes() {
    * Pagination state
    */
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [totalPages, setTotalPages] = useState(1);
+
   const recipesPerPage = 3;
+
+  /**
+   * Normalize recipe shape from backend
+   */
+  const normalizeRecipe = (recipe) => {
+    return {
+      ...recipe,
+
+      
+
+      id: recipe._id,
+
+      image: recipe.image || "",
+
+      instructions:
+        recipe.instructions ||
+        (Array.isArray(recipe.steps)
+          ? recipe.steps.join("\n")
+          : ""),
+
+      time:
+        recipe.time ||
+        parseInt(recipe.cookingTime) ||
+        30,
+
+      calories:
+        recipe.calories
+          ? parseInt(recipe.calories)
+          : 0,
+    };
+  };
 
   /**
    * Fetch recipes whenever page changes
    */
-  useEffect(() => {
-    fetchRecipes();
-  }, [currentPage]);
-
-  /**
- * Load logged-in user's recipes from backend
+   /**
+ * Load recipes from backend
  */
 const fetchRecipes = async () => {
   try {
     setLoading(true);
 
-    const data = await getMyRecipes(currentPage, recipesPerPage);
+    const recipesData = await getMyRecipes(
+      currentPage,
+      recipesPerPage,
+      searchTerm,
+    );
 
-    setRecipes(data.data || []);
+    setTotalPages(recipesData.totalPages || 1);
+
+    const favoritesData = await getFavorites(1, 100);
+
+    const favoriteRecipeIds = (favoritesData.data || [])
+      .filter((favorite) => favorite.recipe)
+      .map((favorite) => favorite.recipe._id);
+
+    const normalizedRecipes = (recipesData.data || [])
+      .map(normalizeRecipe)
+      .map((recipe) => ({
+        ...recipe,
+        isFavorite: favoriteRecipeIds.includes(recipe._id),
+      }));
+
+    setRecipes(normalizedRecipes);
   } catch (error) {
     console.error("Failed to fetch recipes", error);
   } finally {
@@ -76,34 +133,27 @@ const fetchRecipes = async () => {
   }
 };
 
-  /**
-   * Filter recipes locally by title
-   */
-  const filteredRecipes = useMemo(() => {
-    return recipes.filter((recipe) =>
-      recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [recipes, searchTerm]);
+useEffect(() => {
+  fetchRecipes();
+}, [currentPage, searchTerm]);
 
- 
-  /**
- * Recipes already come paginated from backend
- */
-const visibleRecipes = filteredRecipes;
+useEffect(() => {
+  setCurrentPage(1);
+}, [searchTerm]);
 
-/**
- * Keep at least one page visible
- */
-const totalPages = 1;
+const visibleRecipes = recipes;
   /**
-   * Delete recipe from backend
+   * Delete recipe
    */
   const handleDelete = async () => {
     try {
       await deleteMyRecipe(selectedRecipe._id);
 
       setRecipes((prevRecipes) =>
-        prevRecipes.filter((recipe) => recipe._id !== selectedRecipe._id)
+        prevRecipes.filter(
+          (recipe) =>
+            recipe._id !== selectedRecipe._id
+        )
       );
 
       setSelectedRecipe(null);
@@ -113,37 +163,56 @@ const totalPages = 1;
   };
 
   /**
-   * Toggle favorite locally for now
+   * Add or remove favorite
    */
-  const handleToggleFavorite = (id) => {
-    setRecipes((prevRecipes) =>
-      prevRecipes.map((recipe) =>
-        recipe._id === id
-          ? { ...recipe, isFavorite: !recipe.isFavorite }
-          : recipe
-      )
+const handleToggleFavorite = async (id) => {
+  try {
+    const recipe = recipes.find(
+      (item) => item._id === id
     );
-  };
+
+    if (!recipe) return;
+
+    if (recipe.isFavorite) {
+      await removeFavorite(id);
+    } else {
+      await addFavorite(id);
+    }
+
+    await fetchRecipes();
+  } catch (error) {
+    console.error(
+      "Failed to update favorite",
+      error
+    );
+  }
+};
+
 
   /**
-   * Open edit modal and fill form with selected recipe data
+   * Open edit modal
    */
   const openEditModal = (recipe) => {
     setEditingRecipe(recipe);
 
     setEditForm({
       title: recipe.title || "",
+
       ingredients: Array.isArray(recipe.ingredients)
         ? recipe.ingredients.join(", ")
         : recipe.ingredients || "",
-      instructions: recipe.instructions || "",
+
+      instructions:
+        recipe.instructions || "",
+
       time: recipe.time || "",
+
       calories: recipe.calories || "",
     });
   };
 
   /**
-   * Update edit form values
+   * Handle edit form changes
    */
   const handleEditChange = (e) => {
     const { name, value } = e.target;
@@ -155,7 +224,7 @@ const totalPages = 1;
   };
 
   /**
-   * Save updated recipe to backend
+   * Save updated recipe
    */
   const handleSaveEdit = async (e) => {
     e.preventDefault();
@@ -175,74 +244,128 @@ const totalPages = 1;
       return;
     }
 
-    if (Number(editForm.time) <= 0 || Number(editForm.calories) <= 0) {
-      alert("Time and calories must be greater than 0");
+    if (
+      Number(editForm.time) <= 0 ||
+      Number(editForm.calories) <= 0
+    ) {
+      alert(
+        "Time and calories must be greater than 0"
+      );
       return;
     }
 
     try {
       const updatedRecipe = {
         title: editForm.title.trim(),
+
         ingredients: editForm.ingredients
           .split(",")
           .map((item) => item.trim())
           .filter(Boolean),
-        instructions: editForm.instructions.trim(),
+
+        instructions:
+          editForm.instructions.trim(),
+
         time: Number(editForm.time),
+
         calories: Number(editForm.calories),
       };
 
-      const response = await updateMyRecipe(editingRecipe._id, updatedRecipe);
+      const response = await updateMyRecipe(
+        editingRecipe._id,
+        updatedRecipe
+      );
 
       setRecipes((prevRecipes) =>
         prevRecipes.map((recipe) =>
-          recipe._id === editingRecipe._id ? response.data : recipe
+          recipe._id === editingRecipe._id
+            ? response.data
+            : recipe
         )
       );
 
       setEditingRecipe(null);
     } catch (error) {
-      console.error("Failed to update recipe", error);
+      console.error(
+        "Failed to update recipe",
+        error
+      );
     }
   };
 
   return (
     <div className="my-recipes-page">
       <section className="my-recipes-main">
-        <Topbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <div className="recipes-header">
+  <div className="recipes-title-box">
+  <h1>My Recipes</h1>
+
+  <p>
+    Manage and view your saved healthy recipes
+  </p>
+</div>
+</div>
 
         <section className="recipes-toolbar">
           <div className="filter-box">
             <i className="bi bi-search"></i>
-            <select>
-              <option>Search recipes...</option>
-              <option>Newest</option>
-              <option>Lowest Calories</option>
-              <option>Fastest Cooking</option>
-            </select>
+
+<input
+  type="text"
+  placeholder="Search recipes..."
+  value={searchTerm}
+  onChange={(e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  }}
+  className="search-input"
+/>
           </div>
 
-          <button className="add-recipe-btn">
-            <i className="bi bi-plus-lg"></i>
-            Add New Recipe
-          </button>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+            }}
+          >
+            <button
+              className="add-recipe-btn"
+              onClick={() =>
+                (window.location.href =
+                  "/favorites")
+              }
+            >
+              <i className="bi bi-heart"></i>
+              My Favorites
+            </button>
+
+            <button
+              className="add-recipe-btn"
+              onClick={() =>
+                (window.location.href =
+                  "/generate-recipe")
+              }
+            >
+              <i className="bi bi-plus-lg"></i>
+              Add New Recipe
+            </button>
+          </div>
         </section>
 
         {loading ? (
-  <div className="empty-state">
-    <h4>Loading recipes...</h4>
-  </div>
-) : visibleRecipes.length > 0 ? (
+          <div className="empty-state">
+            <h4>Loading recipes...</h4>
+          </div>
+        ) : visibleRecipes.length > 0 ? (
           <section className="recipes-grid">
             {visibleRecipes.map((recipe) => (
               <RecipeCard
                 key={recipe._id}
-                recipe={{
-                  ...recipe,
-                  id: recipe._id,
-                }}
+                recipe={recipe}
                 onDelete={setSelectedRecipe}
-                onToggleFavorite={handleToggleFavorite}
+                onToggleFavorite={
+                  handleToggleFavorite
+                }
                 onEdit={openEditModal}
                 onView={setViewingRecipe}
               />
@@ -251,32 +374,48 @@ const totalPages = 1;
         ) : (
           <div className="empty-state">
             <i className="bi bi-journal-x"></i>
+
             <h4>No recipes found</h4>
-            <p>Try searching for another recipe.</p>
+
+            <p>
+              Try searching for another recipe.
+            </p>
           </div>
         )}
 
         <section className="pagination-area">
           <button
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage((page) => page - 1)}
+            onClick={() =>
+              setCurrentPage((page) => page - 1)
+            }
           >
             Prev
           </button>
 
-          {[...Array(totalPages)].map((_, index) => (
-            <button
-              key={index}
-              className={currentPage === index + 1 ? "active" : ""}
-              onClick={() => setCurrentPage(index + 1)}
-            >
-              {index + 1}
-            </button>
-          ))}
+          {[...Array(totalPages)].map(
+            (_, index) => (
+              <button
+                key={index}
+                className={
+                  currentPage === index + 1
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setCurrentPage(index + 1)
+                }
+              >
+                {index + 1}
+              </button>
+            )
+          )}
 
           <button
             disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((page) => page + 1)}
+            onClick={() =>
+              setCurrentPage((page) => page + 1)
+            }
           >
             Next
           </button>
@@ -286,44 +425,52 @@ const totalPages = 1;
       {viewingRecipe && (
         <div className="modal-backdrop-custom">
           <div className="view-modal">
-            <img
-              src={viewingRecipe.image}
-              alt={viewingRecipe.title}
-              onError={(e) => {
-                e.target.src =
-                  "https://via.placeholder.com/400x230?text=No+Image";
-              }}
-            />
+            
 
             <h3>{viewingRecipe.title}</h3>
 
             <div className="view-info">
               <span>
-                <i className="bi bi-clock"></i> {viewingRecipe.time} min
+                <i className="bi bi-clock"></i>{" "}
+                {viewingRecipe.time} min
               </span>
+
               <span>
-                <i className="bi bi-fire"></i> {viewingRecipe.calories} cal
+                <i className="bi bi-fire"></i>{" "}
+                {viewingRecipe.calories} cal
               </span>
             </div>
 
             <div className="view-section">
               <h5>Ingredients</h5>
+
               <p>
-                {Array.isArray(viewingRecipe.ingredients)
-                  ? viewingRecipe.ingredients.join(", ")
-                  : viewingRecipe.ingredients || "No ingredients listed."}
+                {Array.isArray(
+                  viewingRecipe.ingredients
+                )
+                  ? viewingRecipe.ingredients.join(
+                      ", "
+                    )
+                  : viewingRecipe.ingredients ||
+                    "No ingredients listed."}
               </p>
             </div>
 
             <div className="view-section">
               <h5>Instructions</h5>
-              <p>{viewingRecipe.instructions || "No instructions listed."}</p>
+
+              <p>
+                {viewingRecipe.instructions ||
+                  "No instructions listed."}
+              </p>
             </div>
 
             <div className="modal-actions">
               <button
                 className="cancel-btn"
-                onClick={() => setViewingRecipe(null)}
+                onClick={() =>
+                  setViewingRecipe(null)
+                }
               >
                 Close
               </button>
@@ -335,18 +482,26 @@ const totalPages = 1;
       {selectedRecipe && (
         <div className="modal-backdrop-custom">
           <div className="delete-modal">
-            <h5>Are you sure you want to delete?</h5>
+            <h5>
+              Are you sure you want to delete?
+            </h5>
+
             <p>{selectedRecipe.title}</p>
 
             <div className="modal-actions">
               <button
                 className="cancel-btn"
-                onClick={() => setSelectedRecipe(null)}
+                onClick={() =>
+                  setSelectedRecipe(null)
+                }
               >
                 Cancel
               </button>
 
-              <button className="confirm-delete-btn" onClick={handleDelete}>
+              <button
+                className="confirm-delete-btn"
+                onClick={handleDelete}
+              >
                 Delete
               </button>
             </div>
@@ -356,10 +511,14 @@ const totalPages = 1;
 
       {editingRecipe && (
         <div className="modal-backdrop-custom">
-          <form className="edit-modal" onSubmit={handleSaveEdit}>
+          <form
+            className="edit-modal"
+            onSubmit={handleSaveEdit}
+          >
             <h5>Edit Recipe</h5>
 
             <label>Recipe Name</label>
+
             <input
               type="text"
               name="title"
@@ -368,6 +527,7 @@ const totalPages = 1;
             />
 
             <label>Ingredients</label>
+
             <textarea
               name="ingredients"
               value={editForm.ingredients}
@@ -376,6 +536,7 @@ const totalPages = 1;
             />
 
             <label>Instructions</label>
+
             <textarea
               name="instructions"
               value={editForm.instructions}
@@ -384,6 +545,7 @@ const totalPages = 1;
             />
 
             <label>Cooking Time</label>
+
             <input
               type="number"
               name="time"
@@ -393,6 +555,7 @@ const totalPages = 1;
             />
 
             <label>Calories</label>
+
             <input
               type="number"
               name="calories"
@@ -405,12 +568,17 @@ const totalPages = 1;
               <button
                 type="button"
                 className="cancel-btn"
-                onClick={() => setEditingRecipe(null)}
+                onClick={() =>
+                  setEditingRecipe(null)
+                }
               >
                 Cancel
               </button>
 
-              <button type="submit" className="save-edit-btn">
+              <button
+                type="submit"
+                className="save-edit-btn"
+              >
                 Save Changes
               </button>
             </div>

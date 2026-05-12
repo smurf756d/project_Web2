@@ -8,16 +8,10 @@ async function createMyRecipe(recipeData) {
     ...recipeData,
     calories: Number(recipeData.calories),
     time: Number(recipeData.time),
-    category:
-      recipeData.category ||
-      recipeData.cuisine ||
-      recipeData.type ||
-      "any",
   });
 
   return await recipe.save();
 }
-
 /**
  * @desc Get user's recipes with pagination, search, and sorting
  */
@@ -82,17 +76,6 @@ async function updateMyRecipe(recipeId, userId, updateData) {
     finalUpdateData.time = Number(updateData.time);
   }
 
-  if (
-    updateData.category ||
-    updateData.cuisine ||
-    updateData.type
-  ) {
-    finalUpdateData.category =
-      updateData.category ||
-      updateData.cuisine ||
-      updateData.type ||
-      "any";
-  }
 
   return await MyRecipe.findOneAndUpdate(
     {

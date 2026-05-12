@@ -1,4 +1,6 @@
-const favoriteRecipeService = require("../services/favoriteRecipe.service");
+const favoriteRecipeService = require(
+  "../services/favoriteRecipe.service"
+);
 
 /**
  * @desc    Add recipe to logged-in user's favorites
@@ -7,10 +9,11 @@ const favoriteRecipeService = require("../services/favoriteRecipe.service");
  */
 async function addFavorite(req, res) {
   try {
-    const favorite = await favoriteRecipeService.addFavorite(
-      req.user._id,
-      req.params.recipeId
-    );
+    const favorite =
+      await favoriteRecipeService.addFavorite(
+        req.user._id,
+        req.params.recipeId
+      );
 
     res.status(201).json({
       success: true,
@@ -18,12 +21,19 @@ async function addFavorite(req, res) {
       data: favorite,
     });
   } catch (error) {
+    // Prevent duplicate favorite recipes
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
-        message: "Recipe is already in favorites",
+        message:
+          "Recipe is already in favorites",
       });
     }
+
+    console.error(
+      "Add favorite failed:",
+      error.message
+    );
 
     res.status(500).json({
       success: false,
@@ -44,24 +54,34 @@ async function getFavorites(req, res) {
      * Default page = 1
      * Default limit = 5
      */
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 5;
+    const page =
+      Number(req.query.page) || 1;
 
-    const result = await favoriteRecipeService.getFavorites(
-      req.user._id,
-      page,
-      limit
-    );
+    const limit =
+      Number(req.query.limit) || 5;
+
+    const result =
+      await favoriteRecipeService.getFavorites(
+        req.user._id,
+        page,
+        limit
+      );
 
     res.status(200).json({
       success: true,
-      totalFavorites: result.totalFavorites,
+      totalFavorites:
+        result.totalFavorites,
       currentPage: result.currentPage,
       totalPages: result.totalPages,
       results: result.favorites.length,
       data: result.favorites,
     });
   } catch (error) {
+    console.error(
+      "Get favorites failed:",
+      error.message
+    );
+
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -76,23 +96,31 @@ async function getFavorites(req, res) {
  */
 async function removeFavorite(req, res) {
   try {
-    const favorite = await favoriteRecipeService.removeFavorite(
-      req.user._id,
-      req.params.recipeId
-    );
+    const favorite =
+      await favoriteRecipeService.removeFavorite(
+        req.user._id,
+        req.params.recipeId
+      );
 
     if (!favorite) {
       return res.status(404).json({
         success: false,
-        message: "Favorite recipe not found",
+        message:
+          "Favorite recipe not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Recipe removed from favorites",
+      message:
+        "Recipe removed from favorites",
     });
   } catch (error) {
+    console.error(
+      "Remove favorite failed:",
+      error.message
+    );
+
     res.status(500).json({
       success: false,
       message: "Internal server error",

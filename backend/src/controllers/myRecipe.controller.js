@@ -9,9 +9,6 @@ async function createMyRecipe(req, res) {
   try {
     const {
       title,
-      category,
-      type,
-      cuisine,
       ingredients,
       instructions,
       time,
@@ -21,7 +18,13 @@ async function createMyRecipe(req, res) {
     /**
      * Validate required recipe fields
      */
-    if (!title || !ingredients || !instructions || !time || !calories) {
+    if (
+      !title ||
+      !ingredients ||
+      !instructions ||
+      !time ||
+      !calories
+    ) {
       return res.status(400).json({
         success: false,
         message: "Please fill all required fields",
@@ -29,20 +32,17 @@ async function createMyRecipe(req, res) {
     }
 
     /**
-     * Create recipe and link it to logged-in user.
-     * category is used for static card images:
-     * arabic, italian, asian, any
+     * Create recipe and link it to logged-in user
      */
-   const recipe = await myRecipeService.createMyRecipe({
-  title,
-  category: category || cuisine || type || "any",
-  ingredients,
-  instructions,
-  time,
-  calories,
-  image: req.body.image || "",
-  user: req.user._id,
-});
+    const recipe = await myRecipeService.createMyRecipe({
+      title,
+      ingredients,
+      instructions,
+      time: Number(time),
+      calories: Number(calories),
+      image: req.body.image || "",
+      user: req.user._id,
+    });
 
     res.status(201).json({
       success: true,
@@ -50,6 +50,11 @@ async function createMyRecipe(req, res) {
       data: recipe,
     });
   } catch (error) {
+    console.error(
+      "Create my recipe failed:",
+      error.message
+    );
+
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -74,12 +79,13 @@ async function getMyRecipes(req, res) {
       sort: req.query.sort,
     };
 
-    const result = await myRecipeService.getMyRecipes(
-      req.user._id,
-      page,
-      limit,
-      filters
-    );
+    const result =
+      await myRecipeService.getMyRecipes(
+        req.user._id,
+        page,
+        limit,
+        filters
+      );
 
     res.status(200).json({
       success: true,
@@ -90,6 +96,11 @@ async function getMyRecipes(req, res) {
       data: result.recipes,
     });
   } catch (error) {
+    console.error(
+      "Get my recipes failed:",
+      error.message
+    );
+
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -104,11 +115,12 @@ async function getMyRecipes(req, res) {
  */
 async function updateMyRecipe(req, res) {
   try {
-    const recipe = await myRecipeService.updateMyRecipe(
-      req.params.id,
-      req.user._id,
-      req.body
-    );
+    const recipe =
+      await myRecipeService.updateMyRecipe(
+        req.params.id,
+        req.user._id,
+        req.body
+      );
 
     if (!recipe) {
       return res.status(404).json({
@@ -123,6 +135,11 @@ async function updateMyRecipe(req, res) {
       data: recipe,
     });
   } catch (error) {
+    console.error(
+      "Update my recipe failed:",
+      error.message
+    );
+
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -137,10 +154,11 @@ async function updateMyRecipe(req, res) {
  */
 async function deleteMyRecipe(req, res) {
   try {
-    const recipe = await myRecipeService.deleteMyRecipe(
-      req.params.id,
-      req.user._id
-    );
+    const recipe =
+      await myRecipeService.deleteMyRecipe(
+        req.params.id,
+        req.user._id
+      );
 
     if (!recipe) {
       return res.status(404).json({
@@ -154,6 +172,11 @@ async function deleteMyRecipe(req, res) {
       message: "Recipe deleted successfully",
     });
   } catch (error) {
+    console.error(
+      "Delete my recipe failed:",
+      error.message
+    );
+
     res.status(500).json({
       success: false,
       message: "Internal server error",

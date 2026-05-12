@@ -13,12 +13,20 @@ async function addFavorite(userId, recipeId) {
 /**
  * @desc    Get paginated favorite recipes for logged-in user
  */
-async function getFavorites(userId, page, limit) {
+async function getFavorites(
+    userId, 
+    page, 
+    limit
+) {
 
-  // Calculate how many documents to skip
+/**
+ * Calculate pagination offset
+ */
   const skip = (page - 1) * limit;
 
-  // Fetch paginated favorite recipes
+ /**
+ * Fetch paginated favorite recipes
+ */
   const favorites = await FavoriteRecipe.find({
     user: userId,
   })
@@ -27,7 +35,9 @@ async function getFavorites(userId, page, limit) {
     .skip(skip)
     .limit(limit);
 
-  // Count total favorite recipes
+  /**
+ * Count total favorite recipes
+ */
   const totalFavorites = await FavoriteRecipe.countDocuments({
     user: userId,
   });

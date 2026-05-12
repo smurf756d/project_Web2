@@ -16,7 +16,13 @@ async function generateRecipe(data) {
 }
 
 async function saveRecipe(recipe) {
-  const newRecipe = new Recipe(recipe);
+  const newRecipe = new Recipe({
+    ...recipe,
+    category: recipe.category,
+    time: Number(recipe.time),
+    calories: Number(recipe.calories),
+  });
+
   return await newRecipe.save();
 }
 

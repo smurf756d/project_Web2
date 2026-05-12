@@ -2,13 +2,13 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 /**
- * @desc Middleware to protect routes using JWT authentication
+ * @desc Middleware to protect private routes using JWT authentication
  */
 const protect = async (req, res, next) => {
   try {
-    let token;
+    let token = null;
 
-    // Token should be sent as: Authorization: Bearer token
+    // Token should be sent as: Authorization: Bearer <token>
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
@@ -23,10 +23,15 @@ const protect = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
 
     // Attach logged-in user to request object for next controllers
-    req.user = await User.findById(decoded.id).select("-password");
+    req.user = await User.findById(decoded.id).select(
+      "-password"
+    );
 
     if (!req.user) {
       return res.status(401).json({
@@ -37,6 +42,11 @@ const protect = async (req, res, next) => {
 
     next();
   } catch (error) {
+    console.error(
+      "JWT authentication failed:",
+      error.message
+    );
+
     return res.status(401).json({
       success: false,
       message: "Not authorized, invalid token",

@@ -201,11 +201,6 @@ MyRecipeRequest: {
       example: "Healthy Chicken Salad",
     },
 
-    type: {
-      type: "string",
-      example: "italian",
-    },
-
     image: {
       type: "string",
       example: "https://example.com/salad.jpg",

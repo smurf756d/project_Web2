@@ -17,10 +17,37 @@ async function generateRecipe(req, res) {
  */
 async function createRecipe(req, res) {
   try {
-    const recipe = await recipeService.saveRecipe({
-      ...req.body,
+    const {
+      title,
+      category,
+      ingredients,
+      instructions,
+      time,
+      calories,
+    } = req.body;
 
-      // Link recipe to logged-in user
+    if (
+      !title ||
+      !category ||
+      !ingredients ||
+      !instructions ||
+      !time ||
+      !calories
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all required fields",
+      });
+    }
+
+    const recipe = await recipeService.saveRecipe({
+      title,
+      category,
+      ingredients,
+      instructions,
+      time,
+      calories,
+      image: req.body.image || "",
       user: req.user._id,
     });
 

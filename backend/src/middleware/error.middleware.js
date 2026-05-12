@@ -1,11 +1,25 @@
-const errorHandler = (err, req, res, next) => {
-  console.error(err);
+/**
+ * @desc Global error handling middleware
+ */
+const errorHandler = (
+  err,
+  req,
+  res,
+  next
+) => {
+  console.error(
+    "Server Error:",
+    err.message
+  );
 
-  const statusCode = err.statusCode || 500;
+  const statusCode =
+    err.statusCode || 500;
 
   res.status(statusCode).json({
     success: false,
-    message: err.message || "Internal server error",
+    message:
+      err.message ||
+      "Internal server error",
   });
 };
 
