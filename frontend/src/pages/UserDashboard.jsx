@@ -6,21 +6,25 @@ import RecommendedRecipes from "../components/dashboard/RecommendedRecipes";
 import DietPreferencesCard from "../components/dashboard/DietPreferencesCard";
 import MyRecipesCard from "../components/dashboard/MyRecipesCard";
 import QuickGenerateCard from "../components/dashboard/QuickGenerateCard";
+
 import {
   getDashboardData,
   updateDietPreferences,
 } from "../services/dashboardService";
-import "./UserDashboard.css";
+
+import "../styles/UserDashboard.css";
 
 const mockDashboardData = {
   user: {
     name: localStorage.getItem("userName") || "Rama",
   },
+
   stats: {
     savedRecipes: 0,
     generatedToday: 0,
     favoriteDish: "Not selected yet",
   },
+
   suggestedRecipes: [
     {
       id: 1,
@@ -31,6 +35,7 @@ const mockDashboardData = {
       image:
         "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600",
     },
+
     {
       id: 2,
       title: "Healthy Salad",
@@ -40,6 +45,7 @@ const mockDashboardData = {
       image:
         "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600",
     },
+
     {
       id: 3,
       title: "Tomato Pasta",
@@ -50,11 +56,13 @@ const mockDashboardData = {
         "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600",
     },
   ],
+
   dietPreferences: [
     { key: "vegetarian", label: "Vegetarian", enabled: false },
     { key: "lowCarb", label: "Low Carb", enabled: false },
     { key: "highProtein", label: "High Protein", enabled: false },
   ],
+
   myRecipes: [],
 };
 
@@ -75,6 +83,7 @@ const UserDashboard = () => {
         }
 
         const response = await getDashboardData(token);
+
         setDashboardData(response.data.data);
       } catch (error) {
         setDashboardData(mockDashboardData);
@@ -97,9 +106,11 @@ const UserDashboard = () => {
       vegetarian:
         updatedPreferences.find((item) => item.key === "vegetarian")
           ?.enabled || false,
+
       lowCarb:
         updatedPreferences.find((item) => item.key === "lowCarb")?.enabled ||
         false,
+
       highProtein:
         updatedPreferences.find((item) => item.key === "highProtein")
           ?.enabled || false,
@@ -115,7 +126,10 @@ const UserDashboard = () => {
     }
 
     try {
-      const response = await updateDietPreferences(token, preferencesPayload);
+      const response = await updateDietPreferences(
+        token,
+        preferencesPayload
+      );
 
       setDashboardData((prev) => ({
         ...prev,
@@ -144,11 +158,13 @@ const UserDashboard = () => {
       value: dashboardData.stats.savedRecipes,
       variant: "green",
     },
+
     {
       label: "Generated Today",
       value: dashboardData.stats.generatedToday,
       variant: "blue",
     },
+
     {
       label: "Favorite Dish",
       value: dashboardData.stats.favoriteDish,
@@ -165,10 +181,13 @@ const UserDashboard = () => {
 
   const myRecipes = dashboardData.myRecipes.map((recipe) => ({
     id: recipe._id || recipe.id,
+
     title: recipe.title,
+
     date: recipe.createdAt
       ? new Date(recipe.createdAt).toLocaleDateString()
       : recipe.date || "Recently",
+
     image:
       recipe.image ||
       "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200",
@@ -180,7 +199,9 @@ const UserDashboard = () => {
         <div>
           <p className="dashboard-label mb-2">User Dashboard</p>
 
-          <h2 className="welcome-title">Welcome back, {user.name}! 👋</h2>
+          <h2 className="welcome-title">
+            Welcome back, {user.name}! 👋
+          </h2>
 
           <p className="welcome-subtitle">
             Manage your recipes, preferences, and personalized cooking journey.
@@ -196,7 +217,9 @@ const UserDashboard = () => {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-xl-8">
-          <QuickGenerateCard onGenerateClick={handleGoToGenerateRecipe} />
+          <QuickGenerateCard
+            onGenerateClick={handleGoToGenerateRecipe}
+          />
         </div>
 
         <div className="col-12 col-xl-4">
@@ -234,4 +257,4 @@ const UserDashboard = () => {
   );
 };
 
-export default UserDashboard;
+export default UserDashboard

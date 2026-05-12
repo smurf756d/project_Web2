@@ -7,7 +7,8 @@ const swaggerOptions = {
     info: {
       title: "Smart Kitchen Hub API",
       version: "1.0.0",
-      description: "API documentation for Smart Kitchen Hub backend",
+      description:
+        "API documentation for Smart Kitchen Hub backend, authentication, recipe generation, and recipe management",
     },
     servers: [
       {
@@ -27,6 +28,6 @@ const swaggerOptions = {
   apis: [path.join(__dirname, "..", "routes", "*.js")],
 };
 
-const swaggerSpecs = swaggerJsdoc(swaggerOptions);
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-module.exports = swaggerSpecs;
+module.exports = swaggerSpec;

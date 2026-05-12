@@ -3,54 +3,56 @@ const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
 
 /**
- * Handles user registration business logic.
+ * Registers a new local user.
  */
-const registerUser = async ({ name, email, password }) => {
-  const existingUser = await User.findOne({ email });
+const registerUser = async ({ fullName, email, password, profileImage }) => {
+  const normalizedEmail = email.toLowerCase();
+
+  const existingUser = await User.findOne({ email: normalizedEmail });
 
   if (existingUser) {
-    const error = new Error("Email is already registered");
+    const error = new Error("Email already exists");
     error.statusCode = 409;
     throw error;
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 10);
 
   const user = await User.create({
-    name,
-    email,
-    password: hashedPassword,
+    fullName,
+    email: normalizedEmail,
+    passwordHash,
+    provider: "local",
+    profileImage: profileImage || null,
   });
 
   const token = generateToken(user);
 
   return {
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
+    message: "User registered successfully",
     token,
+    user: user.toSafeObject(),
   };
 };
 
 /**
- * Handles user login business logic.
+ * Logs in a local user using email and password.
  */
 const loginUser = async ({ email, password }) => {
-  const user = await User.findOne({ email });
+  const normalizedEmail = email.toLowerCase();
 
-  if (!user) {
-    const error = new Error("Invalid email or password");
+  const user = await User.findOne({ email: normalizedEmail });
+
+  if (!user || !user.passwordHash) {
+    const error = new Error("Invalid credentials");
     error.statusCode = 401;
     throw error;
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isMatch = await bcrypt.compare(password, user.passwordHash);
 
-  if (!isPasswordValid) {
-    const error = new Error("Invalid email or password");
+  if (!isMatch) {
+    const error = new Error("Invalid credentials");
     error.statusCode = 401;
     throw error;
   }
@@ -58,17 +60,62 @@ const loginUser = async ({ email, password }) => {
   const token = generateToken(user);
 
   return {
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
+    message: "Login successful",
     token,
+    user: user.toSafeObject(),
   };
+};
+
+/**
+ * Gets the profile of the logged-in user.
+ */
+const getUserProfile = async (userId) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return user.toSafeObject();
+};
+
+/**
+ * Finds or creates a user from Google profile.
+ */
+const handleGoogleUser = async (profile) => {
+  const email = profile.emails?.[0]?.value;
+  const profileImage = profile.photos?.[0]?.value;
+
+  let user = await User.findOne({ googleId: profile.id });
+
+  if (!user && email) {
+    user = await User.findOne({ email });
+  }
+
+  if (!user) {
+    user = await User.create({
+      fullName: profile.displayName || "Google User",
+      email,
+      googleId: profile.id,
+      provider: "google",
+      profileImage: profileImage || null,
+      isEmailVerified: true,
+    });
+  } else {
+    user.googleId = profile.id;
+    user.provider = user.provider || "google";
+    user.profileImage = user.profileImage || profileImage;
+    await user.save();
+  }
+
+  return user;
 };
 
 module.exports = {
   registerUser,
   loginUser,
+  getUserProfile,
+  handleGoogleUser,
 };

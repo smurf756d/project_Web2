@@ -28,6 +28,36 @@ const recipeSchema = new mongoose.Schema(
       default: "",
     },
 
+    steps: {
+      type: [String],
+      default: [],
+    },
+
+    cookingTime: {
+      type: String,
+      default: "",
+    },
+
+    calories: {
+      type: String,
+      default: "",
+    },
+
+    diet: {
+      type: String,
+      default: "",
+    },
+
+    sourceIngredients: {
+      type: [String],
+      default: [],
+    },
+
+    cuisine: {
+      type: String,
+      default: "",
+    },
+
     isFavorite: {
       type: Boolean,
       default: false,

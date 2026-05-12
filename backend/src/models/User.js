@@ -2,29 +2,30 @@ const mongoose = require("mongoose");
 
 /**
  * User Schema
- * Stores application users information.
+ * Supports local login and future social login providers.
  */
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    fullName: {
       type: String,
-      required: [true, "User name is required"],
+      required: true,
       trim: true,
     },
 
     email: {
       type: String,
-      required: [true, "Email is required"],
+      required: true,
       unique: true,
       lowercase: true,
       trim: true,
     },
 
-    password: {
+    passwordHash: {
       type: String,
-      required: [true, "Password is required"],
-      minlength: 6,
+      required: function () {
+        return this.provider === "local";
+      },
     },
 
     role: {
@@ -32,12 +33,51 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+
+    provider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+
+    googleId: {
+      type: String,
+      default: null,
+    },
+
+    facebookId: {
+      type: String,
+      default: null,
+    },
+
+    profileImage: {
+      type: String,
+      default: null,
+    },
+
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-const User = mongoose.model("User", userSchema);
+/**
+ * Returns safe user data without passwordHash.
+ */
+userSchema.methods.toSafeObject = function () {
+  return {
+    id: this._id,
+    fullName: this.fullName,
+    email: this.email,
+    role: this.role,
+    provider: this.provider,
+    profileImage: this.profileImage,
+    isEmailVerified: this.isEmailVerified,
+  };
+};
 
-module.exports = User;
+module.exports = mongoose.model("User", userSchema);
