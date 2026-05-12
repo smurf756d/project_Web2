@@ -3,10 +3,10 @@ const passport = require("passport");
 const generateToken = require("../utils/generateToken");
 
 const {
-    testAuth,
-    register,
-    login,
-    profile,
+  testAuth,
+  register,
+  login,
+  profile,
 } = require("../controllers/authController");
 
 const authenticate = require("../middleware/authenticate");
@@ -14,8 +14,8 @@ const authorize = require("../middleware/authorize");
 const validate = require("../middleware/validate");
 
 const {
-    validateRegister,
-    validateLogin,
+  validateRegister,
+  validateLogin,
 } = require("../utils/validators");
 
 const router = express.Router();
@@ -72,10 +72,6 @@ router.get("/test", testAuth);
  *     responses:
  *       201:
  *         description: User registered successfully
- *       400:
- *         description: Validation error
- *       409:
- *         description: Email already exists
  */
 router.post("/register", validate(validateRegister), register);
 
@@ -104,8 +100,6 @@ router.post("/register", validate(validateRegister), register);
  *     responses:
  *       200:
  *         description: Login successful
- *       401:
- *         description: Invalid credentials
  */
 router.post("/login", validate(validateLogin), login);
 
@@ -120,8 +114,6 @@ router.post("/login", validate(validateLogin), login);
  *     responses:
  *       200:
  *         description: User profile returned successfully
- *       401:
- *         description: Unauthorized
  */
 router.get("/profile", authenticate, profile);
 
@@ -136,10 +128,10 @@ router.get("/profile", authenticate, profile);
  *         description: Redirects user to Google login page
  */
 router.get(
-    "/google",
-    passport.authenticate("google", {
-        scope: ["profile", "email"],
-    })
+  "/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
 );
 
 /**
@@ -153,15 +145,15 @@ router.get(
  *         description: Redirects frontend with JWT token
  */
 router.get(
-    "/google/callback",
-    passport.authenticate("google", {
-        failureRedirect: "/api/v1/auth/google/failure",
-    }),
-    (req, res) => {
-        const token = generateToken(req.user);
+  "/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/api/v1/auth/google/failure",
+  }),
+  (req, res) => {
+    const token = generateToken(req.user);
 
-        res.redirect(`${process.env.CLIENT_SUCCESS_URL}#token=${token}`);
-    }
+    res.redirect(`${process.env.CLIENT_SUCCESS_URL}#token=${token}`);
+  }
 );
 
 /**
@@ -175,7 +167,7 @@ router.get(
  *         description: Redirects to frontend failure page
  */
 router.get("/google/failure", (req, res) => {
-    res.redirect(process.env.CLIENT_FAILURE_URL);
+  res.redirect(process.env.CLIENT_FAILURE_URL);
 });
 
 /**
@@ -189,21 +181,17 @@ router.get("/google/failure", (req, res) => {
  *     responses:
  *       200:
  *         description: Admin access granted
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Access denied
  */
 router.get(
-    "/admin",
-    authenticate,
-    authorize("admin"),
-    (req, res) => {
-        res.status(200).json({
-            message: "Welcome Admin",
-            user: req.user,
-        });
-    }
+  "/admin",
+  authenticate,
+  authorize("admin"),
+  (req, res) => {
+    res.status(200).json({
+      message: "Welcome Admin",
+      user: req.user,
+    });
+  }
 );
 
 module.exports = router;

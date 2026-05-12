@@ -31,7 +31,7 @@ function App() {
             "http://localhost:5000/api/v1/auth/profile",
             {
               headers: {
-                Authorization: Bearer ${token},
+                Authorization: `Bearer ${token}`,
               },
             }
           );
@@ -60,10 +60,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth */}
         <Route path="/auth" element={<AuthPage />} />
 
-        {/* Main Layout */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="home" element={<Home />} />
