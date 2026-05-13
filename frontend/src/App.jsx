@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
+import { Navigate } from "react-router-dom";
 
 import Layout from "./components/Layout";
 
@@ -60,6 +61,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+          <Route index element={<Navigate to="/home" />} />
         <Route path="/auth" element={<AuthPage />} />
 
         <Route path="/" element={<Layout />}>

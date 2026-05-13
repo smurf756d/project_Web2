@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { protect } = require("../middlewares/authMiddleware");
+const authenticate = require("../middleware/authenticate");
 const dashboardController = require("../controllers/dashboardController");
 
 const router = express.Router();
@@ -17,7 +17,8 @@ const router = express.Router();
  *       200:
  *         description: Dashboard data fetched successfully
  */
-router.get("/", protect, dashboardController.getDashboard);
+router.get("/", authenticate, dashboardController.getDashboard);
+
 
 /**
  * @swagger
@@ -44,6 +45,6 @@ router.get("/", protect, dashboardController.getDashboard);
  *       200:
  *         description: Diet preferences updated successfully
  */
-router.put("/preferences", protect, dashboardController.updatePreferences);
+router.put("/preferences", authenticate, dashboardController.updatePreferences);
 
 module.exports = router;

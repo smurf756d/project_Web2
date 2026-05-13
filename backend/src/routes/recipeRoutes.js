@@ -1,7 +1,7 @@
 const express = require("express");
 
 const recipeController = require("../controllers/recipeController");
-const { protect } = require("../middlewares/authMiddleware");
+const authenticate = require("../middleware/authenticate");
 
 const router = express.Router();
 
@@ -17,6 +17,6 @@ const router = express.Router();
  *       200:
  *         description: User recipes fetched successfully
  */
-router.get("/my", protect, recipeController.getMyRecipes);
+router.get("/my", authenticate, recipeController.getMyRecipes);
 
 module.exports = router;

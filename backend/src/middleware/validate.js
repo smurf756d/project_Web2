@@ -1,6 +1,6 @@
 /**
  * Validation middleware.
- * It receives a validator function and returns errors if request body is invalid.
+ * Receives a validator function and returns validation errors if found.
  */
 const validate = (validator) => {
     return (req, res, next) => {
@@ -8,6 +8,7 @@ const validate = (validator) => {
 
         if (errors.length > 0) {
             return res.status(400).json({
+                success: false,
                 message: "Validation failed",
                 errors,
             });

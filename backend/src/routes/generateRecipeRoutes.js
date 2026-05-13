@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-const validateGenerateRecipe = require("../middlewares/validateGenerateRecipe");
+const validate = require("../middleware/validate");
+
+const {
+    validateGenerateRecipe,
+} = require("../utils/validators");
 
 const {
   generateRecipe,
@@ -104,7 +108,11 @@ const {
  *       400:
  *         description: Invalid input data
  */
-router.post("/generate", validateGenerateRecipe, generateRecipe);
+router.post(
+    "/generate",
+    validate(validateGenerateRecipe),
+    generateRecipe
+);
 
 /**
  * @swagger
