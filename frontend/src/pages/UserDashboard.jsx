@@ -14,9 +14,24 @@ import {
 
 import "../styles/UserDashboard.css";
 
-const mockDashboardData = {
+// Helper function to get user name from localStorage
+const getUserName = () => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    try {
+      const user = JSON.parse(storedUser);
+      return user.fullName || "Guest";
+    } catch (error) {
+      return "Guest";
+    }
+  }
+  return "Guest";
+};
+
+// Function to create mock dashboard data with current user name
+const createMockDashboardData = () => ({
   user: {
-    name: localStorage.getItem("userName") || "Rama",
+    name: getUserName(),
   },
 
   stats: {
@@ -64,35 +79,99 @@ const mockDashboardData = {
   ],
 
   myRecipes: [],
-};
+});
 
 const UserDashboard = () => {
   const navigate = useNavigate();
 
-  const [dashboardData, setDashboardData] = useState(mockDashboardData);
+  const [dashboardData, setDashboardData] = useState(createMockDashboardData());
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const token = localStorage.getItem("token");
+  // Function to fetch dashboard data
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
 
-        if (!token) {
-          setDashboardData(mockDashboardData);
-          return;
+      if (!token) {
+        setDashboardData(createMockDashboardData());
+        return;
+      }
+
+      const response = await getDashboardData(token);
+      const data = response.data.data || createMockDashboardData();
+
+      // Ensure user name is from localStorage if available
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          data.user = {
+            ...data.user,
+            name: user.fullName || data.user?.name || "Guest",
+          };
+        } catch (error) {
+          console.error("Error parsing stored user:", error);
         }
+      }
 
-        const response = await getDashboardData(token);
+      setDashboardData(data);
+    } catch (error) {
+      console.error("Failed to fetch dashboard:", error);
+      const data = createMockDashboardData();
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          data.user = {
+            ...data.user,
+            name: user.fullName || "Guest",
+          };
+        } catch (error) {
+          console.error("Error parsing stored user:", error);
+        }
+      }
+      setDashboardData(data);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setDashboardData(response.data.data);
-      } catch (error) {
-        setDashboardData(mockDashboardData);
-      } finally {
-        setLoading(false);
+  // Fetch on component mount
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  // Refetch when page regains focus (user returns from another page)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchDashboard();
       }
     };
 
-    fetchDashboard();
+    const handlePageShow = () => {
+      fetchDashboard();
+    };
+
+    const handleRecipeGenerated = () => {
+      fetchDashboard();
+    };
+
+    // Listen for visibility changes
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    // Listen for page show (user returns to tab)
+    window.addEventListener("pageshow", handlePageShow);
+
+    // Listen for recipe generated event
+    window.addEventListener("recipeGenerated", handleRecipeGenerated);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pageshow", handlePageShow);
+      window.removeEventListener("recipeGenerated", handleRecipeGenerated);
+    };
   }, []);
 
   const handleGoToGenerateRecipe = () => {
@@ -257,4 +336,4 @@ const UserDashboard = () => {
   );
 };
 
-export default UserDashboard
+export default UserDashboard;

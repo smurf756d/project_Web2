@@ -22,8 +22,9 @@ const register = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully",
-      data: result,
+      message: result.message,
+      token: result.token,
+      user: result.user,
     });
   } catch (error) {
     next(error);
@@ -39,8 +40,9 @@ const login = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "User logged in successfully",
-      data: result,
+      message: result.message,
+      token: result.token,
+      user: result.user,
     });
   } catch (error) {
     next(error);
@@ -52,7 +54,7 @@ const login = async (req, res, next) => {
  */
 const profile = async (req, res, next) => {
   try {
-    const user = await getUserProfile(req.user.id);
+    const user = await getUserProfile(req.user._id);
 
     res.status(200).json({ user });
   } catch (error) {

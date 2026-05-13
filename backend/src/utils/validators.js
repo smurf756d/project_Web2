@@ -7,6 +7,9 @@ const isValidEmail = (email) => {
     return /^\S+@\S+\.\S+$/.test(email);
 };
 
+/**
+ * Validate register request body.
+ */
 const validateRegister = (body) => {
     const errors = [];
 
@@ -52,7 +55,35 @@ const validateLogin = (body) => {
     return errors;
 };
 
+/**
+ * Validate generate recipe request body.
+ */
+const validateGenerateRecipe = (body) => {
+    const errors = [];
+
+    const { ingredients, diet, cookingTime, cuisine } = body;
+
+    if (!ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
+        errors.push("Ingredients are required");
+    }
+
+    if (!diet) {
+        errors.push("Diet preference is required");
+    }
+
+    if (!cookingTime) {
+        errors.push("Cooking time is required");
+    }
+
+    if (!cuisine) {
+        errors.push("Cuisine type is required");
+    }
+
+    return errors;
+};
+
 module.exports = {
     validateRegister,
     validateLogin,
+    validateGenerateRecipe,
 };

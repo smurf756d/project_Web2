@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import Topbar from "../components/layout/Topbar";
-import RecipeCard from "../components/RecipeCard";
+import Topbar from "../components/myRecipes/layout/Topbar";
+import RecipeCard from "../components/myRecipes/RecipeCard";
 import { recipesMock } from "../data/recipesMock";
 import "../styles/recipesPages.css";
 

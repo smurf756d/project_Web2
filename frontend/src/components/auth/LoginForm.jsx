@@ -1,11 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
     login,
-    getProfile,
+    getProfile
 } from "../../services/authService";
 import SocialButtons from "./SocialButtons";
 
 export default function LoginForm({ setActiveTab }) {
+    const navigate = useNavigate();
     const [form, setForm] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
@@ -34,27 +36,40 @@ export default function LoginForm({ setActiveTab }) {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!validate()) return;
 
         try {
             setLoading(true);
-            const res = await login(form);
-            const profile = await getProfile(res.data.token);
 
-            localStorage.setItem(
-                "user",
-                JSON.stringify(profile.data.user)
-            );
+            const res = await login(form);
+
+            console.log("LOGIN RESPONSE:", res);
+
+            localStorage.setItem("token", res.token);
+
+            // Fetch full user profile to ensure all data is available
+            try {
+                const profileRes = await getProfile(res.token);
+                localStorage.setItem("user", JSON.stringify(profileRes.user));
+            } catch (profileError) {
+                // Fallback to response user data if profile fetch fails
+                localStorage.setItem("user", JSON.stringify(res.user));
+            }
+
+            setErrors({});
 
             alert("Login successful");
-
-
+            navigate("/home");
         } catch (error) {
+            console.log(error);
+
             setErrors({
-                api: error.response?.data?.message || "Login failed. Please try again.",
+                api:
+                    error.response?.data?.message ||
+                    "Login failed. Please try again.",
             });
         } finally {
             setLoading(false);

@@ -2,22 +2,22 @@ import axios from "axios";
 
 const API = `${import.meta.env.VITE_API_URL}/auth`;
 
-/**
- * Register new user.
- */
-export const register = (data) => axios.post(`${API}/register, data`);
+export const register = async (data) => {
+    const response = await axios.post(`${API}/register`, data);
+    return response.data;
+};
 
-/**
- * Login existing user.
- */
-export const login = (data) => axios.post(`${API}/login, data`);
+export const login = async (data) => {
+    const response = await axios.post(`${API}/login`, data);
+    return response.data;
+};
 
-/**
- * Get logged-in user profile.
- */
-export const getProfile = (token) =>
-  axios.get(`${API}/profile`, {
-    headers: {
-      Authorization: `Bearer ${token},
-    `},
-  });
+export const getProfile = async (token) => {
+    const response = await axios.get(`${API}/profile`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    return response.data;
+};

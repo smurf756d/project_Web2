@@ -1,49 +1,30 @@
 const express = require("express");
-
-const { protect } = require("../middlewares/authMiddleware");
-const dashboardController = require("../controllers/dashboardController");
+const { getDashboard } = require("../controllers/dashboardController");
+const authenticate = require("../middleware/authenticate");
 
 const router = express.Router();
 
 /**
  * @swagger
- * /api/dashboard:
- *   get:
- *     summary: Get user dashboard data
- *     tags: [Dashboard]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Dashboard data fetched successfully
+ * tags:
+ *   name: Dashboard
+ *   description: Dashboard and user statistics APIs
  */
-router.get("/", protect, dashboardController.getDashboard);
 
 /**
  * @swagger
- * /api/dashboard/preferences:
- *   put:
- *     summary: Update user diet preferences
+ * /api/dashboard:
+ *   get:
+ *     summary: Get dashboard data for logged-in user
  *     tags: [Dashboard]
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               vegetarian:
- *                 type: boolean
- *               lowCarb:
- *                 type: boolean
- *               highProtein:
- *                 type: boolean
  *     responses:
  *       200:
- *         description: Diet preferences updated successfully
+ *         description: Dashboard data retrieved successfully
+ *       401:
+ *         description: Unauthorized - token required
  */
-router.put("/preferences", protect, dashboardController.updatePreferences);
+router.get("/", authenticate, getDashboard);
 
 module.exports = router;
