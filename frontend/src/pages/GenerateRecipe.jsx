@@ -61,10 +61,13 @@ function GenerateRecipe() {
       setErrorMessage("");
       setSuccessMessage("");
 
+      const token = localStorage.getItem("token");
+
       const res = await fetch("/api/recipes/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` }),
         },
         body: JSON.stringify({
           ingredients: ingredientsList,
@@ -82,6 +85,9 @@ function GenerateRecipe() {
 
       setRecipePreview(data.data);
       setIsSaved(false);
+      
+      // Dispatch custom event to notify dashboard to refresh
+      window.dispatchEvent(new CustomEvent("recipeGenerated"));
     } catch (err) {
       setErrorMessage(err.message || "Error generating recipe.");
     } finally {
@@ -100,10 +106,18 @@ function GenerateRecipe() {
       setErrorMessage("");
       setSuccessMessage("");
 
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setErrorMessage("Please log in to save recipes.");
+        setSaving(false);
+        return;
+      }
+
       const res = await fetch("/api/recipes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(recipePreview),
       });
@@ -116,6 +130,9 @@ function GenerateRecipe() {
 
       setSuccessMessage("Recipe saved successfully!");
       setIsSaved(true);
+      
+      // Dispatch custom event to notify dashboard to refresh
+      window.dispatchEvent(new CustomEvent("recipeGenerated"));
     } catch (err) {
       setErrorMessage(err.message || "Error saving recipe.");
     } finally {

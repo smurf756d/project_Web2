@@ -1,8 +1,8 @@
 import "../styles/Admin.css";
-import StatsCards from "../components/StatsCards";
-import RecentUsers from "../components/RecentUsers";
-import RecentRecipes from "../components/RecentRecipes";
-import MostLikedRecipes from "../components/MostLikedRecipes";
+import StatsCards from "../components/adminDashboard/StatsCards";
+import RecentUsers from "../components/adminDashboard/RecentUsers";
+import RecentRecipes from "../components/adminDashboard/RecentRecipes";
+import MostLikedRecipes from "../components/adminDashboard/MostLikedRecipes";
 import { recentUsers, recentRecipes } from "../data/adminData";
 
 function AdminDashboard() {

@@ -1,7 +1,7 @@
-
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Recipe = require("../models/Recipe");
 
+// تأكدي من استدعاء dotenv في ملف server.js الأساسي
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const allowedDiets = ["Healthy", "Vegan", "Keto", "Any"];
@@ -21,285 +21,133 @@ function validateGenerateRecipeInput(data) {
     throw createError("At least one ingredient is required", 400);
   }
 
-  if (
-    ingredients.some(
-      (item) => typeof item !== "string" || item.trim() === ""
-    )
-  ) {
+  if (ingredients.some((item) => typeof item !== "string" || item.trim() === "")) {
     throw createError("Ingredients must be valid text values", 400);
   }
 
-  if (!allowedDiets.includes(diet)) {
-    throw createError("Invalid diet preference", 400);
-  }
-
-  if (!allowedCookingTimes.includes(cookingTime)) {
-    throw createError("Invalid cooking time", 400);
-  }
-
-  if (!allowedCuisines.includes(cuisine)) {
-    throw createError("Invalid cuisine type", 400);
-  }
+  if (!allowedDiets.includes(diet)) throw createError("Invalid diet preference", 400);
+  if (!allowedCookingTimes.includes(cookingTime)) throw createError("Invalid cooking time", 400);
+  if (!allowedCuisines.includes(cuisine)) throw createError("Invalid cuisine type", 400);
 }
 
 function generateRecipeImage(recipe) {
   const cuisineImages = {
-    Arabic:
-      "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
-    Italian:
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80",
-    Asian:
-      "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
-    Any:
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    Arabic: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
+    Italian: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80",
+    Asian: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
+    Any: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
   };
-
   return cuisineImages[recipe.cuisine] || cuisineImages.Any;
 }
+
 /**
- * Generates a recipe using Gemini AI
+ * AI Recipe Generation - Updated Logic
  */
 async function generateRecipe(data) {
   validateGenerateRecipeInput(data);
 
-  if (!process.env.GEMINI_API_KEY) {
-    throw createError("Gemini API key is missing", 500);
-  }
+  if (!process.env.GEMINI_API_KEY) throw createError("Gemini API key is missing", 500);
 
   const { ingredients, diet, cookingTime, cuisine } = data;
   const cleanIngredients = ingredients.map((item) => item.trim());
 
   const model = genAI.getGenerativeModel({
     model: "gemini-2.5-flash",
-    generationConfig: {
-      responseMimeType: "application/json",
-    },
+    generationConfig: { responseMimeType: "application/json" },
   });
 
-  const prompt = `
-Generate one realistic cooking recipe.
-
-Ingredients:
-${cleanIngredients.join(", ")}
-
-Preferences:
-- Diet: ${diet}
-- Cooking Time: ${cookingTime}
-- Cuisine: ${cuisine}
-
-Return ONLY valid JSON in this exact format:
-{
-  "title": "Recipe title",
-  "ingredients": ["tomato", "rice", "extra ingredient if needed"],
-  "steps": ["step1", "step2"],
-  "cookingTime": "${cookingTime}",
-  "calories": "350 kcal",
-  "diet": "${diet}",
-  "cuisine": "${cuisine}"
-}
-
-Rules:
-- Use the given ingredients as the base.
-- You may add extra ingredients if needed to make the recipe complete.
-- Every ingredient must be a complete valid string.
-- Do not break strings across lines.
-- Do not use quotation marks inside ingredient names.
-- Do not leave any array item unfinished.
-- Steps must be realistic.
-- Return JSON only.
-`;
-
-  let result;
+  const prompt = `Generate a realistic recipe JSON for: 
+  Ingredients: ${cleanIngredients.join(", ")}, 
+  Diet: ${diet}, 
+  Time: ${cookingTime}, 
+  Cuisine: ${cuisine}. 
+  Return ONLY a valid JSON object. Do not include any markdown formatting like \`\`\`json.
+  The JSON must be complete and follow this exact structure:
+  {
+    "title": "Recipe Name",
+    "ingredients": ["item 1", "item 2"],
+    "steps": ["step 1", "step 2"],
+    "cookingTime": "30 mins",
+    "calories": 250,
+    "diet": "${diet}",
+    "cuisine": "${cuisine}"
+  }`;
 
   try {
-    result = await model.generateContent(prompt);
-  } catch (error) {
-    if (error.status === 503) {
-      throw createError(
-        "AI service is busy right now. Please try again in a few seconds.",
-        503
-      );
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    // استخراج الـ JSON بشكل آمن من النص المستلم
+    const jsonStart = text.indexOf("{");
+    const jsonEnd = text.lastIndexOf("}") + 1;
+    
+    if (jsonStart === -1) {
+      console.error("Raw AI Response:", text);
+      throw new Error("AI did not return a valid JSON object");
     }
 
-    if (error.status === 429) {
-      throw createError(
-        "AI request limit reached. Please try again later.",
-        429
-      );
-    }
+    const recipe = JSON.parse(text.substring(jsonStart, jsonEnd));
 
-    throw error;
-  }
-
-  const response = await result.response;
-  const text = response.text();
-
-  const cleanText = text
-    .replace(/```json/g, "")
-    .replace(/```/g, "")
-    .trim();
-
-  try {
-    const jsonStart = cleanText.indexOf("{");
-    const jsonEnd = cleanText.lastIndexOf("}");
-    const jsonString = cleanText.slice(jsonStart, jsonEnd + 1);
-
-    const recipe = JSON.parse(jsonString);
-   recipe.sourceIngredients = cleanIngredients.map((item) =>
-    item.toLowerCase().trim()
-     );
+    // إضافة البيانات الإضافية للموديل
+    recipe.sourceIngredients = cleanIngredients.map(item => item.toLowerCase().trim());
     recipe.image = generateRecipeImage(recipe);
-
+    
     return recipe;
   } catch (error) {
-    console.log("Gemini raw response:", cleanText);
-    console.log("JSON parse error:", error.message);
-
-    throw createError("AI response format was invalid. Please try again.", 500);
+    console.error("Detailed AI Error:", error); // سيظهر لكِ السبب الحقيقي في الـ Terminal
+    throw createError("AI generation failed: " + (error.message || "Unknown error"), 500);
   }
 }
 
 /**
- * Refine recipe using AI
+ * Refine existing recipe with AI
  */
 async function refineRecipe(data) {
   const { recipe, userMessage } = data;
-
-  if (!recipe) {
-    throw createError("Recipe is required", 400);
-  }
-
-  if (!userMessage || userMessage.trim() === "") {
-    throw createError("User message is required", 400);
-  }
-
-  if (!process.env.GEMINI_API_KEY) {
-    throw createError("Gemini API key is missing", 500);
-  }
+  if (!recipe || !userMessage) throw createError("Recipe and message are required", 400);
 
   const model = genAI.getGenerativeModel({
     model: "gemini-2.5-flash",
-    generationConfig: {
-      responseMimeType: "application/json",
-    },
+    generationConfig: { responseMimeType: "application/json" },
   });
 
-  const prompt = `
-You are helping the user adjust a cooking recipe.
-
-Current recipe:
-${JSON.stringify(recipe)}
-
-User request:
-${userMessage}
-
-Return ONLY valid JSON in this format:
-{
-  "title": "Recipe title",
-  "ingredients": ["ingredient1", "ingredient2"],
-  "steps": ["step1", "step2"],
-  "cookingTime": "30 - 60 mins",
-  "calories": "400 kcal",
-  "diet": "Healthy",
-  "cuisine": "Arabic"
-}
-
-Rules:
-- Modify the recipe based on the request.
-- Return JSON only.
-`;
-
-  let result;
+  const prompt = `Modify this recipe: ${JSON.stringify(recipe)} based on: ${userMessage}. Return ONLY valid JSON.`;
 
   try {
-    result = await model.generateContent(prompt);
-  } catch (error) {
-    if (error.status === 503) {
-      throw createError(
-        "AI service is busy right now. Please try again in a few seconds.",
-        503
-      );
-    }
-
-    if (error.status === 429) {
-      throw createError(
-        "AI request limit reached. Please try again later.",
-        429
-      );
-    }
-
-    throw error;
-  }
-
-  const response = await result.response;
-  const text = response.text();
-
-  const cleanText = text
-    .replace(/```json/g, "")
-    .replace(/```/g, "")
-    .trim();
-
-  try {
-    const jsonStart = cleanText.indexOf("{");
-    const jsonEnd = cleanText.lastIndexOf("}");
-    const jsonString = cleanText.slice(jsonStart, jsonEnd + 1);
-
-    const updatedRecipe = JSON.parse(jsonString);
-
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const updatedRecipe = JSON.parse(response.text());
     updatedRecipe.image = generateRecipeImage(updatedRecipe);
-
     return updatedRecipe;
   } catch (error) {
-    console.log("Gemini raw response:", cleanText);
-    console.log("JSON parse error:", error.message);
-
-    throw createError("AI response format was invalid. Please try again.", 500);
+    console.error("AI Refinement Error:", error);
+    throw createError("AI refinement failed.", 500);
   }
 }
 
+/**
+ * Database Operations
+ */
 async function saveRecipe(recipe) {
-  if (
-    !recipe.title ||
-    !Array.isArray(recipe.ingredients) ||
-    recipe.ingredients.length === 0
-  ) {
-    throw createError(
-      "Recipe title and ingredients are required",
-      400
-    );
+  if (!recipe.createdBy) throw createError("Authentication required", 401);
+  
+  // Check if a recipe with the same title from the same user exists
+  const existing = await Recipe.findOne({
+    createdBy: recipe.createdBy,
+    title: recipe.title
+  });
+
+  // If it exists, just return it (idempotent - already saved)
+  if (existing) {
+    return existing;
   }
+  
+  return await new Recipe(recipe).save();
+}
 
-  if (
-    !Array.isArray(recipe.steps) ||
-    recipe.steps.length === 0
-  ) {
-    throw createError(
-      "Recipe steps are required",
-      400
-    );
-  }
-
-  const sourceIngredients =
-    recipe.sourceIngredients || [];
-
-  const existingRecipe =
-    await Recipe.findOne({
-      sourceIngredients: {
-        $all: sourceIngredients,
-        $size: sourceIngredients.length,
-      },
-    });
-
-  if (existingRecipe) {
-    throw createError(
-      "This recipe is already saved.",
-      400
-    );
-  }
-
-  const newRecipe = new Recipe(recipe);
-
-  return await newRecipe.save();
+async function getMyRecipes(userId) {
+  return await Recipe.find({ createdBy: userId }).sort({ createdAt: -1 });
 }
 
 async function getAllRecipes() {
@@ -310,22 +158,12 @@ async function getRecipeById(id) {
   return await Recipe.findById(id);
 }
 
-async function updateRecipe(id, recipeData) {
-  return await Recipe.findByIdAndUpdate(id, recipeData, {
-    new: true,
-    runValidators: true,
-  });
+async function updateRecipe(id, data) {
+  return await Recipe.findByIdAndUpdate(id, data, { new: true, runValidators: true });
 }
 
-async function patchRecipe(id, recipeData) {
-  return await Recipe.findByIdAndUpdate(
-    id,
-    { $set: recipeData },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+async function patchRecipe(id, data) {
+  return await Recipe.findByIdAndUpdate(id, { $set: data }, { new: true });
 }
 
 async function deleteRecipe(id) {
@@ -340,6 +178,7 @@ module.exports = {
   generateRecipe,
   refineRecipe,
   saveRecipe,
+  getMyRecipes,
   getAllRecipes,
   getRecipeById,
   updateRecipe,

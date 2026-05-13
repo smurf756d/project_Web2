@@ -11,6 +11,7 @@ const passport = require("./config/passport");
 
 const authRoutes = require("./routes/authRoutes");
 const recipeRoutes = require("./routes/generateRecipeRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const errorHandler = require("./middleware/errorHandler");
 const swaggerSpec = require("./docs/swagger");
@@ -49,6 +50,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/recipes", recipeRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use(errorHandler);
 

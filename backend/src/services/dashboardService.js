@@ -81,6 +81,7 @@ const getDashboardData = async (user) => {
 
   const generatedTodayCount = await Recipe.countDocuments({
     createdBy: user._id,
+    isAIGenerated: true,
     createdAt: {
       $gte: startOfToday,
       $lte: endOfToday,

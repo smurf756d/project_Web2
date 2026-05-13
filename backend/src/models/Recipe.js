@@ -63,6 +63,11 @@ const recipeSchema = new mongoose.Schema(
       default: false,
     },
 
+    isAIGenerated: {
+      type: Boolean,
+      default: false,
+    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

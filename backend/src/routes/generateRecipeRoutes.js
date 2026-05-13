@@ -1,13 +1,42 @@
 const express = require("express");
 const router = express.Router();
 
-const validateGenerateRecipe = require("../middlewares/validateGenerateRecipe");
+const validate = require("../middleware/validate");
+const { validateGenerateRecipe } = require("../utils/validators");
+const authenticate  = require("../middleware/authenticate");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+
+// Optional authentication middleware - doesn't fail if no token
+const optionalAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer")) {
+      return next();
+    }
+
+    const token = authHeader.split(" ")[1].replace(/"/g, "");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select("-passwordHash");
+
+    if (user) {
+      req.user = user;
+    }
+    
+    next();
+  } catch (error) {
+    // Silently fail - authentication is optional
+    next();
+  }
+};
 
 const {
   generateRecipe,
   refineRecipe,
   createRecipe,
   getRecipes,
+  getMyRecipes,
   getRecipeById,
   updateRecipe,
   patchRecipe,
@@ -92,38 +121,8 @@ const {
  *   post:
  *     summary: Generate a recipe based on ingredients and preferences
  *     tags: [Recipes]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/GenerateRecipeRequest'
- *     responses:
- *       200:
- *         description: Recipe generated successfully
- *       400:
- *         description: Invalid input data
  */
-router.post("/generate", validateGenerateRecipe, generateRecipe);
-
-/**
- * @swagger
- * /api/recipes:
- *   post:
- *     summary: Save a generated recipe
- *     tags: [Recipes]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Recipe'
- *     responses:
- *       201:
- *         description: Recipe saved successfully
- *       400:
- *         description: Invalid recipe data
- */
+router.post("/generate", optionalAuth, validate(validateGenerateRecipe), generateRecipe);
 
 /**
  * @swagger
@@ -131,30 +130,19 @@ router.post("/generate", validateGenerateRecipe, generateRecipe);
  *   post:
  *     summary: Refine a generated recipe based on user feedback
  *     tags: [Recipes]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - recipe
- *               - userMessage
- *             properties:
- *               recipe:
- *                 $ref: '#/components/schemas/Recipe'
- *               userMessage:
- *                 type: string
- *                 example: "I do not have rice, replace it with pasta"
- *     responses:
- *       200:
- *         description: Recipe refined successfully
- *       400:
- *         description: Invalid refine request
  */
 router.post("/refine", refineRecipe);
 
-router.post("/", createRecipe);
+/**
+ * @swagger
+ * /api/recipes:
+ *   post:
+ *     summary: Save a generated recipe
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post("/", authenticate, createRecipe);
 
 /**
  * @swagger
@@ -162,11 +150,19 @@ router.post("/", createRecipe);
  *   get:
  *     summary: Get all saved recipes
  *     tags: [Recipes]
- *     responses:
- *       200:
- *         description: List of saved recipes
  */
 router.get("/", getRecipes);
+
+/**
+ * @swagger
+ * /api/recipes/my:
+ *   get:
+ *     summary: Get logged-in user recipes
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/my", authenticate, getMyRecipes);
 
 /**
  * @swagger
@@ -174,108 +170,12 @@ router.get("/", getRecipes);
  *   get:
  *     summary: Get recipe by id
  *     tags: [Recipes]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: MongoDB recipe id
- *     responses:
- *       200:
- *         description: Recipe found
- *       404:
- *         description: Recipe not found
  */
 router.get("/:id", getRecipeById);
 
-/**
- * @swagger
- * /api/recipes/{id}:
- *   put:
- *     summary: Update full recipe by id
- *     tags: [Recipes]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: MongoDB recipe id
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Recipe'
- *     responses:
- *       200:
- *         description: Recipe updated successfully
- *       404:
- *         description: Recipe not found
- */
 router.put("/:id", updateRecipe);
-
-/**
- * @swagger
- * /api/recipes/{id}:
- *   patch:
- *     summary: Update selected recipe fields by id
- *     tags: [Recipes]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: MongoDB recipe id
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             example:
- *               calories: "350 kcal"
- *     responses:
- *       200:
- *         description: Recipe partially updated successfully
- *       404:
- *         description: Recipe not found
- */
 router.patch("/:id", patchRecipe);
-
-/**
- * @swagger
- * /api/recipes/{id}:
- *   delete:
- *     summary: Delete a recipe by id
- *     tags: [Recipes]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: MongoDB recipe id
- *     responses:
- *       200:
- *         description: Recipe deleted successfully
- *       404:
- *         description: Recipe not found
- */
 router.delete("/:id", deleteRecipe);
-
-/**
- * @swagger
- * /api/recipes:
- *   delete:
- *     summary: Delete all recipes
- *     tags: [Recipes]
- *     responses:
- *       200:
- *         description: All recipes deleted successfully
- */
 router.delete("/", deleteAllRecipes);
 
 module.exports = router;
