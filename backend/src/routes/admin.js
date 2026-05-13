@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-  protect,
-  authorizeAdmin,
-} = require("../middleware/authMiddleware");
+const authenticate = require("../middleware/authenticate");
+const authorize = require("../middleware/authorize");
 
 const {
   getDashboardStats,
@@ -32,8 +30,8 @@ const {
  */
 router.get(
   "/stats",
-  protect,
-  authorizeAdmin,
+  authenticate,
+  authorize("admin"),
   getDashboardStats
 );
 
@@ -49,11 +47,10 @@ router.get(
  *       500:
  *         description: Failed to fetch recent recipes
  */
-
 router.get(
   "/recent-recipes",
-  protect,
-  authorizeAdmin,
+  authenticate,
+  authorize("admin"),
   getRecentRecipes
 );
 
