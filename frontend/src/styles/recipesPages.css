@@ -201,7 +201,7 @@
 
 .recipes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+  grid-template-columns: repeat(3, 1fr);
   justify-content: center;
   gap: 22px;
 }
@@ -673,14 +673,16 @@
   }
 
   .recipes-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
- 
 }
-
 
 @media (max-width: 576px) {
   .my-recipes-page{
     padding: 14px;
+  }
+
+  .recipes-grid {
+    grid-template-columns: 1fr;
   }
 }

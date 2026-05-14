@@ -1,4 +1,17 @@
-"dependencies": {
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.16.0",
     "bcryptjs": "^3.0.3",
@@ -17,3 +30,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

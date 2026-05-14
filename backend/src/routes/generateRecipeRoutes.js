@@ -44,6 +44,12 @@ const {
   deleteAllRecipes,
 } = require("../controllers/generateRecipeController");
 
+// Logging middleware for this router
+router.use((req, res, next) => {
+  console.log(`\n🔵 RECIPE ROUTER: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 /**
  * @swagger
  * tags:
@@ -173,9 +179,10 @@ router.get("/my", authenticate, getMyRecipes);
  */
 router.get("/:id", getRecipeById);
 
+router.delete("/", deleteAllRecipes);
+router.delete("/:id", deleteRecipe);
+
 router.put("/:id", updateRecipe);
 router.patch("/:id", patchRecipe);
-router.delete("/:id", deleteRecipe);
-router.delete("/", deleteAllRecipes);
 
 module.exports = router;

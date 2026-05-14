@@ -71,14 +71,17 @@ const getDashboardData = async (user) => {
   const endOfToday = new Date();
   endOfToday.setHours(23, 59, 59, 999);
 
+  // Get recent recipes for this user
   const myRecipes = await Recipe.find({ createdBy: user._id })
     .sort({ createdAt: -1 })
     .limit(3);
 
+  // Count all recipes saved by this user
   const savedRecipesCount = await Recipe.countDocuments({
     createdBy: user._id,
   });
 
+  // Count AI-generated recipes saved by this user today
   const generatedTodayCount = await Recipe.countDocuments({
     createdBy: user._id,
     isAIGenerated: true,
@@ -87,6 +90,8 @@ const getDashboardData = async (user) => {
       $lte: endOfToday,
     },
   });
+
+  console.log(`[dashboardService] User ${user._id} - Saved: ${savedRecipesCount}, Generated Today: ${generatedTodayCount}`);
 
   const favoriteRecipe = await Recipe.findOne({
     createdBy: user._id,

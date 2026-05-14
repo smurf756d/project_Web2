@@ -63,7 +63,7 @@ function GenerateRecipe() {
 
       const token = localStorage.getItem("token");
 
-      const res = await fetch("/api/recipes/generate", {
+      const res = await fetch("/api/v1/recipes/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -113,7 +113,7 @@ function GenerateRecipe() {
         return;
       }
 
-      const res = await fetch("/api/recipes", {
+      const res = await fetch("/api/v1/recipes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -156,7 +156,7 @@ function GenerateRecipe() {
       setErrorMessage("");
       setSuccessMessage("");
 
-      const res = await fetch("/api/recipes/refine", {
+      const res = await fetch("/api/v1/recipes/refine", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

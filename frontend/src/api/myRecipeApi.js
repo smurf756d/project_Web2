@@ -3,15 +3,8 @@ import apiClient from "./apiClient";
 /**
  * Get logged-in user's recipes
  */
-export const getMyRecipes = async (
-  page,
-  limit,
-  search
-) => {
-  const response = await apiClient.get(
-    `/my-recipes?page=${page}&limit=${limit}&search=${search}`
-  );
-
+export const getMyRecipes = async () => {
+  const response = await apiClient.get("/recipes/my");
   return response.data;
 };
 
@@ -22,7 +15,7 @@ export const createMyRecipe = async (
   recipeData
 ) => {
   const response = await apiClient.post(
-    "/my-recipes",
+    "/recipes",
     recipeData
   );
 
@@ -36,8 +29,8 @@ export const updateMyRecipe = async (
   recipeId,
   recipeData
 ) => {
-  const response = await apiClient.put(
-    `/my-recipes/${recipeId}`,
+  const response = await apiClient.patch(
+    `/recipes/${recipeId}`,
     recipeData
   );
 
@@ -51,7 +44,7 @@ export const deleteMyRecipe = async (
   recipeId
 ) => {
   const response = await apiClient.delete(
-    `/my-recipes/${recipeId}`
+    `/recipes/${recipeId}`
   );
 
   return response.data;

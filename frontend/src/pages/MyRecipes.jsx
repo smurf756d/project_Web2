@@ -37,8 +37,6 @@ function MyRecipes() {
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [totalPages, setTotalPages] = useState(1);
-
   const recipesPerPage = 3;
 
   const normalizeRecipe = (recipe) => {
@@ -71,21 +69,22 @@ function MyRecipes() {
     try {
       setLoading(true);
 
-      const recipesData = await getMyRecipes(
-        currentPage,
-        recipesPerPage,
-        searchTerm
-      );
+      // Get user's recipes from the unified Recipe endpoint
+      const recipesData = await getMyRecipes();
 
-      setTotalPages(recipesData.totalPages || 1);
+      // Extract recipes array - handle both array and object with data property
+      const recipesArray = Array.isArray(recipesData) 
+        ? recipesData 
+        : (recipesData.data || []);
 
-      const favoritesData = await getFavorites(1, 100);
+      // Get user's favorite recipes
+      const favoritesData = await getFavorites();
+      const favoriteRecipeIds = (Array.isArray(favoritesData) ? favoritesData : (favoritesData.data || []))
+        .filter((recipe) => recipe && recipe._id)
+        .map((recipe) => recipe._id);
 
-      const favoriteRecipeIds = (favoritesData.data || [])
-        .filter((favorite) => favorite.recipe)
-        .map((favorite) => favorite.recipe._id);
-
-      const normalizedRecipes = (recipesData.data || [])
+      // Normalize recipes and mark favorites
+      const normalizedRecipes = recipesArray
         .map(normalizeRecipe)
         .map((recipe) => ({
           ...recipe,
@@ -102,13 +101,22 @@ function MyRecipes() {
 
   useEffect(() => {
     fetchRecipes();
-  }, [currentPage, searchTerm]);
+  }, [searchTerm]);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  const visibleRecipes = recipes;
+  // Calculate pagination
+  const filteredRecipes = recipes.filter((recipe) =>
+    recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredRecipes.length / recipesPerPage);
+
+  const startIndex = (currentPage - 1) * recipesPerPage;
+  const endIndex = startIndex + recipesPerPage;
+  const visibleRecipes = filteredRecipes.slice(startIndex, endIndex);
 
   const handleDelete = async () => {
     try {

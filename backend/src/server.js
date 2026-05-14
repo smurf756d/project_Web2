@@ -1,43 +1,9 @@
-<<<<<<< HEAD
 require("dotenv").config();
 
-const mongoose = require("mongoose");
-
-const app = require("./app");
-
-const PORT = process.env.PORT || 5000;
-
-/**
- * Connect to MongoDB database
- * then start Express server
- */
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("MongoDB connected");
-
-    app.listen(PORT, () => {
-      console.log(
-        `Server running on port ${PORT}`
-      );
-    });
-  })
-  .catch((err) => {
-    console.error(
-      "Database connection failed:",
-      err.message
-    );
-
-    process.exit(1);
-  });
-=======
 const express = require("express");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const session = require("express-session");
 const swaggerUi = require("swagger-ui-express");
-
-dotenv.config();
 
 const connectDB = require("./config/db");
 const passport = require("./config/passport");
@@ -73,7 +39,17 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`\n📨 INCOMING: ${req.method} ${req.path}`);
+  next();
+});
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
 
 app.get("/", (req, res) => {
   res.json({
@@ -83,11 +59,12 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/recipes", recipeRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/v1/recipes", recipeRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 app.use("/api", (req, res) => {
+  console.log(`❌ 404: ${req.method} ${req.originalUrl} not found in API routes`);
   res.status(404).json({
     success: false,
     message: "API route not found",
@@ -96,10 +73,20 @@ app.use("/api", (req, res) => {
 
 app.use(errorHandler);
 
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(Swagger docs: http://localhost:${PORT}/api-docs);
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(
+        `Swagger docs: http://localhost:${PORT}/api-docs`
+      );
+    });
+  })
+  .catch((err) => {
+    console.error(
+      "Database connection failed:",
+      err.message
+    );
+
+    process.exit(1);
   });
-});
->>>>>>> 6558e606d5332cb48aa21e35946e7852dfdc96eb

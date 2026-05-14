@@ -1,10 +1,5 @@
 const mongoose = require("mongoose");
 
-<<<<<<< HEAD
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-=======
 /**
  * User Schema
  * Supports local login and future social login providers.
@@ -13,7 +8,6 @@ const userSchema = new mongoose.Schema(
 const userSchema = new mongoose.Schema(
   {
     fullName: {
->>>>>>> 6558e606d5332cb48aa21e35946e7852dfdc96eb
       type: String,
       required: true,
       trim: true,
@@ -27,18 +21,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
-<<<<<<< HEAD
-    password: {
-      type: String,
-      required: true,
-      minlength: 6,
-=======
     passwordHash: {
       type: String,
       required: function () {
         return this.provider === "local";
       },
->>>>>>> 6558e606d5332cb48aa21e35946e7852dfdc96eb
     },
 
     role: {
@@ -46,8 +33,6 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
-<<<<<<< HEAD
-=======
 
     provider: {
       type: String,
@@ -74,19 +59,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
->>>>>>> 6558e606d5332cb48aa21e35946e7852dfdc96eb
   },
   {
     timestamps: true,
   }
 );
 
-<<<<<<< HEAD
-module.exports = mongoose.model(
-  "User",
-  userSchema
-);
-=======
 /**
  * Returns safe user data without passwordHash.
  */
@@ -103,4 +81,4 @@ userSchema.methods.toSafeObject = function () {
 };
 
 module.exports = mongoose.model("User", userSchema);
->>>>>>> 6558e606d5332cb48aa21e35946e7852dfdc96eb
+

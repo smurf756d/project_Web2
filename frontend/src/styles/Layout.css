@@ -15,7 +15,7 @@ layout {
   background: rgba(255, 255, 255, 0.96);
   padding: 28px 22px;
   border-right: 1px solid #e8eee7;
-  overflow-y: auto;
+  overflow: hidden;
   box-shadow: 8px 0 30px rgba(0, 0, 0, 0.04);
   z-index: 200;
 }
@@ -115,18 +115,19 @@ layout {
 .sidebar-overlay {
   display: none;
 }
+
 .logout-icon-btn {
-  margin-top: 30px;
+  margin-top: 10px;
   width: 100%;
   border: none;
   border-radius: 16px;
   background: #fff1f1;
   color: #b42318;
-  padding: 14px 16px;
+  padding: 13px 15px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 16px;
+  gap: 13px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 8px 18px rgba(180, 35, 24, 0.12);
@@ -158,29 +159,6 @@ layout {
   .main-content {
     padding: 24px;
   }
-}
-
-.logout-icon-btn {
-  margin-top: 30px;
-  width: 100%;
-  border: none;
-  border-radius: 16px;
-  background: #fff1f1;
-  color: #b42318;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 8px 18px rgba(180, 35, 24, 0.12);
-  transition: 0.2s ease;
-}
-
-.logout-icon-btn:hover {
-  transform: translateY(-2px);
-  background: #ffe1e1;
 }
 
 /* Mobile */
