@@ -1,3 +1,4 @@
+const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const path = require("path");
 
@@ -30,4 +31,7 @@ const swaggerOptions = {
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-module.exports = swaggerSpec;
+module.exports = {
+  swaggerUi,
+  swaggerSpec,
+};

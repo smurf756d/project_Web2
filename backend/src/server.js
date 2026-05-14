@@ -11,6 +11,7 @@ const passport = require("./config/passport");
 
 const authRoutes = require("./routes/authRoutes");
 const recipeRoutes = require("./routes/generateRecipeRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const errorHandler = require("./middleware/errorHandler");
@@ -50,13 +51,21 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/recipes", recipeRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found",
+  });
+});
 
 app.use(errorHandler);
 
 connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    console.log(`Swagger docs: http://localhost:${PORT}/api-docs`);
+    console.log(Swagger docs: http://localhost:${PORT}/api-docs);
   });
 });
