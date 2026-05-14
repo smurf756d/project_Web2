@@ -1,7 +1,9 @@
-import "./Home.css";
+import "../styles/Home.css";
 import { useNavigate } from "react-router-dom";
+
 const Home = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: "🥘",
@@ -32,7 +34,7 @@ const Home = () => {
           <button
             type="button"
             className="btn btn-outline-success home-nav-btn"
-            onClick={() => alert("This will go to Login page later.")}
+            onClick={() => navigate("/auth?mode=login")}
           >
             Login
           </button>
@@ -40,8 +42,15 @@ const Home = () => {
           <button
             type="button"
             className="btn btn-success home-nav-btn"
-            onClick={() => alert("This will go to Register page later.")}
-          >
+onClick={() => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    navigate("/generate-recipe");
+  } else {
+    navigate("/auth?mode=login");
+  }
+}}          >
             Register
           </button>
         </div>
@@ -64,13 +73,14 @@ const Home = () => {
               </p>
 
               <div className="d-flex flex-wrap gap-3">
-               <button
-  type="button"
-  className="btn btn-success home-main-btn"
-  onClick={() => navigate("/dashboard")}
->
-  Get Started →
-</button>
+                <button
+                  type="button"
+                  className="btn btn-success home-main-btn"
+                  onClick={() => navigate("/auth?mode=register")}
+                >
+                  Get Started →
+                </button>
+
                 <button
                   type="button"
                   className="btn btn-light border home-secondary-btn"
@@ -121,10 +131,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section
-        id="features-section"
-        className="container home-features"
-      >
+      <section id="features-section" className="container home-features">
         <div className="text-center mb-4">
           <p className="home-label mb-2">Why Choose Us</p>
           <h2 className="home-section-title">A smarter way to cook</h2>

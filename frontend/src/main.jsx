@@ -11,5 +11,7 @@ import "./index.css";
 import "./styles/auth.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
     <App />
-)
+  </React.StrictMode>
+);

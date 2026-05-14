@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import RecipeCard from "../components/myRecipes/RecipeCard";
+
 import {
   getMyRecipes,
   updateMyRecipe,
@@ -15,36 +16,17 @@ import {
 import "../styles/recipesPages.css";
 
 function MyRecipes() {
-  /**
-   * Store recipes fetched from backend
-   */
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /**
-   * Search input value
-   */
   const [searchTerm, setSearchTerm] = useState("");
 
-
-  /**
-   * Selected recipe for delete confirmation modal
-   */
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-  /**
-   * Selected recipe for view modal
-   */
   const [viewingRecipe, setViewingRecipe] = useState(null);
 
-  /**
-   * Selected recipe for edit modal
-   */
   const [editingRecipe, setEditingRecipe] = useState(null);
 
-  /**
-   * Edit form state
-   */
   const [editForm, setEditForm] = useState({
     title: "",
     ingredients: "",
@@ -53,23 +35,15 @@ function MyRecipes() {
     calories: "",
   });
 
-  /**
-   * Pagination state
-   */
   const [currentPage, setCurrentPage] = useState(1);
 
   const [totalPages, setTotalPages] = useState(1);
 
   const recipesPerPage = 3;
 
-  /**
-   * Normalize recipe shape from backend
-   */
   const normalizeRecipe = (recipe) => {
     return {
       ...recipe,
-
-      
 
       id: recipe._id,
 
@@ -93,57 +67,49 @@ function MyRecipes() {
     };
   };
 
-  /**
-   * Fetch recipes whenever page changes
-   */
-   /**
- * Load recipes from backend
- */
-const fetchRecipes = async () => {
-  try {
-    setLoading(true);
+  const fetchRecipes = async () => {
+    try {
+      setLoading(true);
 
-    const recipesData = await getMyRecipes(
-      currentPage,
-      recipesPerPage,
-      searchTerm,
-    );
+      const recipesData = await getMyRecipes(
+        currentPage,
+        recipesPerPage,
+        searchTerm
+      );
 
-    setTotalPages(recipesData.totalPages || 1);
+      setTotalPages(recipesData.totalPages || 1);
 
-    const favoritesData = await getFavorites(1, 100);
+      const favoritesData = await getFavorites(1, 100);
 
-    const favoriteRecipeIds = (favoritesData.data || [])
-      .filter((favorite) => favorite.recipe)
-      .map((favorite) => favorite.recipe._id);
+      const favoriteRecipeIds = (favoritesData.data || [])
+        .filter((favorite) => favorite.recipe)
+        .map((favorite) => favorite.recipe._id);
 
-    const normalizedRecipes = (recipesData.data || [])
-      .map(normalizeRecipe)
-      .map((recipe) => ({
-        ...recipe,
-        isFavorite: favoriteRecipeIds.includes(recipe._id),
-      }));
+      const normalizedRecipes = (recipesData.data || [])
+        .map(normalizeRecipe)
+        .map((recipe) => ({
+          ...recipe,
+          isFavorite: favoriteRecipeIds.includes(recipe._id),
+        }));
 
-    setRecipes(normalizedRecipes);
-  } catch (error) {
-    console.error("Failed to fetch recipes", error);
-  } finally {
-    setLoading(false);
-  }
-};
+      setRecipes(normalizedRecipes);
+    } catch (error) {
+      console.error("Failed to fetch recipes", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-useEffect(() => {
-  fetchRecipes();
-}, [currentPage, searchTerm]);
+  useEffect(() => {
+    fetchRecipes();
+  }, [currentPage, searchTerm]);
 
-useEffect(() => {
-  setCurrentPage(1);
-}, [searchTerm]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
-const visibleRecipes = recipes;
-  /**
-   * Delete recipe
-   */
+  const visibleRecipes = recipes;
+
   const handleDelete = async () => {
     try {
       await deleteMyRecipe(selectedRecipe._id);
@@ -161,36 +127,29 @@ const visibleRecipes = recipes;
     }
   };
 
-  /**
-   * Add or remove favorite
-   */
-const handleToggleFavorite = async (id) => {
-  try {
-    const recipe = recipes.find(
-      (item) => item._id === id
-    );
+  const handleToggleFavorite = async (id) => {
+    try {
+      const recipe = recipes.find(
+        (item) => item._id === id
+      );
 
-    if (!recipe) return;
+      if (!recipe) return;
 
-    if (recipe.isFavorite) {
-      await removeFavorite(id);
-    } else {
-      await addFavorite(id);
+      if (recipe.isFavorite) {
+        await removeFavorite(id);
+      } else {
+        await addFavorite(id);
+      }
+
+      await fetchRecipes();
+    } catch (error) {
+      console.error(
+        "Failed to update favorite",
+        error
+      );
     }
+  };
 
-    await fetchRecipes();
-  } catch (error) {
-    console.error(
-      "Failed to update favorite",
-      error
-    );
-  }
-};
-
-
-  /**
-   * Open edit modal
-   */
   const openEditModal = (recipe) => {
     setEditingRecipe(recipe);
 
@@ -210,9 +169,6 @@ const handleToggleFavorite = async (id) => {
     });
   };
 
-  /**
-   * Handle edit form changes
-   */
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
@@ -222,9 +178,6 @@ const handleToggleFavorite = async (id) => {
     }));
   };
 
-  /**
-   * Save updated recipe
-   */
   const handleSaveEdit = async (e) => {
     e.preventDefault();
 
@@ -296,29 +249,29 @@ const handleToggleFavorite = async (id) => {
     <div className="my-recipes-page">
       <section className="my-recipes-main">
         <div className="recipes-header">
-  <div className="recipes-title-box">
-  <h1>My Recipes</h1>
+          <div className="recipes-title-box">
+            <h1>My Recipes</h1>
 
-  <p>
-    Manage and view your saved healthy recipes
-  </p>
-</div>
-</div>
+            <p>
+              Manage and view your saved healthy recipes
+            </p>
+          </div>
+        </div>
 
         <section className="recipes-toolbar">
           <div className="filter-box">
             <i className="bi bi-search"></i>
 
-<input
-  type="text"
-  placeholder="Search recipes..."
-  value={searchTerm}
-  onChange={(e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
-  }}
-  className="search-input"
-/>
+            <input
+              type="text"
+              placeholder="Search recipes..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="search-input"
+            />
           </div>
 
           <div
@@ -424,8 +377,6 @@ const handleToggleFavorite = async (id) => {
       {viewingRecipe && (
         <div className="modal-backdrop-custom">
           <div className="view-modal">
-            
-
             <h3>{viewingRecipe.title}</h3>
 
             <div className="view-info">

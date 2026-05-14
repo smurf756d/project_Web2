@@ -2,18 +2,17 @@ const express = require("express");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 
-const openApiSpec = require("./docs/swagger");
-
-const authRoutes = require("./routes/auth.routes");
+const swaggerSpecs = require("./docs/swagger"); 
+const authRoutes = require("./routes/authRoutes"); 
+const dashboardRoutes = require("./routes/dashboardRoutes");
 const myRecipeRoutes = require("./routes/myRecipe.routes");
 const favoriteRecipeRoutes = require("./routes/favoriteRecipe.routes");
+
+const authenticate = require("./middleware/authenticate");
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
-/**
- * Enable CORS for frontend requests
- */
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -22,38 +21,34 @@ app.use(
   })
 );
 
-/**
- * Parse incoming JSON requests
- */
 app.use(express.json());
 
-/**
- * Swagger API documentation setup
- */
 app.use(
   "/api-docs",
   swaggerUi.serve,
-  swaggerUi.setup(openApiSpec)
+  swaggerUi.setup(swaggerSpecs)
 );
 
-/**
- * Health check route
- */
 app.get("/", (req, res) => {
-  res.send("API is running");
+  res.status(200).json({
+    success: true,
+    message: "Smart Kitchen Hub API is running",
+  });
 });
 
-/**
- * API routes
- */
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/my-recipes", myRecipeRoutes);
-app.use("/api/v1/favorites", favoriteRecipeRoutes);
+app.get("/api/protected", authenticate, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Protected route accessed successfully",
+    user: req.user,
+  });
+});
 
+app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/my-recipes", myRecipeRoutes);
+app.use("/api/favorites", favoriteRecipeRoutes);
 
-/**
- * Global error handling middleware
- */
 app.use(errorHandler);
 
 module.exports = app;

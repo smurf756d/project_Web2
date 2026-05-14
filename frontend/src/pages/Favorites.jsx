@@ -38,9 +38,6 @@ function Favorites() {
 
   const recipesPerPage = 3;
 
-  /**
-   * Normalize recipe shape
-   */
   const normalizeRecipe = (recipe) => {
     return {
       ...recipe,
@@ -207,27 +204,27 @@ function Favorites() {
     e.preventDefault();
 
     if (!editForm.title.trim()) {
-  alert("Recipe name is required");
-  return;
-}
+      alert("Recipe name is required");
+      return;
+    }
 
-if (!editForm.ingredients.trim()) {
-  alert("Ingredients are required");
-  return;
-}
+    if (!editForm.ingredients.trim()) {
+      alert("Ingredients are required");
+      return;
+    }
 
-if (!editForm.instructions.trim()) {
-  alert("Instructions are required");
-  return;
-}
+    if (!editForm.instructions.trim()) {
+      alert("Instructions are required");
+      return;
+    }
 
-if (
-  Number(editForm.time) <= 0 ||
-  Number(editForm.calories) <= 0
-) {
-  alert("Time and calories must be greater than 0");
-  return;
-}
+    if (
+      Number(editForm.time) <= 0 ||
+      Number(editForm.calories) <= 0
+    ) {
+      alert("Time and calories must be greater than 0");
+      return;
+    }
 
     try {
       const updatedRecipe = {

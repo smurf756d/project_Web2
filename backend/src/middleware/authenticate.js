@@ -2,92 +2,44 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 /**
- * @desc Authentication middleware
- * Verifies JWT token and attaches
- * the logged-in user to request object
+ * Authentication middleware.
+ * Verifies JWT token and attaches the logged-in user to the request.
  */
-const protect = async (
-  req,
-  res,
-  next
-) => {
+const authenticate = async (req, res, next) => {
   try {
-    let token = null;
+    const authHeader = req.headers.authorization;
 
-    /**
-     * Token should be sent as:
-     * Authorization: Bearer <token>
-     */
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith(
-        "Bearer"
-      )
-    ) {
-      token =
-        req.headers.authorization
-          .split(" ")[1]
-          .replace(/"/g, "");
-    }
-
-    /**
-     * Validate token existence
-     */
-    if (!token) {
+    if (!authHeader || !authHeader.startsWith("Bearer")) {
       return res.status(401).json({
         success: false,
-        message:
-          "Not authorized, no token provided",
+        message: "No token provided",
       });
     }
 
-    /**
-     * Verify JWT token
-     */
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+    const token = authHeader.split(" ")[1].replace(/"/g, "");
 
-    /**
-     * Find logged-in user
-     */
-    const user =
-      await User.findById(
-        decoded.id
-      ).select("-password");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    /**
-     * Validate existing user
-     */
+    const user = await User.findById(decoded.id).select("-passwordHash");
+
     if (!user) {
       return res.status(401).json({
         success: false,
-        message:
-          "User not found",
+        message: "User not found",
       });
     }
 
-    /**
-     * Attach user to request object
-     */
     req.user = user;
 
     next();
   } catch (error) {
-    console.error(
-      "JWT authentication failed:",
-      error.message
-    );
+    console.error("JWT authentication failed:", error.message);
 
     return res.status(401).json({
       success: false,
-      message:
-        "Invalid or expired token",
+      message: "Invalid or expired token",
     });
   }
 };
 
-module.exports = {
-  protect,
-};
+module.exports = authenticate;
