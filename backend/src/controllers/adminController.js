@@ -1,16 +1,12 @@
-const Recipe = require("../models/Recipe");
+const adminService = require("../services/adminService");
 
 async function getDashboardStats(req, res, next) {
   try {
-    const totalRecipes = await Recipe.countDocuments();
+    const stats = await adminService.getDashboardStats();
 
     res.status(200).json({
       success: true,
-      data: {
-        totalRecipes,
-        totalUsers: 0,
-        generatedRecipes: totalRecipes,
-      },
+      data: stats,
     });
   } catch (error) {
     next(error);
@@ -19,10 +15,7 @@ async function getDashboardStats(req, res, next) {
 
 async function getRecentRecipes(req, res, next) {
   try {
-    const recentRecipes = await Recipe.find()
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select("title cookingTime calories cuisine createdAt");
+    const recentRecipes = await adminService.getRecentRecipes();
 
     res.status(200).json({
       success: true,

@@ -1,19 +1,20 @@
 import "../styles/Admin.css";
-import StatsCards from "../components/StatsCards";
-import RecentUsers from "../components/RecentUsers";
-import RecentRecipes from "../components/RecentRecipes";
-import MostLikedRecipes from "../components/MostLikedRecipes";
+import StatsCards from "../components/adminDashboard/StatsCards";
+import RecentUsers from "../components/adminDashboard/RecentUsers";
+import RecentRecipes from "../components/adminDashboard/RecentRecipes";
+import MostLikedRecipes from "../components/adminDashboard/MostLikedRecipes";
 import { recentUsers } from "../data/adminData";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function AdminDashboard() {
-  const navigate = useNavigate();
-  const recentUsersRef = useRef(null);
+const navigate = useNavigate();
+const recentUsersRef = useRef(null);
 const [stats, setStats] = useState(null);
 const [loading, setLoading] = useState(true);
 const [recentRecipesData, setRecentRecipesData] = useState([]);
 const [showAllUsers, setShowAllUsers] = useState(false);
+const [searchTerm, setSearchTerm] = useState("");
 
 useEffect(() => {
   async function fetchDashboardStats() {
@@ -45,6 +46,21 @@ const dashboardStats = {
   generated: stats?.generatedRecipes ?? 0,
 };
 
+
+const searchValue = searchTerm.toLowerCase();
+
+const filteredUsers = recentUsers.filter((user) =>
+  user.name?.toLowerCase().includes(searchValue) ||
+  user.username?.toLowerCase().includes(searchValue) ||
+  user.role?.toLowerCase().includes(searchValue) ||
+  user.email?.toLowerCase().includes(searchValue)
+);
+
+const filteredRecipes = recentRecipesData.filter((recipe) =>
+  recipe.title?.toLowerCase().includes(searchValue) ||
+  recipe.name?.toLowerCase().includes(searchValue)
+);
+
   return (
   <div className="py-4 text-dark admin-dashboard">
     <div className="dashboard-heading text-center mb-4">
@@ -54,10 +70,12 @@ const dashboardStats = {
    <div className="dashboard-actions d-flex justify-content-between align-items-center mb-4">
   
   <input
-    type="text"
-    className="form-control w-50"
-    placeholder="Search..."
-  />
+  type="text"
+  className="form-control w-50"
+  placeholder="Search..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+/>
 
  <button
   className="btn btn-success"
@@ -124,8 +142,8 @@ const dashboardStats = {
 <RecentUsers
   users={
     showAllUsers
-      ? recentUsers
-      : recentUsers.slice(0, 2)
+      ? filteredUsers
+      : filteredUsers.slice(0, 2)
   }
 />
     </div>
@@ -136,7 +154,7 @@ const dashboardStats = {
 
   <div className="card p-3 mb-4">
     <h5 className="mb-3">🍽️ Recent Recipes</h5>
-   <RecentRecipes recipes={recentRecipesData.slice(0, 3)} />
+   <RecentRecipes recipes={filteredRecipes.slice(0, 3)} />
   </div>
 
  <div className="card p-3">
