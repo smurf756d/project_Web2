@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import RecipeCard from "../components/RecipeCard";
+import RecipeCard from "../components/myRecipes/RecipeCard";
 
 import {
   getFavorites,

@@ -5,7 +5,7 @@ const myRecipeService = require("../services/myRecipe.service");
  * @route   POST /api/v1/my-recipes
  * @access  Private
  */
-async function createMyRecipe(req, res) {
+async function createMyRecipe(req, res, next) {
   try {
     const {
       title,
@@ -16,23 +16,8 @@ async function createMyRecipe(req, res) {
     } = req.body;
 
     /**
-     * Validate required recipe fields
-     */
-    if (
-      !title ||
-      !ingredients ||
-      !instructions ||
-      !time ||
-      !calories
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Please fill all required fields",
-      });
-    }
-
-    /**
      * Create recipe and link it to logged-in user
+     * Validation is handled by validate(validateCreateRecipe)
      */
     const recipe = await myRecipeService.createMyRecipe({
       title,
@@ -50,15 +35,7 @@ async function createMyRecipe(req, res) {
       data: recipe,
     });
   } catch (error) {
-    console.error(
-      "Create my recipe failed:",
-      error.message
-    );
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 }
 
@@ -67,7 +44,7 @@ async function createMyRecipe(req, res) {
  * @route   GET /api/v1/my-recipes?page=1&limit=5
  * @access  Private
  */
-async function getMyRecipes(req, res) {
+async function getMyRecipes(req, res, next) {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 5;
@@ -96,15 +73,7 @@ async function getMyRecipes(req, res) {
       data: result.recipes,
     });
   } catch (error) {
-    console.error(
-      "Get my recipes failed:",
-      error.message
-    );
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 }
 
@@ -113,7 +82,7 @@ async function getMyRecipes(req, res) {
  * @route   PUT /api/v1/my-recipes/:id
  * @access  Private
  */
-async function updateMyRecipe(req, res) {
+async function updateMyRecipe(req, res, next) {
   try {
     const recipe =
       await myRecipeService.updateMyRecipe(
@@ -135,15 +104,7 @@ async function updateMyRecipe(req, res) {
       data: recipe,
     });
   } catch (error) {
-    console.error(
-      "Update my recipe failed:",
-      error.message
-    );
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 }
 
@@ -152,7 +113,7 @@ async function updateMyRecipe(req, res) {
  * @route   DELETE /api/v1/my-recipes/:id
  * @access  Private
  */
-async function deleteMyRecipe(req, res) {
+async function deleteMyRecipe(req, res, next) {
   try {
     const recipe =
       await myRecipeService.deleteMyRecipe(
@@ -172,15 +133,7 @@ async function deleteMyRecipe(req, res) {
       message: "Recipe deleted successfully",
     });
   } catch (error) {
-    console.error(
-      "Delete my recipe failed:",
-      error.message
-    );
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 }
 

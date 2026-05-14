@@ -1,13 +1,17 @@
 const mongoose = require("mongoose");
 
+/**
+ * Recipe Schema
+ * Stores user recipes and saved recipes.
+ */
+
 const recipeSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: [true, "Recipe title is required"],
       trim: true,
     },
-
 
     image: {
       type: String,
@@ -16,22 +20,42 @@ const recipeSchema = new mongoose.Schema(
 
     ingredients: {
       type: [String],
-      required: true,
+      default: [],
     },
 
     instructions: {
       type: String,
-      required: true,
+      default: "",
     },
 
-    time: {
-      type: Number,
-      required: true,
+    steps: {
+      type: [String],
+      default: [],
+    },
+
+    cookingTime: {
+      type: String,
+      default: "",
     },
 
     calories: {
-      type: Number,
-      required: true,
+      type: String,
+      default: "",
+    },
+
+    diet: {
+      type: String,
+      default: "",
+    },
+
+    sourceIngredients: {
+      type: [String],
+      default: [],
+    },
+
+    cuisine: {
+      type: String,
+      default: "",
     },
 
     isFavorite: {
@@ -39,8 +63,12 @@ const recipeSchema = new mongoose.Schema(
       default: false,
     },
 
-    // Link recipe to the logged-in user
-    user: {
+    isAIGenerated: {
+      type: Boolean,
+      default: false,
+    },
+
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -51,4 +79,6 @@ const recipeSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Recipe", recipeSchema);
+const Recipe = mongoose.model("Recipe", recipeSchema);
+
+module.exports = Recipe;

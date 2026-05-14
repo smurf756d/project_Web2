@@ -1,5 +1,4 @@
-import anyFood from "../assets/any-food.png";
-
+import anyFood from "../../assets/any-food.png";
 function RecipeCard({
   recipe,
   onDelete,

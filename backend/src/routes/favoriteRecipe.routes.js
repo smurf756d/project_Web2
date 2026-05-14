@@ -2,13 +2,13 @@ const express = require("express");
 
 const {
   protect,
-} = require("../../middleware/auth.middleware");
+} = require("../middleware/authenticate");
 
 const {
   addFavorite,
   getFavorites,
   removeFavorite,
-} = require("../../controllers/favoriteRecipe.controller");
+} = require("../controllers/favoriteRecipe.controller");
 
 const router = express.Router();
 

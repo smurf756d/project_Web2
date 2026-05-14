@@ -1,19 +1,20 @@
+const validate = require("../middleware/validate");
 const express = require("express");
 
 const {
   protect,
-} = require("../../middleware/auth.middleware");
+} = require("../middleware/authenticate");
 
 const {
   validateCreateRecipe,
-} = require("../../validators/myRecipe.validator");
+} = require("../utils/validators");
 
 const {
   createMyRecipe,
   getMyRecipes,
   updateMyRecipe,
   deleteMyRecipe,
-} = require("../../controllers/myRecipe.controller");
+} = require("../controllers/myRecipe.controller");
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router
   .get(protect, getMyRecipes)
   .post(
     protect,
-    validateCreateRecipe,
+    validate(validateCreateRecipe),
     createMyRecipe
   );
 

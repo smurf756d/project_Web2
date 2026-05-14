@@ -7,7 +7,7 @@ const favoriteRecipeService = require(
  * @route   POST /api/v1/favorites/:recipeId
  * @access  Private
  */
-async function addFavorite(req, res) {
+async function addFavorite(req, res, next) {
   try {
     const favorite =
       await favoriteRecipeService.addFavorite(
@@ -21,7 +21,6 @@ async function addFavorite(req, res) {
       data: favorite,
     });
   } catch (error) {
-    // Prevent duplicate favorite recipes
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
@@ -30,15 +29,7 @@ async function addFavorite(req, res) {
       });
     }
 
-    console.error(
-      "Add favorite failed:",
-      error.message
-    );
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 }
 
@@ -47,13 +38,8 @@ async function addFavorite(req, res) {
  * @route   GET /api/v1/favorites?page=1&limit=5
  * @access  Private
  */
-async function getFavorites(req, res) {
+async function getFavorites(req, res, next) {
   try {
-    /**
-     * Read pagination query parameters
-     * Default page = 1
-     * Default limit = 5
-     */
     const page =
       Number(req.query.page) || 1;
 
@@ -77,15 +63,7 @@ async function getFavorites(req, res) {
       data: result.favorites,
     });
   } catch (error) {
-    console.error(
-      "Get favorites failed:",
-      error.message
-    );
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 }
 
@@ -94,7 +72,7 @@ async function getFavorites(req, res) {
  * @route   DELETE /api/v1/favorites/:recipeId
  * @access  Private
  */
-async function removeFavorite(req, res) {
+async function removeFavorite(req, res, next) {
   try {
     const favorite =
       await favoriteRecipeService.removeFavorite(
@@ -116,15 +94,7 @@ async function removeFavorite(req, res) {
         "Recipe removed from favorites",
     });
   } catch (error) {
-    console.error(
-      "Remove favorite failed:",
-      error.message
-    );
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 }
 
