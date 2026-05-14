@@ -22,9 +22,12 @@ function Layout() {
     };
 
     const handleLogout = () => {
+        // Clear all stored data
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        navigate("/auth");
+        
+        // Navigate and replace history so user can't go back
+        navigate("/auth", { replace: true });
     };
 
     return (

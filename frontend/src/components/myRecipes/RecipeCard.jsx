@@ -1,34 +1,56 @@
-function RecipeCard({ recipe, onDelete, onToggleFavorite, onEdit, onView }) {
+function RecipeCard({
+  recipe,
+  onDelete,
+  onToggleFavorite,
+  onEdit,
+  onView,
+}) {
+  
+const recipeImage = recipe.image || "https://via.placeholder.com/300x200?text=Recipe+Image";
+
+const recipeTime =
+  recipe.time ||
+  recipe.cookingTime ||
+  "N/A";
+
+const recipeCalories =
+  recipe.calories || "N/A";
+  
   return (
     <div className="recipe-card">
       <img
-        src={recipe.image}
+        src={recipeImage}
         alt={recipe.title}
         className="recipe-img"
-        onError={(e) => {
-          e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
-        }}
       />
 
       <div className="recipe-body">
         <h5>{recipe.title}</h5>
 
-        <div className="recipe-info">
-          <span>
-            <i className="bi bi-clock"></i> {recipe.time} min
-          </span>
-          <span>
-            <i className="bi bi-fire"></i> {recipe.calories} cal
-          </span>
-        </div>
+      <div className="recipe-info">
+        <span>
+           <i className="bi bi-clock"></i>{" "}
+           {recipeTime}
+        </span>
 
+        <span>
+           <i className="bi bi-fire"></i>{" "}
+           {recipeCalories}
+        </span>
+      </div>
         <div className="recipe-actions">
-          <button className="view-btn" onClick={() => onView(recipe)}>
+          <button
+            className="view-btn"
+            onClick={() => onView(recipe)}
+          >
             View Recipe
           </button>
 
           <div>
-            <button className="small-action edit" onClick={() => onEdit(recipe)}>
+            <button
+              className="small-action edit"
+              onClick={() => onEdit(recipe)}
+            >
               <i className="bi bi-pencil-square"></i>
             </button>
 
@@ -43,11 +65,15 @@ function RecipeCard({ recipe, onDelete, onToggleFavorite, onEdit, onView }) {
               className={`small-action ${
                 recipe.isFavorite ? "fav-active" : ""
               }`}
-              onClick={() => onToggleFavorite(recipe.id)}
+              onClick={() =>
+                onToggleFavorite(recipe.id || recipe._id)
+              }
             >
               <i
                 className={`bi ${
-                  recipe.isFavorite ? "bi-heart-fill" : "bi-heart"
+                  recipe.isFavorite
+                    ? "bi-heart-fill"
+                    : "bi-heart"
                 }`}
               ></i>
             </button>
