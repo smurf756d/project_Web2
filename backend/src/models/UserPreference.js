@@ -23,6 +23,16 @@ const userPreferenceSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    generatedCountToday: {
+      type: Number,
+      default: 0,
+    },
+
+    lastGeneratedDate: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

@@ -81,24 +81,17 @@ const getDashboardData = async (user) => {
     createdBy: user._id,
   });
 
-  // Count AI-generated recipes saved by this user today
-  const generatedTodayCount = await Recipe.countDocuments({
-    createdBy: user._id,
-    isAIGenerated: true,
-    createdAt: {
-      $gte: startOfToday,
-      $lte: endOfToday,
-    },
-  });
+  // Get user preferences to check generated count today
+  const preferences = await getOrCreatePreferences(user._id);
+  const generatedTodayCount = preferences.generatedCountToday || 0;
 
   console.log(`[dashboardService] User ${user._id} - Saved: ${savedRecipesCount}, Generated Today: ${generatedTodayCount}`);
 
-  const favoriteRecipe = await Recipe.findOne({
+  // Count favorite recipes for this user
+  const favoriteDishCount = await Recipe.countDocuments({
     createdBy: user._id,
     isFavorite: true,
-  }).sort({ updatedAt: -1 });
-
-  const preferences = await getOrCreatePreferences(user._id);
+  });
 
   return {
     user: {
@@ -111,7 +104,7 @@ const getDashboardData = async (user) => {
     stats: {
       savedRecipes: savedRecipesCount,
       generatedToday: generatedTodayCount,
-      favoriteDish: favoriteRecipe?.title || "Not selected yet",
+      favoriteDish: favoriteDishCount,
     },
 
     suggestedRecipes: suggestedRecipesPool,

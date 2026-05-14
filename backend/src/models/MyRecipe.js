@@ -32,6 +32,12 @@ const myRecipeSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+
+    isFavorite: {
+      type: Boolean,
+      default: false,
+    },
+
 /**
  * Link recipe to logged-in user
  */

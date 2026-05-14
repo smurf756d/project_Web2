@@ -3,7 +3,6 @@ import StatsCards from "../components/adminDashboard/StatsCards";
 import RecentUsers from "../components/adminDashboard/RecentUsers";
 import RecentRecipes from "../components/adminDashboard/RecentRecipes";
 import MostLikedRecipes from "../components/adminDashboard/MostLikedRecipes";
-import { recentUsers } from "../data/adminData";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -13,31 +12,90 @@ function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recentRecipesData, setRecentRecipesData] = useState([]);
+  const [usersData, setUsersData] = useState([]);
+  const [ingredientsData, setIngredientsData] = useState([]);
+  const [mostLikedRecipesData, setMostLikedRecipesData] = useState([]);
   const [showAllUsers, setShowAllUsers] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  console.log("[AdminDashboard] Component rendered - loading:", loading, "stats:", stats);
+
   useEffect(() => {
-    async function fetchDashboardStats() {
+    async function fetchDashboardData() {
       try {
-        const response = await fetch("http://localhost:5000/api/admin/stats");
-        const data = await response.json();
+        const token = localStorage.getItem("token");
+        
+        const headers = {
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` }),
+        };
 
-        setStats(data.data);
+        console.log("[AdminDashboard] Fetching all dashboard data");
 
+        // Fetch stats
+        const statsResponse = await fetch("http://localhost:5000/api/v1/admin/stats", {
+          headers,
+        });
+        const statsData = await statsResponse.json();
+        if (statsResponse.ok) {
+          setStats(statsData.data);
+        }
+
+        // Fetch recent recipes
         const recentRecipesResponse = await fetch(
-          "http://localhost:5000/api/admin/recent-recipes"
+          "http://localhost:5000/api/v1/admin/recent-recipes",
+          { headers }
         );
-
         const recentRecipesResult = await recentRecipesResponse.json();
-        setRecentRecipesData(recentRecipesResult.data);
+        if (recentRecipesResponse.ok) {
+          setRecentRecipesData(recentRecipesResult.data || []);
+        }
+
+        // Fetch users
+        const usersResponse = await fetch(
+          "http://localhost:5000/api/v1/admin/users",
+          { headers }
+        );
+        const usersResult = await usersResponse.json();
+        if (usersResponse.ok) {
+          setUsersData(usersResult.data || []);
+          console.log("[AdminDashboard] Fetched users:", usersResult.data?.length);
+        }
+
+        // Fetch most used ingredients
+        const ingredientsResponse = await fetch(
+          "http://localhost:5000/api/v1/admin/most-used-ingredients",
+          { headers }
+        );
+        const ingredientsResult = await ingredientsResponse.json();
+        if (ingredientsResponse.ok) {
+          setIngredientsData(ingredientsResult.data || []);
+          console.log("[AdminDashboard] Fetched ingredients:", ingredientsResult.data?.length);
+        }
+
+        // Fetch most liked recipes
+        const likedRecipesResponse = await fetch(
+          "http://localhost:5000/api/v1/admin/most-liked-recipes",
+          { headers }
+        );
+        const likedRecipesResult = await likedRecipesResponse.json();
+        if (likedRecipesResponse.ok) {
+          setMostLikedRecipesData(likedRecipesResult.data || []);
+          console.log("[AdminDashboard] Fetched most liked recipes:", likedRecipesResult.data?.length);
+        }
       } catch (error) {
-        console.error("Failed to fetch dashboard stats:", error);
+        console.error("[AdminDashboard] Error fetching dashboard data:", error);
+        setStats(null);
+        setRecentRecipesData([]);
+        setUsersData([]);
+        setIngredientsData([]);
+        setMostLikedRecipesData([]);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchDashboardStats();
+    fetchDashboardData();
   }, []);
 
   const dashboardStats = {
@@ -46,20 +104,40 @@ function AdminDashboard() {
     generated: stats?.generatedRecipes ?? 0,
   };
 
+  if (loading) {
+    return (
+      <div className="py-4 text-dark admin-dashboard">
+        <div className="text-center">
+          <p>Loading admin dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="py-4 text-dark admin-dashboard">
+        <div className="text-center">
+          <p className="text-danger">Unable to load dashboard statistics. Please check your permissions and try again.</p>
+        </div>
+      </div>
+    );
+  }
+
   const searchValue = searchTerm.toLowerCase();
 
-  const filteredUsers = recentUsers.filter(
+  // Filter users based on search
+  const filteredUsers = usersData.filter(
     (user) =>
       user.name?.toLowerCase().includes(searchValue) ||
-      user.username?.toLowerCase().includes(searchValue) ||
-      user.role?.toLowerCase().includes(searchValue) ||
-      user.email?.toLowerCase().includes(searchValue)
+      user.email?.toLowerCase().includes(searchValue) ||
+      user.role?.toLowerCase().includes(searchValue)
   );
 
+  // Filter recipes based on search
   const filteredRecipes = recentRecipesData.filter(
     (recipe) =>
-      recipe.title?.toLowerCase().includes(searchValue) ||
-      recipe.name?.toLowerCase().includes(searchValue)
+      recipe.title?.toLowerCase().includes(searchValue)
   );
 
   return (
@@ -86,49 +164,35 @@ function AdminDashboard() {
         </button>
       </div>
 
-      {loading ? (
-        <p className="text-center">Loading dashboard stats...</p>
-      ) : (
-        <StatsCards stats={dashboardStats} />
-      )}
+      <StatsCards stats={dashboardStats} />
 
       <div className="row">
         <div className="col-md-8">
           <div className="card p-3 mb-4">
             <h5 className="mb-3">Most Used Ingredients ⭐</h5>
 
-            <div className="mb-2">
-              <div className="d-flex justify-content-between">
-                <span>Chicken</span>
-                <span>130</span>
-              </div>
-              <div className="progress">
-                <div className="progress-bar" style={{ width: "85%" }}></div>
-              </div>
-            </div>
-
-            <div className="mb-2">
-              <div className="d-flex justify-content-between">
-                <span>Broccoli</span>
-                <span>110</span>
-              </div>
-              <div className="progress">
-                <div
-                  className="progress-bar"
-                  style={{ width: "70%", backgroundColor: "#6fbf73" }}
-                ></div>
-              </div>
-            </div>
-
-            <div>
-              <div className="d-flex justify-content-between">
-                <span>Carrots</span>
-                <span>70</span>
-              </div>
-              <div className="progress">
-                <div className="progress-bar" style={{ width: "45%" }}></div>
-              </div>
-            </div>
+            {ingredientsData.length > 0 ? (
+              ingredientsData.map((ingredient, index) => {
+                const maxCount = ingredientsData[0]?.count || 1;
+                const percentage = (ingredient.count / maxCount) * 100;
+                return (
+                  <div key={index} className="mb-2">
+                    <div className="d-flex justify-content-between">
+                      <span>{ingredient.name}</span>
+                      <span>{ingredient.count}</span>
+                    </div>
+                    <div className="progress">
+                      <div
+                        className="progress-bar"
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-muted">No ingredients data available</p>
+            )}
           </div>
 
           <div className="card p-3 mb-4" ref={recentUsersRef}>
@@ -143,21 +207,33 @@ function AdminDashboard() {
               </button>
             </div>
 
-            <RecentUsers
-              users={showAllUsers ? filteredUsers : filteredUsers.slice(0, 2)}
-            />
+            {usersData.length > 0 ? (
+              <RecentUsers
+                users={showAllUsers ? filteredUsers : filteredUsers.slice(0, 2)}
+              />
+            ) : (
+              <p className="text-muted">No users available</p>
+            )}
           </div>
         </div>
 
         <div className="col-md-4">
           <div className="card p-3 mb-4">
             <h5 className="mb-3">🍽️ Recent Recipes</h5>
-            <RecentRecipes recipes={filteredRecipes.slice(0, 3)} />
+            {recentRecipesData.length > 0 ? (
+              <RecentRecipes recipes={filteredRecipes.slice(0, 3)} />
+            ) : (
+              <p className="text-muted">No recipes available</p>
+            )}
           </div>
 
           <div className="card p-3">
             <h5 className="mb-3">❤️ Most Liked Recipes</h5>
-            <MostLikedRecipes />
+            {mostLikedRecipesData.length > 0 ? (
+              <MostLikedRecipes recipes={mostLikedRecipesData} />
+            ) : (
+              <p className="text-muted">No liked recipes yet</p>
+            )}
           </div>
         </div>
       </div>

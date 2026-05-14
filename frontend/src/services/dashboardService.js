@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/dashboard";
+const API = "http://localhost:5000/api/v1/dashboard";
 
 export const getDashboardData = (token) => {
   return axios.get(API, {

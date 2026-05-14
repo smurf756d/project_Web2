@@ -4,14 +4,21 @@ import apiClient from "./apiClient";
  * Get logged-in user's favorite recipes
  */
 export const getFavorites = async () => {
-  // Get all user recipes and filter for favorites on frontend
-  const response = await apiClient.get("/recipes/my");
-  const recipesArray = Array.isArray(response.data) 
-    ? response.data 
-    : (response.data.data || []);
-  
-  // Filter recipes where isFavorite is true
-  return recipesArray.filter(recipe => recipe.isFavorite === true);
+  try {
+    // Get all user recipes from Recipe collection (which has isFavorite flag)
+    const response = await apiClient.get("/recipes/my");
+    const recipesArray = Array.isArray(response.data) 
+      ? response.data 
+      : (response.data.data || []);
+    
+    // Filter recipes where isFavorite is true
+    const favorites = recipesArray.filter(recipe => recipe.isFavorite === true);
+    console.log(`[getFavorites] Found ${favorites.length} favorite recipes`);
+    return favorites;
+  } catch (error) {
+    console.error("[getFavorites] Error fetching favorites:", error);
+    return [];
+  }
 };
 
 /**
@@ -22,7 +29,7 @@ export const addFavorite = async (recipeId) => {
     `/recipes/${recipeId}`,
     { isFavorite: true }
   );
-
+  console.log(`[addFavorite] Recipe marked as favorite: ${recipeId}`);
   return response.data;
 };
 
@@ -34,6 +41,6 @@ export const removeFavorite = async (recipeId) => {
     `/recipes/${recipeId}`,
     { isFavorite: false }
   );
-
+  console.log(`[removeFavorite] Recipe removed from favorites: ${recipeId}`);
   return response.data;
 };

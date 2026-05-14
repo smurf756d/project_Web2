@@ -1,6 +1,7 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Recipe = require("../models/Recipe");
 const MyRecipe = require("../models/MyRecipe");
+const UserPreference = require("../models/UserPreference");
 
 // تأكدي من استدعاء dotenv في ملف server.js الأساسي
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -42,6 +43,29 @@ function generateRecipeImage(recipe) {
 }
 
 /**
+ * Helper function to repair malformed JSON
+ */
+function repairJSON(jsonString) {
+  try {
+    // First try parsing as-is
+    return JSON.parse(jsonString);
+  } catch (e) {
+    // Remove trailing commas before closing braces/brackets
+    let repaired = jsonString
+      .replace(/,(\s*[}\]])/g, '$1')  // Remove trailing commas before } or ]
+      .replace(/(\w+):/g, '"$1":')    // Ensure all keys are quoted
+      .replace(/:\s*'([^']*)'/g, ': "$1"'); // Convert single quotes to double quotes
+    
+    try {
+      return JSON.parse(repaired);
+    } catch (e2) {
+      // If still fails, throw original error
+      throw e;
+    }
+  }
+}
+
+/**
  * AI Recipe Generation - Updated Logic
  */
 async function generateRecipe(data) {
@@ -57,46 +81,79 @@ async function generateRecipe(data) {
     generationConfig: { responseMimeType: "application/json" },
   });
 
-  const prompt = `Generate a realistic recipe JSON for: 
-  Ingredients: ${cleanIngredients.join(", ")}, 
-  Diet: ${diet}, 
-  Time: ${cookingTime}, 
-  Cuisine: ${cuisine}. 
-  Return ONLY a valid JSON object. Do not include any markdown formatting like \`\`\`json.
-  The JSON must be complete and follow this exact structure:
-  {
-    "title": "Recipe Name",
-    "ingredients": ["item 1", "item 2"],
-    "steps": ["step 1", "step 2"],
-    "cookingTime": "30 mins",
-    "calories": 250,
-    "diet": "${diet}",
-    "cuisine": "${cuisine}"
-  }`;
+  const prompt = `You are a professional chef. Generate a realistic recipe in valid JSON format.
+
+User Preferences:
+- Ingredients: ${cleanIngredients.join(", ")}
+- Diet Type: ${diet}
+- Cooking Time: ${cookingTime}
+- Cuisine: ${cuisine}
+
+IMPORTANT: Return ONLY valid JSON object with NO markdown, NO code blocks, NO extra text.
+Do NOT include trailing commas or any invalid JSON syntax.
+
+Required JSON structure (exactly like this):
+{
+  "title": "Descriptive Recipe Name",
+  "ingredients": ["ingredient 1", "ingredient 2", "ingredient 3"],
+  "steps": ["step 1: description", "step 2: description", "step 3: description"],
+  "cookingTime": "time in mins",
+  "calories": number_value,
+  "diet": "${diet}",
+  "cuisine": "${cuisine}"
+}
+
+Generate the recipe now:`;
 
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
 
-    // استخراج الـ JSON بشكل آمن من النص المستلم
+    console.log("[generateRecipe] Raw AI response length:", text.length);
+
+    // Extract JSON safely from the response
     const jsonStart = text.indexOf("{");
     const jsonEnd = text.lastIndexOf("}") + 1;
     
-    if (jsonStart === -1) {
-      console.error("Raw AI Response:", text);
+    if (jsonStart === -1 || jsonEnd === 0) {
+      console.error("[generateRecipe] Raw AI Response:", text);
       throw new Error("AI did not return a valid JSON object");
     }
 
-    const recipe = JSON.parse(text.substring(jsonStart, jsonEnd));
+    const jsonString = text.substring(jsonStart, jsonEnd);
+    console.log("[generateRecipe] Extracted JSON length:", jsonString.length);
 
-    // إضافة البيانات الإضافية للموديل
+    // Try to parse and repair if needed
+    let recipe;
+    try {
+      recipe = JSON.parse(jsonString);
+    } catch (parseError) {
+      console.log("[generateRecipe] Initial parse failed, attempting repair...");
+      recipe = repairJSON(jsonString);
+    }
+
+    // Validate required fields
+    if (!recipe.title || !recipe.ingredients || !recipe.steps || !recipe.cookingTime || recipe.calories === undefined) {
+      console.error("[generateRecipe] Missing required fields in recipe:", recipe);
+      throw new Error("Generated recipe missing required fields");
+    }
+
+    // Ensure arrays are valid
+    if (!Array.isArray(recipe.ingredients)) {
+      recipe.ingredients = [recipe.ingredients];
+    }
+    if (!Array.isArray(recipe.steps)) {
+      recipe.steps = [recipe.steps];
+    }
+
+    // Add source data
     recipe.sourceIngredients = cleanIngredients.map(item => item.toLowerCase().trim());
     recipe.image = generateRecipeImage(recipe);
     
     return recipe;
   } catch (error) {
-    console.error("Detailed AI Error:", error); // سيظهر لكِ السبب الحقيقي في الـ Terminal
+    console.error("[generateRecipe] Error:", error.message);
     throw createError("AI generation failed: " + (error.message || "Unknown error"), 500);
   }
 }
@@ -113,35 +170,65 @@ async function refineRecipe(data) {
     generationConfig: { responseMimeType: "application/json" },
   });
 
-  const prompt = `Modify this recipe: ${JSON.stringify(recipe)} based on: ${userMessage}. Return ONLY valid JSON.`;
+  const prompt = `You are a professional chef. Modify this recipe based on user feedback.
+
+Current Recipe: ${JSON.stringify(recipe)}
+
+User Request: ${userMessage}
+
+Return ONLY valid JSON with the modified recipe (same structure as input). No markdown, no code blocks, no extra text.`;
 
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const updatedRecipe = JSON.parse(response.text());
+    const responseText = response.text();
+    
+    // Extract JSON safely
+    const jsonStart = responseText.indexOf("{");
+    const jsonEnd = responseText.lastIndexOf("}") + 1;
+    
+    if (jsonStart === -1 || jsonEnd === 0) {
+      throw new Error("AI did not return a valid JSON object");
+    }
+
+    const jsonString = responseText.substring(jsonStart, jsonEnd);
+    
+    let updatedRecipe;
+    try {
+      updatedRecipe = JSON.parse(jsonString);
+    } catch (parseError) {
+      updatedRecipe = repairJSON(jsonString);
+    }
+    
     updatedRecipe.image = generateRecipeImage(updatedRecipe);
     return updatedRecipe;
   } catch (error) {
-    console.error("AI Refinement Error:", error);
-    throw createError("AI refinement failed.", 500);
+    console.error("[refineRecipe] AI Refinement Error:", error);
+    throw createError("AI refinement failed: " + (error.message || "Unknown error"), 500);
   }
 }
 
 /**
- * Database Operations
+ * Database Operations - Save Recipe
+ * Prevents saving duplicate recipes with identical ingredients
  */
 async function saveRecipe(recipe) {
   if (!recipe.createdBy) throw createError("Authentication required", 401);
   
-  // Check if a recipe with the same title from the same user exists in Recipe collection
+  // Check if a recipe with the same ingredients already exists for this user
+  // sourceIngredients is the normalized list of ingredients user entered
   const existing = await Recipe.findOne({
     createdBy: recipe.createdBy,
-    title: recipe.title
+    sourceIngredients: {
+      $size: recipe.sourceIngredients.length,
+      $all: recipe.sourceIngredients
+    }
   });
 
-  // If it exists, just return it (idempotent - already saved)
+  // If an identical recipe exists (same ingredients), throw error
   if (existing) {
-    return existing;
+    console.log(`[saveRecipe] ⚠️ Recipe already exists with same ingredients: ${existing._id}`);
+    throw createError("The recipe is already saved", 409);
   }
   
   // Save to Recipe collection
@@ -159,11 +246,12 @@ async function saveRecipe(recipe) {
         : (recipe.instructions || ""),
       time: parseInt(recipe.cookingTime) || 30,
       calories: parseInt(recipe.calories) || 0,
+      isFavorite: recipe.isFavorite || false,
       user: recipe.createdBy,
     };
     
     const savedMyRecipe = await new MyRecipe(myRecipeData).save();
-    console.log(`[saveRecipe] ✅ Recipe saved to MyRecipe collection: ${savedMyRecipe._id}`);
+    console.log(`[saveRecipe] ✅ Recipe also saved to MyRecipe collection: ${savedMyRecipe._id}`);
     console.log(`[saveRecipe] ✅ Both collections updated successfully`);
   } catch (myRecipeError) {
     console.error("[saveRecipe] ⚠️ Error saving to MyRecipe collection:", myRecipeError.message);
@@ -193,15 +281,109 @@ async function updateRecipe(id, data) {
 }
 
 async function patchRecipe(id, data) {
-  return await Recipe.findByIdAndUpdate(id, { $set: data }, { new: true });
+  const updatedRecipe = await Recipe.findByIdAndUpdate(id, { $set: data }, { new: true });
+  
+  // If isFavorite is being updated, sync it to MyRecipe collection
+  if (data.hasOwnProperty('isFavorite')) {
+    try {
+      const myRecipeByTitle = await MyRecipe.findOne({
+        title: updatedRecipe.title,
+        user: updatedRecipe.createdBy
+      });
+      
+      if (myRecipeByTitle) {
+        await MyRecipe.findByIdAndUpdate(
+          myRecipeByTitle._id,
+          { isFavorite: data.isFavorite },
+          { new: true }
+        );
+        console.log(`[patchRecipe] ✅ Synced isFavorite to MyRecipe collection`);
+      }
+    } catch (error) {
+      console.error("[patchRecipe] Error syncing to MyRecipe:", error.message);
+      // Don't fail the operation if sync fails
+    }
+  }
+  
+  return updatedRecipe;
 }
 
 async function deleteRecipe(id) {
-  return await Recipe.findByIdAndDelete(id);
+  // Find the recipe first to get its details
+  const recipe = await Recipe.findById(id);
+  
+  if (!recipe) {
+    return null;
+  }
+  
+  // Delete from Recipe collection
+  const deletedRecipe = await Recipe.findByIdAndDelete(id);
+  
+  // Also delete from MyRecipe collection (find by title and user)
+  try {
+    const myRecipe = await MyRecipe.findOne({
+      title: recipe.title,
+      user: recipe.createdBy
+    });
+    
+    if (myRecipe) {
+      await MyRecipe.findByIdAndDelete(myRecipe._id);
+      console.log(`[deleteRecipe] ✅ Recipe deleted from both Recipe and MyRecipe collections`);
+    } else {
+      console.log(`[deleteRecipe] ⚠️ MyRecipe entry not found for title: ${recipe.title}`);
+    }
+  } catch (error) {
+    console.error("[deleteRecipe] Error deleting from MyRecipe:", error.message);
+    // Don't fail the operation if MyRecipe delete fails
+  }
+  
+  return deletedRecipe;
 }
 
 async function deleteAllRecipes() {
   return await Recipe.deleteMany();
+}
+
+/**
+ * Track that a user generated a recipe today
+ * Updates the generated count in UserPreference
+ */
+async function trackGeneratedRecipe(userId) {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let preferences = await UserPreference.findOne({ user: userId });
+
+    if (!preferences) {
+      // Create new preference if it doesn't exist
+      preferences = await UserPreference.create({
+        user: userId,
+        generatedCountToday: 1,
+        lastGeneratedDate: today,
+      });
+      console.log(`[trackGeneratedRecipe] ✅ Created new preferences with generated count: 1`);
+    } else {
+      // Check if lastGeneratedDate is today
+      const lastGeneratedDay = new Date(preferences.lastGeneratedDate);
+      lastGeneratedDay.setHours(0, 0, 0, 0);
+
+      if (lastGeneratedDay.getTime() === today.getTime()) {
+        // Same day - increment count
+        preferences.generatedCountToday += 1;
+      } else {
+        // Different day - reset count
+        preferences.generatedCountToday = 1;
+        preferences.lastGeneratedDate = today;
+      }
+
+      await preferences.save();
+      console.log(`[trackGeneratedRecipe] ✅ Updated generated count: ${preferences.generatedCountToday}`);
+    }
+  } catch (error) {
+    console.error("[trackGeneratedRecipe] Error tracking generated recipe:", error.message);
+    // Don't fail - this is not critical
+  }
 }
 
 module.exports = {
@@ -215,4 +397,5 @@ module.exports = {
   patchRecipe,
   deleteRecipe,
   deleteAllRecipes,
+  trackGeneratedRecipe,
 };

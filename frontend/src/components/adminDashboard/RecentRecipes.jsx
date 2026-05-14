@@ -6,7 +6,7 @@ function RecentRecipes({ recipes }) {
           key={index}
           className="list-group-item d-flex justify-content-between align-items-center"
         >
-          <span>{recipe}</span>
+          <span>{recipe.title}</span>
           <span className="badge bg-primary rounded-pill">Recipe</span>
         </div>
       ))}

@@ -72,24 +72,16 @@ function Favorites() {
     try {
       setLoading(true);
 
-      const data = await getFavorites(1, 100);
+      const favoriteRecipes = await getFavorites();
 
-      const favoriteRecipes = (data.data || [])
-        .filter((favorite) => favorite.recipe)
-        .map((favorite) => {
-          const normalizedRecipe =
-            normalizeRecipe(
-              favorite.recipe
-            );
+      const normalizedFavorites = (Array.isArray(favoriteRecipes) ? favoriteRecipes : [])
+        .map((recipe) => ({
+          ...normalizeRecipe(recipe),
+          isFavorite: true,
+        }));
 
-          return {
-            ...normalizedRecipe,
-            favoriteId: favorite._id,
-            isFavorite: true,
-          };
-        });
-
-      setFavorites(favoriteRecipes);
+      setFavorites(normalizedFavorites);
+      console.log(`[Favorites] Loaded ${normalizedFavorites.length} favorite recipes`);
     } catch (error) {
       console.error(
         "Failed to fetch favorites",

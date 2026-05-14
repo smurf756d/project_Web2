@@ -13,6 +13,11 @@ const generateRecipe = asyncHandler(async (req, res, next) => {
   console.log(`[generateRecipe] Handler called by user: ${req.user ? req.user._id : "anonymous"}`);
   const recipe = await recipeService.generateRecipe(req.body);
   
+  // Track that user generated a recipe today
+  if (req.user) {
+    await recipeService.trackGeneratedRecipe(req.user._id);
+  }
+  
   // Don't auto-save - let user click "Save Recipe" button to save
   console.log(`[generateRecipe] ✅ Recipe generated (preview only, not saved yet)`);
   
