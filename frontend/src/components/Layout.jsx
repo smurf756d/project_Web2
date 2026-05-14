@@ -1,69 +1,135 @@
+import { useState } from "react";
 import "../styles/Layout.css";
-import { Link, Outlet } from "react-router-dom";
+import { NavLink, Outlet, Link, useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 function Layout() {
-  return (
-    <div className="layout">
-      <div className="sidebar">
-        <h2>Smart Kitchen Hub</h2>
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const navigate = useNavigate();
 
-        <ul className="sidebar-menu">
-          <li className="sidebar-item">
-            <Link to="/" className="sidebar-link">
-              <span className="sidebar-icon">🏠</span>
-              <span className="sidebar-text">Home</span>
-            </Link>
-          </li>
+    let user = null;
 
-          <li className="sidebar-item">
-            <Link to="/dashboard" className="sidebar-link">
-              <span className="sidebar-icon">📊</span>
-              <span className="sidebar-text">User Dashboard</span>
-            </Link>
-          </li>
+    try {
+        const storedUser = localStorage.getItem("user");
+        user = storedUser ? JSON.parse(storedUser) : null;
+    } catch (e) {
+        user = null;
+    }
+    const isAdmin = user?.role === "admin";
 
-          <li className="sidebar-item active">
-            <Link to="/generate-recipe" className="sidebar-link">
-              <span className="sidebar-icon">✨</span>
-              <span className="sidebar-text">Generate Recipe</span>
-            </Link>
-          </li>
+    const closeSidebar = () => {
+        setIsSidebarOpen(false);
+    };
 
-          <li className="sidebar-item">
-            <Link to="/browse-recipes" className="sidebar-link">
-              <span className="sidebar-icon">📖</span>
-              <span className="sidebar-text">Browse Recipes</span>
-            </Link>
-          </li>
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/auth");
+    };
 
-          <li className="sidebar-item">
-            <Link to="/my-recipes" className="sidebar-link">
-              <span className="sidebar-icon">📋</span>
-              <span className="sidebar-text">My Recipes</span>
-            </Link>
-          </li>
+    return (
+        <div className="layout">
+            <button
+                className="mobile-menu-btn"
+                onClick={() => setIsSidebarOpen(true)}
+            >
+                ☰
+            </button>
 
-          <li className="sidebar-item">
-            <Link to="/favorites" className="sidebar-link">
-              <span className="sidebar-icon">❤️</span>
-              <span className="sidebar-text">Favorites</span>
-            </Link>
-          </li>
+            {isSidebarOpen && (
+                <div className="sidebar-overlay" onClick={closeSidebar}></div>
+            )}
 
-          <li className="sidebar-item">
-            <Link to="/help" className="sidebar-link">
-              <span className="sidebar-icon">💡</span>
-              <span className="sidebar-text">Help & Tips</span>
-            </Link>
-          </li>
-        </ul>
-      </div>
+            <aside className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
+                <Link to="/auth" className="logo-wrapper" onClick={closeSidebar}>
+                    <img src={logo} alt="Smart Kitchen Hub" className="sidebar-logo" />
+                    <h2>Smart Kitchen Hub</h2>
+                </Link>
 
-      <div className="main-content">
-        <Outlet />
-      </div>
-    </div>
-  );
+                <ul className="sidebar-menu">
+                    <li className="sidebar-item">
+                        <NavLink to="/" className="sidebar-link" onClick={closeSidebar}>
+                            <span className="sidebar-icon">🏠</span>
+                            <span className="sidebar-text">Home</span>
+                        </NavLink>
+                    </li>
+
+                    <li className="sidebar-item">
+                        <NavLink
+                            to="/dashboard"
+                            className="sidebar-link"
+                            onClick={closeSidebar}
+                        >
+                            <span className="sidebar-icon">📊</span>
+                            <span className="sidebar-text">User Dashboard</span>
+                        </NavLink>
+                    </li>
+
+                    {isAdmin && (
+                        <li className="sidebar-item">
+                            <NavLink
+                                to="/admin-dashboard"
+                                className="sidebar-link"
+                                onClick={closeSidebar}
+                            >
+                                <span className="sidebar-icon">🛠️</span>
+                                <span className="sidebar-text">Admin Dashboard</span>
+                            </NavLink>
+                        </li>
+                    )}
+
+                    <li className="sidebar-item">
+                        <NavLink
+                            to="/generate-recipe"
+                            className="sidebar-link"
+                            onClick={closeSidebar}
+                        >
+                            <span className="sidebar-icon">✨</span>
+                            <span className="sidebar-text">Generate Recipe</span>
+                        </NavLink>
+                    </li>
+
+                    <li className="sidebar-item">
+                        <NavLink
+                            to="/my-recipes"
+                            className="sidebar-link"
+                            onClick={closeSidebar}
+                        >
+                            <span className="sidebar-icon">📋</span>
+                            <span className="sidebar-text">My Recipes</span>
+                        </NavLink>
+                    </li>
+
+                    <li className="sidebar-item">
+                        <NavLink
+                            to="/favorites"
+                            className="sidebar-link"
+                            onClick={closeSidebar}
+                        >
+                            <span className="sidebar-icon">❤️</span>
+                            <span className="sidebar-text">Favorites</span>
+                        </NavLink>
+                    </li>
+
+                    <li className="sidebar-item">
+                        <NavLink to="/help" className="sidebar-link" onClick={closeSidebar}>
+                            <span className="sidebar-icon">💡</span>
+                            <span className="sidebar-text">Help & Tips</span>
+                        </NavLink>
+                    </li>
+                </ul>
+
+                <button className="logout-icon-btn" onClick={handleLogout}>
+                    <span>🚪</span>
+                    <span>Logout</span>
+                </button>
+            </aside>
+
+            <main className="main-content">
+                <Outlet />
+            </main>
+        </div>
+    );
 }
 
 export default Layout;

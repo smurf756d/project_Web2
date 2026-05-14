@@ -25,7 +25,7 @@ export default function AuthCard({ activeTab, setActiveTab }) {
             {activeTab === "login" ? (
                 <LoginForm />
             ) : (
-                <RegisterForm />
+                <RegisterForm setActiveTab={setActiveTab} />
             )}
         </div>
     );

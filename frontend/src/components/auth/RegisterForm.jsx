@@ -1,9 +1,11 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AvatarEditor from "react-avatar-editor";
 import { register } from "../../services/authService";
 import SocialButtons from "./SocialButtons";
 
 export default function RegisterForm({ setActiveTab }) {
+    const navigate = useNavigate();
     const editorRef = useRef(null);
 
     const [form, setForm] = useState({
@@ -102,13 +104,17 @@ export default function RegisterForm({ setActiveTab }) {
         try {
             setLoading(true);
 
-            await register({
+            const res = await register({
                 ...form,
                 profileImage: finalPreview || null,
             });
 
+            // Store token and user data in localStorage
+            localStorage.setItem("token", res.token);
+            localStorage.setItem("user", JSON.stringify(res.user));
+
             alert("Registered successfully");
-            setActiveTab("login");
+            navigate("/home");
         } catch (error) {
             setErrors({
                 api:
@@ -143,7 +149,7 @@ export default function RegisterForm({ setActiveTab }) {
                                 onChange={handleImage}
                             />
 
-                            <small>Upload profile photo optional</small>
+                            <small>Upload profile photo (optional)</small>
                         </>
                     )}
 
@@ -303,12 +309,10 @@ export default function RegisterForm({ setActiveTab }) {
                 </button>
             </form>
 
-            <SocialButtons />
 
-            <p className="switch-text">
-                Already have an account?{" "}
-                <button onClick={() => setActiveTab("login")}>Login</button>
-            </p>
+            <div className="social-area">
+                <SocialButtons />
+            </div>
         </div>
     );
 }

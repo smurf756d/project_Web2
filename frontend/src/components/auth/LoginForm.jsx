@@ -1,8 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { login } from "../../services/authService";
+import {
+    login,
+    getProfile
+} from "../../services/authService";
 import SocialButtons from "./SocialButtons";
 
 export default function LoginForm({ setActiveTab }) {
+    const navigate = useNavigate();
     const [form, setForm] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
@@ -31,23 +36,40 @@ export default function LoginForm({ setActiveTab }) {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!validate()) return;
 
         try {
             setLoading(true);
+
             const res = await login(form);
-            localStorage.setItem("token", res.data.token);
+
+            console.log("LOGIN RESPONSE:", res);
+
+            localStorage.setItem("token", res.token);
+
+            // Fetch full user profile to ensure all data is available
+            try {
+                const profileRes = await getProfile(res.token);
+                localStorage.setItem("user", JSON.stringify(profileRes.user));
+            } catch (profileError) {
+                // Fallback to response user data if profile fetch fails
+                localStorage.setItem("user", JSON.stringify(res.user));
+            }
+
+            setErrors({});
 
             alert("Login successful");
-
-            //  home route:
-            // navigate("/home");
+            navigate("/home");
         } catch (error) {
+            console.log(error);
+
             setErrors({
-                api: error.response?.data?.message || "Login failed. Please try again.",
+                api:
+                    error.response?.data?.message ||
+                    "Login failed. Please try again.",
             });
         } finally {
             setLoading(false);
@@ -132,7 +154,14 @@ export default function LoginForm({ setActiveTab }) {
                     <label>
                         <input type="checkbox" defaultChecked /> Remember me
                     </label>
-                    <button type="button">Forgot password?</button>
+                    <button
+                        type="button"
+                        onClick={() =>
+                            alert("Password reset feature will be available soon.")
+                        }
+                    >
+                        Forgot password?
+                    </button>
                 </div>
 
                 <button className="main-btn login-btn" disabled={loading}>
@@ -140,12 +169,12 @@ export default function LoginForm({ setActiveTab }) {
                 </button>
             </form>
 
-            <SocialButtons />
 
-            <p className="switch-text">
-                Don’t have an account?{" "}
-                <button onClick={() => setActiveTab("register")}>Register</button>
-            </p>
+
+    <div className="social-area">
+        <SocialButtons />
+    </div>
+
         </div>
     );
 }

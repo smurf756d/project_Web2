@@ -1,88 +1,49 @@
-const Recipe = require("../models/Recipe");
+const recipeService = require("../services/generateRecipeService");
 
-/**
- * Generate a recipe based on ingredients and preferences
- * POST /api/recipes/generate
- */
+// Standard error helper
+function createNotFoundError() {
+  const error = new Error("Recipe not found");
+  error.statusCode = 404;
+  return error;
+}
+
+// AI recipe generation
 async function generateRecipe(req, res, next) {
   try {
-    const { ingredients, diet, cookingTime, cuisine } = req.body;
-
-    // TODO: Integrate with AI service to generate recipe
-    // For now, returning a placeholder response
-    const generatedRecipe = {
-      title: `${cuisine} Recipe with ${ingredients.join(", ")}`,
-      ingredients,
-      steps: [
-        "Prepare ingredients",
-        "Cook the dish",
-        "Serve while hot",
-      ],
-      cookingTime,
-      calories: "350-450 kcal",
-      diet,
-      cuisine,
-      sourceIngredients: ingredients,
-      isAIGenerated: true,
-    };
-
+    const recipe = await recipeService.generateRecipe(req.body);
+    
+    // If user is authenticated, auto-save the generated recipe
+    if (req.user) {
+      try {
+        const recipeData = {
+          ...recipe,
+          createdBy: req.user._id,
+          isAIGenerated: true,
+        };
+        await recipeService.saveRecipe(recipeData);
+      } catch (saveError) {
+        // Log the error but don't fail the generation
+        console.error("Auto-save failed for generated recipe:", saveError);
+      }
+    }
+    
     res.status(200).json({
       success: true,
-      data: generatedRecipe,
+      message: "Recipe generated successfully",
+      data: recipe,
     });
   } catch (error) {
     next(error);
   }
 }
 
-/**
- * Refine a generated recipe based on user feedback
- * POST /api/recipes/refine
- */
+// AI recipe refinement based on feedback
 async function refineRecipe(req, res, next) {
   try {
-    const { recipe, feedback } = req.body;
-
-    // TODO: Integrate with AI service to refine recipe based on feedback
-    // For now, returning the recipe as is
-    const refinedRecipe = {
-      ...recipe,
-      title: `${recipe.title} (Refined)`,
-    };
-
+    const recipe = await recipeService.refineRecipe(req.body);
     res.status(200).json({
       success: true,
-      data: refinedRecipe,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-/**
- * Save a generated recipe
- * POST /api/recipes
- */
-async function createRecipe(req, res, next) {
-  try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "User not authenticated",
-      });
-    }
-
-    const recipeData = {
-      ...req.body,
-      createdBy: userId,
-    };
-
-    const recipe = await Recipe.create(recipeData);
-
-    res.status(201).json({
-      success: true,
+      message: "Recipe refined successfully",
       data: recipe,
     });
   } catch (error) {
@@ -90,43 +51,26 @@ async function createRecipe(req, res, next) {
   }
 }
 
-/**
- * Get all saved recipes
- * GET /api/recipes
- */
-async function getRecipes(req, res, next) {
+// Save recipe and link to authenticated user
+
+const createRecipe = async (req, res) => {
   try {
-    const recipes = await Recipe.find()
-      .populate("createdBy", "username email")
-      .sort({ createdAt: -1 });
+    const recipeData = req.body;
+    
+    
+    recipeData.createdBy = req.user._id; 
 
-    res.status(200).json({
-      success: true,
-      count: recipes.length,
-      data: recipes,
-    });
+    const savedRecipe = await recipeService.saveRecipe(recipeData);
+    res.status(201).json(savedRecipe);
   } catch (error) {
-    next(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
-}
+};
 
-/**
- * Get logged-in user's recipes
- * GET /api/recipes/my
- */
+// Get recipes saved by the current user
 async function getMyRecipes(req, res, next) {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "User not authenticated",
-      });
-    }
-
-    const recipes = await Recipe.find({ createdBy: userId })
-      .sort({ createdAt: -1 });
+    const recipes = await recipeService.getMyRecipes(req.user._id);
 
     res.status(200).json({
       success: true,
@@ -138,56 +82,39 @@ async function getMyRecipes(req, res, next) {
   }
 }
 
-/**
- * Get recipe by ID
- * GET /api/recipes/:id
- */
+// Get all recipes in database
+async function getRecipes(req, res, next) {
+  try {
+    const recipes = await recipeService.getAllRecipes();
+    res.status(200).json({
+      success: true,
+      count: recipes.length,
+      data: recipes,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Get single recipe by ID
 async function getRecipeById(req, res, next) {
   try {
-    const { id } = req.params;
-
-    const recipe = await Recipe.findById(id)
-      .populate("createdBy", "username email");
-
-    if (!recipe) {
-      return res.status(404).json({
-        success: false,
-        message: "Recipe not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: recipe,
-    });
+    const recipe = await recipeService.getRecipeById(req.params.id);
+    if (!recipe) throw createNotFoundError();
+    res.status(200).json({ success: true, data: recipe });
   } catch (error) {
     next(error);
   }
 }
 
-/**
- * Update recipe (full update)
- * PUT /api/recipes/:id
- */
+// Full update of recipe
 async function updateRecipe(req, res, next) {
   try {
-    const { id } = req.params;
-
-    const recipe = await Recipe.findByIdAndUpdate(
-      id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-
-    if (!recipe) {
-      return res.status(404).json({
-        success: false,
-        message: "Recipe not found",
-      });
-    }
-
+    const recipe = await recipeService.updateRecipe(req.params.id, req.body);
+    if (!recipe) throw createNotFoundError();
     res.status(200).json({
       success: true,
+      message: "Recipe updated successfully",
       data: recipe,
     });
   } catch (error) {
@@ -195,29 +122,14 @@ async function updateRecipe(req, res, next) {
   }
 }
 
-/**
- * Patch recipe (partial update)
- * PATCH /api/recipes/:id
- */
+// Partial update of recipe
 async function patchRecipe(req, res, next) {
   try {
-    const { id } = req.params;
-
-    const recipe = await Recipe.findByIdAndUpdate(
-      id,
-      { $set: req.body },
-      { new: true, runValidators: true }
-    );
-
-    if (!recipe) {
-      return res.status(404).json({
-        success: false,
-        message: "Recipe not found",
-      });
-    }
-
+    const recipe = await recipeService.patchRecipe(req.params.id, req.body);
+    if (!recipe) throw createNotFoundError();
     res.status(200).json({
       success: true,
+      message: "Recipe partially updated successfully",
       data: recipe,
     });
   } catch (error) {
@@ -225,45 +137,25 @@ async function patchRecipe(req, res, next) {
   }
 }
 
-/**
- * Delete recipe
- * DELETE /api/recipes/:id
- */
+// Delete specific recipe
 async function deleteRecipe(req, res, next) {
   try {
-    const { id } = req.params;
-
-    const recipe = await Recipe.findByIdAndDelete(id);
-
-    if (!recipe) {
-      return res.status(404).json({
-        success: false,
-        message: "Recipe not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Recipe deleted successfully",
-      data: recipe,
-    });
+    const recipe = await recipeService.deleteRecipe(req.params.id);
+    if (!recipe) throw createNotFoundError();
+    res.status(200).json({ success: true, message: "Recipe deleted successfully" });
   } catch (error) {
     next(error);
   }
 }
 
-/**
- * Delete all recipes
- * DELETE /api/recipes
- */
+// Delete all recipes
 async function deleteAllRecipes(req, res, next) {
   try {
-    const result = await Recipe.deleteMany({});
-
+    const result = await recipeService.deleteAllRecipes();
     res.status(200).json({
       success: true,
-      message: `Deleted ${result.deletedCount} recipes`,
-      data: result,
+      message: "All recipes deleted successfully",
+      deletedCount: result.deletedCount,
     });
   } catch (error) {
     next(error);
@@ -274,8 +166,8 @@ module.exports = {
   generateRecipe,
   refineRecipe,
   createRecipe,
-  getRecipes,
   getMyRecipes,
+  getRecipes,
   getRecipeById,
   updateRecipe,
   patchRecipe,

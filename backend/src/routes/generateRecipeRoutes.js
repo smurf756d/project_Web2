@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-//const { validateGenerateRecipe } = require("../utils/validators");
+const validate = require("../middleware/validate");
+const { validateGenerateRecipe } = require("../utils/validators");
 const authenticate  = require("../middleware/authenticate");
 const jwt = require("jsonwebtoken");
-//const User = require("../models/User");
+const User = require("../models/User");
 
 // Optional authentication middleware - doesn't fail if no token
 const optionalAuth = async (req, res, next) => {
@@ -17,9 +18,10 @@ const optionalAuth = async (req, res, next) => {
 
     const token = authHeader.split(" ")[1].replace(/"/g, "");
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    if (decoded && decoded.id) {
-      req.user = { id: decoded.id };
+    const user = await User.findById(decoded.id).select("-passwordHash");
+
+    if (user) {
+      req.user = user;
     }
     
     next();
@@ -120,7 +122,7 @@ const {
  *     summary: Generate a recipe based on ingredients and preferences
  *     tags: [Recipes]
  */
-router.post("/generate", optionalAuth, generateRecipe);
+router.post("/generate", optionalAuth, validate(validateGenerateRecipe), generateRecipe);
 
 /**
  * @swagger
