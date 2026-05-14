@@ -1,77 +1,171 @@
-import { useMemo, useState } from "react";
-import Topbar from "../components/myRecipes/layout/Topbar";
+import { useEffect, useState } from "react";
 import RecipeCard from "../components/myRecipes/RecipeCard";
-import { recipesMock } from "../data/recipesMock";
+
+import {
+  getMyRecipes,
+  updateMyRecipe,
+  deleteMyRecipe,
+} from "../api/myRecipeApi";
+
+import {
+  addFavorite,
+  removeFavorite,
+  getFavorites,
+} from "../api/favoriteRecipeApi";
+
 import "../styles/recipesPages.css";
 
 function MyRecipes() {
- const [recipes, setRecipes] = useState(() => {
-  const savedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  return recipesMock.map((recipe) => ({
-    ...recipe,
-    isFavorite: savedFavorites.some((fav) => fav.id === recipe.id),
-  }));
- });
   const [searchTerm, setSearchTerm] = useState("");
+
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+
   const [viewingRecipe, setViewingRecipe] = useState(null);
+
   const [editingRecipe, setEditingRecipe] = useState(null);
+
   const [editForm, setEditForm] = useState({
     title: "",
     ingredients: "",
+    instructions: "",
     time: "",
     calories: "",
   });
+
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [totalPages, setTotalPages] = useState(1);
 
   const recipesPerPage = 3;
 
-  const filteredRecipes = useMemo(() => {
-    return recipes.filter((recipe) =>
-      recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [recipes, searchTerm]);
+  const normalizeRecipe = (recipe) => {
+    return {
+      ...recipe,
 
-  const totalPages = Math.ceil(filteredRecipes.length / recipesPerPage);
+      id: recipe._id,
 
-  const visibleRecipes = filteredRecipes.slice(
-    (currentPage - 1) * recipesPerPage,
-    currentPage * recipesPerPage
-  );
+      image: recipe.image || "",
 
-  const handleDelete = () => {
-    setRecipes((prevRecipes) =>
-      prevRecipes.filter((recipe) => recipe.id !== selectedRecipe.id)
-    );
-    setSelectedRecipe(null);
+      instructions:
+        recipe.instructions ||
+        (Array.isArray(recipe.steps)
+          ? recipe.steps.join("\n")
+          : ""),
+
+      time:
+        recipe.time ||
+        parseInt(recipe.cookingTime) ||
+        30,
+
+      calories:
+        recipe.calories
+          ? parseInt(recipe.calories)
+          : 0,
+    };
   };
 
-  const handleToggleFavorite = (id) => {
-    setRecipes((prevRecipes) => {
-      const updatedRecipes = prevRecipes.map((recipe) =>
-        recipe.id === id
-          ? { ...recipe, isFavorite: !recipe.isFavorite }
-          : recipe
+  const fetchRecipes = async () => {
+    try {
+      setLoading(true);
+
+      const recipesData = await getMyRecipes(
+        currentPage,
+        recipesPerPage,
+        searchTerm
       );
 
-      const favoriteRecipes = updatedRecipes.filter(
-        (recipe) => recipe.isFavorite
+      setTotalPages(recipesData.totalPages || 1);
+
+      const favoritesData = await getFavorites(1, 100);
+
+      const favoriteRecipeIds = (favoritesData.data || [])
+        .filter((favorite) => favorite.recipe)
+        .map((favorite) => favorite.recipe._id);
+
+      const normalizedRecipes = (recipesData.data || [])
+        .map(normalizeRecipe)
+        .map((recipe) => ({
+          ...recipe,
+          isFavorite: favoriteRecipeIds.includes(recipe._id),
+        }));
+
+      setRecipes(normalizedRecipes);
+    } catch (error) {
+      console.error("Failed to fetch recipes", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecipes();
+  }, [currentPage, searchTerm]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const visibleRecipes = recipes;
+
+  const handleDelete = async () => {
+    try {
+      await deleteMyRecipe(selectedRecipe._id);
+
+      setRecipes((prevRecipes) =>
+        prevRecipes.filter(
+          (recipe) =>
+            recipe._id !== selectedRecipe._id
+        )
       );
 
-      localStorage.setItem("favorites", JSON.stringify(favoriteRecipes));
+      setSelectedRecipe(null);
+    } catch (error) {
+      console.error("Failed to delete recipe", error);
+    }
+  };
 
-      return updatedRecipes;
-    });
+  const handleToggleFavorite = async (id) => {
+    try {
+      const recipe = recipes.find(
+        (item) => item._id === id
+      );
+
+      if (!recipe) return;
+
+      if (recipe.isFavorite) {
+        await removeFavorite(id);
+      } else {
+        await addFavorite(id);
+      }
+
+      await fetchRecipes();
+    } catch (error) {
+      console.error(
+        "Failed to update favorite",
+        error
+      );
+    }
   };
 
   const openEditModal = (recipe) => {
     setEditingRecipe(recipe);
+
     setEditForm({
-      title: recipe.title,
-      ingredients: recipe.ingredients || "",
-      time: recipe.time,
-      calories: recipe.calories,
+      title: recipe.title || "",
+
+      ingredients: Array.isArray(recipe.ingredients)
+        ? recipe.ingredients.join(", ")
+        : recipe.ingredients || "",
+
+      instructions:
+        recipe.instructions || "",
+
+      time: recipe.time || "",
+
+      calories: recipe.calories || "",
     });
   };
 
@@ -84,7 +178,7 @@ function MyRecipes() {
     }));
   };
 
-  const handleSaveEdit = (e) => {
+  const handleSaveEdit = async (e) => {
     e.preventDefault();
 
     if (!editForm.title.trim()) {
@@ -97,58 +191,133 @@ function MyRecipes() {
       return;
     }
 
-    if (Number(editForm.time) <= 0 || Number(editForm.calories) <= 0) {
-      alert("Time and calories must be greater than 0");
+    if (!editForm.instructions.trim()) {
+      alert("Instructions are required");
       return;
     }
 
-    setRecipes((prevRecipes) =>
-      prevRecipes.map((recipe) =>
-        recipe.id === editingRecipe.id
-          ? {
-              ...recipe,
-              title: editForm.title.trim(),
-              ingredients: editForm.ingredients.trim(),
-              time: Number(editForm.time),
-              calories: Number(editForm.calories),
-            }
-          : recipe
-      )
-    );
+    if (
+      Number(editForm.time) <= 0 ||
+      Number(editForm.calories) <= 0
+    ) {
+      alert(
+        "Time and calories must be greater than 0"
+      );
+      return;
+    }
 
-    setEditingRecipe(null);
+    try {
+      const updatedRecipe = {
+        title: editForm.title.trim(),
+
+        ingredients: editForm.ingredients
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+
+        instructions:
+          editForm.instructions.trim(),
+
+        time: Number(editForm.time),
+
+        calories: Number(editForm.calories),
+      };
+
+      const response = await updateMyRecipe(
+        editingRecipe._id,
+        updatedRecipe
+      );
+
+      setRecipes((prevRecipes) =>
+        prevRecipes.map((recipe) =>
+          recipe._id === editingRecipe._id
+            ? response.data
+            : recipe
+        )
+      );
+
+      setEditingRecipe(null);
+    } catch (error) {
+      console.error(
+        "Failed to update recipe",
+        error
+      );
+    }
   };
 
   return (
     <div className="my-recipes-page">
       <section className="my-recipes-main">
-        <Topbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <div className="recipes-header">
+          <div className="recipes-title-box">
+            <h1>My Recipes</h1>
+
+            <p>
+              Manage and view your saved healthy recipes
+            </p>
+          </div>
+        </div>
 
         <section className="recipes-toolbar">
           <div className="filter-box">
             <i className="bi bi-search"></i>
-            <select>
-              <option>Search recipes...</option>
-              <option>Newest</option>
-              <option>Lowest Calories</option>
-              <option>Fastest Cooking</option>
-            </select>
+
+            <input
+              type="text"
+              placeholder="Search recipes..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="search-input"
+            />
           </div>
 
-          <button className="add-recipe-btn">
-            <i className="bi bi-plus-lg"></i>
-            Add New Recipe
-          </button>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+            }}
+          >
+            <button
+              className="add-recipe-btn"
+              onClick={() =>
+                (window.location.href =
+                  "/favorites")
+              }
+            >
+              <i className="bi bi-heart"></i>
+              My Favorites
+            </button>
+
+            <button
+              className="add-recipe-btn"
+              onClick={() =>
+                (window.location.href =
+                  "/generate-recipe")
+              }
+            >
+              <i className="bi bi-plus-lg"></i>
+              Add New Recipe
+            </button>
+          </div>
         </section>
 
-        {visibleRecipes.length > 0 ? (
+        {loading ? (
+          <div className="empty-state">
+            <h4>Loading recipes...</h4>
+          </div>
+        ) : visibleRecipes.length > 0 ? (
           <section className="recipes-grid">
             {visibleRecipes.map((recipe) => (
               <RecipeCard
-                key={recipe.id}
+                key={recipe._id}
                 recipe={recipe}
                 onDelete={setSelectedRecipe}
-                onToggleFavorite={handleToggleFavorite}
+                onToggleFavorite={
+                  handleToggleFavorite
+                }
                 onEdit={openEditModal}
                 onView={setViewingRecipe}
               />
@@ -157,32 +326,48 @@ function MyRecipes() {
         ) : (
           <div className="empty-state">
             <i className="bi bi-journal-x"></i>
+
             <h4>No recipes found</h4>
-            <p>Try searching for another recipe.</p>
+
+            <p>
+              Try searching for another recipe.
+            </p>
           </div>
         )}
 
         <section className="pagination-area">
           <button
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage((page) => page - 1)}
+            onClick={() =>
+              setCurrentPage((page) => page - 1)
+            }
           >
             Prev
           </button>
 
-          {[...Array(totalPages || 1)].map((_, index) => (
-            <button
-              key={index}
-              className={currentPage === index + 1 ? "active" : ""}
-              onClick={() => setCurrentPage(index + 1)}
-            >
-              {index + 1}
-            </button>
-          ))}
+          {[...Array(totalPages)].map(
+            (_, index) => (
+              <button
+                key={index}
+                className={
+                  currentPage === index + 1
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setCurrentPage(index + 1)
+                }
+              >
+                {index + 1}
+              </button>
+            )
+          )}
 
           <button
-            disabled={currentPage === totalPages || totalPages === 0}
-            onClick={() => setCurrentPage((page) => page + 1)}
+            disabled={currentPage === totalPages}
+            onClick={() =>
+              setCurrentPage((page) => page + 1)
+            }
           >
             Next
           </button>
@@ -192,35 +377,50 @@ function MyRecipes() {
       {viewingRecipe && (
         <div className="modal-backdrop-custom">
           <div className="view-modal">
-            <img
-              src={viewingRecipe.image}
-              alt={viewingRecipe.title}
-              onError={(e) => {
-                e.target.src =
-                  "https://via.placeholder.com/400x230?text=No+Image";
-              }}
-            />
-
             <h3>{viewingRecipe.title}</h3>
 
             <div className="view-info">
               <span>
-                <i className="bi bi-clock"></i> {viewingRecipe.time} min
+                <i className="bi bi-clock"></i>{" "}
+                {viewingRecipe.time} min
               </span>
+
               <span>
-                <i className="bi bi-fire"></i> {viewingRecipe.calories} cal
+                <i className="bi bi-fire"></i>{" "}
+                {viewingRecipe.calories} cal
               </span>
             </div>
 
             <div className="view-section">
               <h5>Ingredients</h5>
-              <p>{viewingRecipe.ingredients || "No ingredients listed."}</p>
+
+              <p>
+                {Array.isArray(
+                  viewingRecipe.ingredients
+                )
+                  ? viewingRecipe.ingredients.join(
+                      ", "
+                    )
+                  : viewingRecipe.ingredients ||
+                    "No ingredients listed."}
+              </p>
+            </div>
+
+            <div className="view-section">
+              <h5>Instructions</h5>
+
+              <p>
+                {viewingRecipe.instructions ||
+                  "No instructions listed."}
+              </p>
             </div>
 
             <div className="modal-actions">
               <button
                 className="cancel-btn"
-                onClick={() => setViewingRecipe(null)}
+                onClick={() =>
+                  setViewingRecipe(null)
+                }
               >
                 Close
               </button>
@@ -232,18 +432,26 @@ function MyRecipes() {
       {selectedRecipe && (
         <div className="modal-backdrop-custom">
           <div className="delete-modal">
-            <h5>Are you sure you want to delete?</h5>
+            <h5>
+              Are you sure you want to delete?
+            </h5>
+
             <p>{selectedRecipe.title}</p>
 
             <div className="modal-actions">
               <button
                 className="cancel-btn"
-                onClick={() => setSelectedRecipe(null)}
+                onClick={() =>
+                  setSelectedRecipe(null)
+                }
               >
                 Cancel
               </button>
 
-              <button className="confirm-delete-btn" onClick={handleDelete}>
+              <button
+                className="confirm-delete-btn"
+                onClick={handleDelete}
+              >
                 Delete
               </button>
             </div>
@@ -253,10 +461,14 @@ function MyRecipes() {
 
       {editingRecipe && (
         <div className="modal-backdrop-custom">
-          <form className="edit-modal" onSubmit={handleSaveEdit}>
+          <form
+            className="edit-modal"
+            onSubmit={handleSaveEdit}
+          >
             <h5>Edit Recipe</h5>
 
             <label>Recipe Name</label>
+
             <input
               type="text"
               name="title"
@@ -265,6 +477,7 @@ function MyRecipes() {
             />
 
             <label>Ingredients</label>
+
             <textarea
               name="ingredients"
               value={editForm.ingredients}
@@ -272,7 +485,17 @@ function MyRecipes() {
               placeholder="Example: chicken, rice, tomato..."
             />
 
+            <label>Instructions</label>
+
+            <textarea
+              name="instructions"
+              value={editForm.instructions}
+              onChange={handleEditChange}
+              placeholder="Write recipe instructions..."
+            />
+
             <label>Cooking Time</label>
+
             <input
               type="number"
               name="time"
@@ -282,6 +505,7 @@ function MyRecipes() {
             />
 
             <label>Calories</label>
+
             <input
               type="number"
               name="calories"
@@ -294,12 +518,17 @@ function MyRecipes() {
               <button
                 type="button"
                 className="cancel-btn"
-                onClick={() => setEditingRecipe(null)}
+                onClick={() =>
+                  setEditingRecipe(null)
+                }
               >
                 Cancel
               </button>
 
-              <button type="submit" className="save-edit-btn">
+              <button
+                type="submit"
+                className="save-edit-btn"
+              >
                 Save Changes
               </button>
             </div>

@@ -33,6 +33,8 @@ const authenticate = async (req, res, next) => {
 
     next();
   } catch (error) {
+    console.error("JWT authentication failed:", error.message);
+
     return res.status(401).json({
       success: false,
       message: "Invalid or expired token",

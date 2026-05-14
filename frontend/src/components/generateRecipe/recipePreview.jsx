@@ -105,4 +105,8 @@ function RecipePreview({
   );
 }
 
+<<<<<<< HEAD
 export default RecipePreview;
+=======
+export default RecipePreview;
+>>>>>>> 6558e606d5332cb48aa21e35946e7852dfdc96eb

@@ -3,7 +3,7 @@
  * Handles application errors and returns consistent API responses.
  */
 const errorHandler = (err, req, res, next) => {
-  console.error(err);
+  console.error("Server Error:", err.message);
 
   const statusCode = err.statusCode || 500;
 

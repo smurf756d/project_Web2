@@ -1,3 +1,36 @@
+<<<<<<< HEAD
+require("dotenv").config();
+
+const mongoose = require("mongoose");
+
+const app = require("./app");
+
+const PORT = process.env.PORT || 5000;
+
+/**
+ * Connect to MongoDB database
+ * then start Express server
+ */
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB connected");
+
+    app.listen(PORT, () => {
+      console.log(
+        `Server running on port ${PORT}`
+      );
+    });
+  })
+  .catch((err) => {
+    console.error(
+      "Database connection failed:",
+      err.message
+    );
+
+    process.exit(1);
+  });
+=======
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -69,3 +102,4 @@ connectDB().then(() => {
     console.log(Swagger docs: http://localhost:${PORT}/api-docs);
   });
 });
+>>>>>>> 6558e606d5332cb48aa21e35946e7852dfdc96eb
