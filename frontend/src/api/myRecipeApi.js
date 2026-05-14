@@ -29,7 +29,7 @@ export const updateMyRecipe = async (
   recipeId,
   recipeData
 ) => {
-  const response = await apiClient.patch(
+  const response = await apiClient.put(
     `/recipes/${recipeId}`,
     recipeData
   );

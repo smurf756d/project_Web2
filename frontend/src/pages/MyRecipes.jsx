@@ -236,10 +236,17 @@ function MyRecipes() {
         updatedRecipe
       );
 
+      const savedRecipe = response.data || response;
+
       setRecipes((prevRecipes) =>
         prevRecipes.map((recipe) =>
           recipe._id === editingRecipe._id
-            ? response.data
+            ? {
+                ...recipe,
+                ...savedRecipe,
+                time: Number(savedRecipe.time ?? updatedRecipe.time),
+                calories: Number(savedRecipe.calories ?? updatedRecipe.calories),
+              }
             : recipe
         )
       );

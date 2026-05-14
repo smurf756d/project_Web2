@@ -1,18 +1,15 @@
-function MostLikedRecipes() {
+function MostLikedRecipes({ recipes = [] }) {
   return (
-    <div className="card p-3 mt-4">
-
-      <div className="list-group">
-        <div className="list-group-item d-flex justify-content-between">
-          <span>Grilled Chicken</span>
-          <span>225</span>
+    <div className="list-group">
+      {recipes.map((recipe, index) => (
+        <div
+          key={recipe._id || recipe.title || index}
+          className="list-group-item d-flex justify-content-between"
+        >
+          <span>{recipe.title}</span>
+          <span>{recipe.count ?? 0}</span>
         </div>
-
-        <div className="list-group-item d-flex justify-content-between">
-          <span>Veggie Stir Fry</span>
-          <span>180</span>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
