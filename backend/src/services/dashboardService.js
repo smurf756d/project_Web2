@@ -116,6 +116,8 @@ const getDashboardData = async (user) => {
 };
 
 const updateDietPreferences = async (userId, preferenceData) => {
+  console.log(`[updateDietPreferences] User ${userId}, Payload:`, preferenceData);
+  
   const updatedPreferences = await UserPreference.findOneAndUpdate(
     { user: userId },
     {
@@ -129,6 +131,8 @@ const updateDietPreferences = async (userId, preferenceData) => {
       runValidators: true,
     }
   );
+
+  console.log(`[updateDietPreferences] ✅ Updated preferences:`, updatedPreferences);
 
   return formatPreferences(updatedPreferences);
 };

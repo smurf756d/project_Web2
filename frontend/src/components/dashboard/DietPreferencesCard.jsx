@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const DietPreferencesCard = ({ preferences, onSavePreferences }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localPreferences, setLocalPreferences] = useState(preferences);
+
+  // Update localPreferences when parent preferences change (but not while editing)
+  useEffect(() => {
+    if (!isEditing) {
+      setLocalPreferences(preferences);
+    }
+  }, [preferences, isEditing]);
 
   const handleToggle = (key) => {
     setLocalPreferences((prev) =>

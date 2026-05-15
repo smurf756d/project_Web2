@@ -20,6 +20,30 @@ const getDashboard = async (req, res, next) => {
   }
 };
 
+/**
+ * Update diet preferences for the logged-in user.
+ */
+const updateDietPreferences = async (req, res, next) => {
+  try {
+    console.log(`[updateDietPreferences] Updating preferences for user: ${req.user._id}`, req.body);
+    
+    const updatedPreferences = await dashboardService.updateDietPreferences(
+      req.user._id,
+      req.body
+    );
+
+    console.log(`[updateDietPreferences] ✅ Preferences updated:`, updatedPreferences);
+    res.status(200).json({
+      success: true,
+      message: "Diet preferences updated successfully",
+      data: updatedPreferences,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboard,
+  updateDietPreferences,
 };

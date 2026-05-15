@@ -195,7 +195,10 @@ const UserDashboard = () => {
           ?.enabled || false,
     };
 
+    console.log("[handleSavePreferences] Saving preferences:", preferencesPayload);
+
     if (!token) {
+      console.log("[handleSavePreferences] No token, updating local state only");
       setDashboardData((prev) => ({
         ...prev,
         dietPreferences: updatedPreferences,
@@ -210,12 +213,24 @@ const UserDashboard = () => {
         preferencesPayload
       );
 
+      console.log("[handleSavePreferences] Response from backend:", response);
+
+      // Extract preferences from response - backend returns formatted array
+      const savedPreferences = response.data.data || updatedPreferences;
+      
       setDashboardData((prev) => ({
         ...prev,
-        dietPreferences: response.data.data,
+        dietPreferences: savedPreferences,
       }));
+      
+      console.log("[handleSavePreferences] ✅ Preferences saved successfully");
     } catch (error) {
       console.error("Failed to update preferences", error);
+      // On error, revert to the updatedPreferences to maintain UI state
+      setDashboardData((prev) => ({
+        ...prev,
+        dietPreferences: updatedPreferences,
+      }));
     }
   };
 
