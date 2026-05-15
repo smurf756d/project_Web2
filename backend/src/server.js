@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const swaggerUi = require("swagger-ui-express");
+const swaggerDocs = require("./docs/swagger");
 
 const connectDB = require("./config/db");
 const passport = require("./config/passport");
@@ -12,6 +13,8 @@ const authRoutes = require("./routes/authRoutes");
 const recipeRoutes = require("./routes/generateRecipeRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const myRecipeRoutes = require("./routes/myRecipe.routes");
+const favoriteRecipeRoutes = require("./routes/favoriteRecipe.routes");
 
 const errorHandler = require("./middleware/errorHandler");
 const swaggerSpec = require("./docs/swagger");
@@ -47,8 +50,8 @@ app.use((req, res, next) => {
 
 app.use(
   "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec)
+  swaggerDocs.swaggerUi.serve,
+  swaggerDocs.swaggerUi.setup(swaggerDocs.swaggerSpec)
 );
 
 app.get("/", (req, res) => {
@@ -62,6 +65,8 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/recipes", recipeRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
+app.use("/api/v1/my-recipes", myRecipeRoutes);
+app.use("/api/v1/favorites", favoriteRecipeRoutes);
 
 app.use("/api", (req, res) => {
   console.log(`❌ 404: ${req.method} ${req.originalUrl} not found in API routes`);

@@ -62,7 +62,7 @@ export default function LoginForm({ setActiveTab }) {
             setErrors({});
 
             alert("Login successful");
-            navigate("/home");
+            navigate("/dashboard");
         } catch (error) {
             console.log(error);
 

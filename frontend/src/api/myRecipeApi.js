@@ -4,7 +4,7 @@ import apiClient from "./apiClient";
  * Get logged-in user's recipes
  */
 export const getMyRecipes = async () => {
-  const response = await apiClient.get("/recipes/my");
+  const response = await apiClient.get("/my-recipes");
   return response.data;
 };
 
@@ -15,7 +15,7 @@ export const createMyRecipe = async (
   recipeData
 ) => {
   const response = await apiClient.post(
-    "/recipes",
+    "/my-recipes",
     recipeData
   );
 
@@ -30,7 +30,7 @@ export const updateMyRecipe = async (
   recipeData
 ) => {
   const response = await apiClient.put(
-    `/recipes/${recipeId}`,
+    `/my-recipes/${recipeId}`,
     recipeData
   );
 
@@ -44,7 +44,7 @@ export const deleteMyRecipe = async (
   recipeId
 ) => {
   const response = await apiClient.delete(
-    `/recipes/${recipeId}`
+    `/my-recipes/${recipeId}`
   );
 
   return response.data;

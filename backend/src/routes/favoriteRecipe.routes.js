@@ -1,8 +1,6 @@
 const express = require("express");
 
-const {
-  protect,
-} = require("../middleware/authenticate");
+const authenticate = require("../middleware/authenticate");
 
 const {
   addFavorite,
@@ -13,16 +11,61 @@ const {
 const router = express.Router();
 
 /**
- * @route   /api/v1/favorites
+ * @swagger
+ * tags:
+ *   name: Favorites
+ *   description: Favorite recipes management
  */
-router.get("/", protect, getFavorites);
 
 /**
- * @route   /api/v1/favorites/:recipeId
+ * @swagger
+ * /api/v1/favorites:
+ *   get:
+ *     summary: Get user's favorite recipes
+ *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of favorite recipes
+ */
+router.get("/", authenticate, getFavorites);
+
+/**
+ * @swagger
+ * /api/v1/favorites/{recipeId}:
+ *   post:
+ *     summary: Add a recipe to favorites
+ *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Recipe added to favorites
+ *   delete:
+ *     summary: Remove a recipe from favorites
+ *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Recipe removed from favorites
  */
 router
   .route("/:recipeId")
-  .post(protect, addFavorite)
-  .delete(protect, removeFavorite);
+  .post(authenticate, addFavorite)
+  .delete(authenticate, removeFavorite);
 
 module.exports = router;

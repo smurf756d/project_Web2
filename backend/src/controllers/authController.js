@@ -18,7 +18,12 @@ const testAuth = (req, res) => {
  */
 const register = async (req, res, next) => {
   try {
-    const result = await registerUser(req.body);
+    const payload = {
+      ...req.body,
+      fullName: req.body.fullName || req.body.name,
+    };
+
+    const result = await registerUser(payload);
 
     res.status(201).json({
       success: true,

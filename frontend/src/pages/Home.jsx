@@ -4,6 +4,17 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const navigate = useNavigate();
 
+  const handleGetStarted = () => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      navigate("/generate-recipe");
+      return;
+    }
+
+    navigate("/auth?mode=login");
+  };
+
   const features = [
     {
       icon: "🥘",
@@ -42,15 +53,8 @@ const Home = () => {
           <button
             type="button"
             className="btn btn-success home-nav-btn"
-onClick={() => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    navigate("/generate-recipe");
-  } else {
-    navigate("/auth?mode=login");
-  }
-}}          >
+            onClick={() => navigate("/auth?mode=login")}
+          >
             Register
           </button>
         </div>
@@ -76,7 +80,7 @@ onClick={() => {
                 <button
                   type="button"
                   className="btn btn-success home-main-btn"
-                  onClick={() => navigate("/auth?mode=register")}
+                  onClick={handleGetStarted}
                 >
                   Get Started →
                 </button>

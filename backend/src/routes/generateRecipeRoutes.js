@@ -179,10 +179,40 @@ router.get("/my", authenticate, getMyRecipes);
  */
 router.get("/:id", getRecipeById);
 
+/**
+ * @swagger
+ * /api/recipes:
+ *   delete:
+ *     summary: Delete all recipes
+ *     tags: [Recipes]
+ */
 router.delete("/", deleteAllRecipes);
+
+/**
+ * @swagger
+ * /api/recipes/{id}:
+ *   delete:
+ *     summary: Delete recipe by id
+ *     tags: [Recipes]
+ */
 router.delete("/:id", deleteRecipe);
 
+/**
+ * @swagger
+ * /api/recipes/{id}:
+ *   put:
+ *     summary: Update recipe by id
+ *     tags: [Recipes]
+ */
 router.put("/:id", updateRecipe);
+
+/**
+ * @swagger
+ * /api/recipes/{id}:
+ *   patch:
+ *     summary: Partially update recipe by id
+ *     tags: [Recipes]
+ */
 router.patch("/:id", patchRecipe);
 
 module.exports = router;

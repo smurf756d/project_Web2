@@ -77,11 +77,12 @@ function MyRecipes() {
         ? recipesData 
         : (recipesData.data || []);
 
-      // Get user's favorite recipes
+      // Get user's favorite recipes (backend returns FavoriteRecipe docs with populated `recipe`)
       const favoritesData = await getFavorites();
-      const favoriteRecipeIds = (Array.isArray(favoritesData) ? favoritesData : (favoritesData.data || []))
-        .filter((recipe) => recipe && recipe._id)
-        .map((recipe) => recipe._id);
+      const favItems = Array.isArray(favoritesData) ? favoritesData : (favoritesData.data || []);
+      const favoriteRecipeIds = favItems
+        .map((fav) => (fav && fav.recipe ? fav.recipe._id : (fav && fav._id ? fav._id : null)))
+        .filter(Boolean);
 
       // Normalize recipes and mark favorites
       const normalizedRecipes = recipesArray

@@ -51,6 +51,8 @@ function App() {
           window.location.pathname
         );
 
+        window.location.replace("/dashboard");
+
         alert("Google login successful");
       }
     };
@@ -61,49 +63,21 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-          <Route index element={<Navigate to="/home" />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/auth" element={<AuthPage />} />
 
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="home" element={<Home />} />
-
-          <Route
-            path="dashboard"
-            element={
-              <ProtectedRoute>
-                <UserDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="generate-recipe"
-            element={
-              <ProtectedRoute>
-                <GenerateRecipe />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="my-recipes"
-            element={
-              <ProtectedRoute>
-                <MyRecipes />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="favorites"
-            element={
-              <ProtectedRoute>
-                <Favorites />
-              </ProtectedRoute>
-            }
-          />
-
+        <Route
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<UserDashboard />} />
+          <Route path="generate-recipe" element={<GenerateRecipe />} />
+          <Route path="my-recipes" element={<MyRecipes />} />
+          <Route path="favorites" element={<Favorites />} />
           <Route path="help" element={<HelpTips />} />
 
           <Route
@@ -115,6 +89,8 @@ function App() {
             }
           />
         </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

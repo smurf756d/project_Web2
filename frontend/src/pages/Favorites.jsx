@@ -74,11 +74,15 @@ function Favorites() {
 
       const favoriteRecipes = await getFavorites();
 
+      // Backend returns FavoriteRecipe docs with populated `recipe` field.
       const normalizedFavorites = (Array.isArray(favoriteRecipes) ? favoriteRecipes : [])
-        .map((recipe) => ({
-          ...normalizeRecipe(recipe),
-          isFavorite: true,
-        }));
+        .map((item) => {
+          const recipe = item && item.recipe ? item.recipe : item;
+          return {
+            ...normalizeRecipe(recipe),
+            isFavorite: true,
+          };
+        });
 
       setFavorites(normalizedFavorites);
       console.log(`[Favorites] Loaded ${normalizedFavorites.length} favorite recipes`);

@@ -114,7 +114,7 @@ export default function RegisterForm({ setActiveTab }) {
             localStorage.setItem("user", JSON.stringify(res.user));
 
             alert("Registered successfully");
-            navigate("/home");
+            navigate("/dashboard");
         } catch (error) {
             setErrors({
                 api:

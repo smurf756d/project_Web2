@@ -41,14 +41,14 @@ function Layout() {
             )}
 
             <aside className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-                <Link to="/auth" className="logo-wrapper" onClick={closeSidebar}>
+                <Link to="/dashboard" className="logo-wrapper" onClick={closeSidebar}>
                     <img src={logo} alt="Smart Kitchen Hub" className="sidebar-logo" />
                     <h2>Smart Kitchen Hub</h2>
                 </Link>
 
                 <ul className="sidebar-menu">
                     <li className="sidebar-item">
-                        <NavLink to="/" className="sidebar-link" onClick={closeSidebar}>
+                        <NavLink to="/home" className="sidebar-link" onClick={closeSidebar}>
                             <span className="sidebar-icon">🏠</span>
                             <span className="sidebar-text">Home</span>
                         </NavLink>

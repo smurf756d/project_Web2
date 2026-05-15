@@ -5,16 +5,11 @@ import apiClient from "./apiClient";
  */
 export const getFavorites = async () => {
   try {
-    // Get all user recipes from Recipe collection (which has isFavorite flag)
-    const response = await apiClient.get("/recipes/my");
-    const recipesArray = Array.isArray(response.data) 
-      ? response.data 
-      : (response.data.data || []);
-    
-    // Filter recipes where isFavorite is true
-    const favorites = recipesArray.filter(recipe => recipe.isFavorite === true);
-    console.log(`[getFavorites] Found ${favorites.length} favorite recipes`);
-    return favorites;
+    // Use dedicated favorites endpoints which persist to the favorites collection
+    const response = await apiClient.get("/favorites");
+    const favoritesArray = response.data && response.data.data ? response.data.data : [];
+    console.log(`[getFavorites] Found ${favoritesArray.length} favorite recipes`);
+    return favoritesArray;
   } catch (error) {
     console.error("[getFavorites] Error fetching favorites:", error);
     return [];
@@ -25,11 +20,8 @@ export const getFavorites = async () => {
  * Add recipe to favorites
  */
 export const addFavorite = async (recipeId) => {
-  const response = await apiClient.patch(
-    `/recipes/${recipeId}`,
-    { isFavorite: true }
-  );
-  console.log(`[addFavorite] Recipe marked as favorite: ${recipeId}`);
+  const response = await apiClient.post(`/favorites/${recipeId}`);
+  console.log(`[addFavorite] Recipe added to favorites: ${recipeId}`);
   return response.data;
 };
 
@@ -37,10 +29,7 @@ export const addFavorite = async (recipeId) => {
  * Remove recipe from favorites
  */
 export const removeFavorite = async (recipeId) => {
-  const response = await apiClient.patch(
-    `/recipes/${recipeId}`,
-    { isFavorite: false }
-  );
+  const response = await apiClient.delete(`/favorites/${recipeId}`);
   console.log(`[removeFavorite] Recipe removed from favorites: ${recipeId}`);
   return response.data;
 };
