@@ -1,5 +1,6 @@
 const Recipe = require("../models/Recipe");
 const UserPreference = require("../models/UserPreference");
+const FavoriteRecipe = require("../models/FavoriteRecipe");
 
 const suggestedRecipesPool = [
   {
@@ -87,10 +88,9 @@ const getDashboardData = async (user) => {
 
   console.log(`[dashboardService] User ${user._id} - Saved: ${savedRecipesCount}, Generated Today: ${generatedTodayCount}`);
 
-  // Count favorite recipes for this user
-  const favoriteDishCount = await Recipe.countDocuments({
-    createdBy: user._id,
-    isFavorite: true,
+  // Count favorite recipes for this user from FavoriteRecipe collection
+  const favoriteDishCount = await FavoriteRecipe.countDocuments({
+    user: user._id,
   });
 
   return {
