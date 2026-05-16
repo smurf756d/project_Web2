@@ -123,95 +123,205 @@ router.use((req, res, next) => {
 
 /**
  * @swagger
- * /api/recipes/generate:
+ * /api/v1/recipes/generate:
  *   post:
  *     summary: Generate a recipe based on ingredients and preferences
  *     tags: [Recipes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenerateRecipeRequest'
+ *     responses:
+ *       200:
+ *         description: Recipe generated successfully
+ *       400:
+ *         description: Invalid request parameters
  */
 router.post("/generate", optionalAuth, validate(validateGenerateRecipe), generateRecipe);
 
 /**
  * @swagger
- * /api/recipes/refine:
+ * /api/v1/recipes/refine:
  *   post:
  *     summary: Refine a generated recipe based on user feedback
  *     tags: [Recipes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - recipe
+ *               - feedback
+ *             properties:
+ *               recipe:
+ *                 type: object
+ *                 description: The generated recipe to refine
+ *               feedback:
+ *                 type: string
+ *                 description: User feedback for refinement
+ *                 example: "Add more vegetables and reduce salt"
+ *     responses:
+ *       200:
+ *         description: Recipe refined successfully
  */
 router.post("/refine", refineRecipe);
 
 /**
  * @swagger
- * /api/recipes:
+ * /api/v1/recipes:
  *   post:
  *     summary: Save a generated recipe
  *     tags: [Recipes]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Recipe'
+ *     responses:
+ *       201:
+ *         description: Recipe saved successfully
+ *       401:
+ *         description: Unauthorized
  */
 router.post("/", authenticate, createRecipe);
 
 /**
  * @swagger
- * /api/recipes:
+ * /api/v1/recipes:
  *   get:
  *     summary: Get all saved recipes
  *     tags: [Recipes]
+ *     responses:
+ *       200:
+ *         description: List of all recipes
  */
 router.get("/", getRecipes);
 
 /**
  * @swagger
- * /api/recipes/my:
+ * /api/v1/recipes/my:
  *   get:
  *     summary: Get logged-in user recipes
  *     tags: [Recipes]
  *     security:
  *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of user's recipes
+ *       401:
+ *         description: Unauthorized
  */
 router.get("/my", authenticate, getMyRecipes);
 
 /**
  * @swagger
- * /api/recipes/{id}:
+ * /api/v1/recipes/{id}:
  *   get:
  *     summary: Get recipe by id
  *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Recipe found
+ *       404:
+ *         description: Recipe not found
  */
 router.get("/:id", getRecipeById);
 
 /**
  * @swagger
- * /api/recipes:
+ * /api/v1/recipes:
  *   delete:
  *     summary: Delete all recipes
  *     tags: [Recipes]
+ *     responses:
+ *       200:
+ *         description: All recipes deleted
  */
 router.delete("/", deleteAllRecipes);
 
 /**
  * @swagger
- * /api/recipes/{id}:
+ * /api/v1/recipes/{id}:
  *   delete:
  *     summary: Delete recipe by id
  *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Recipe deleted
+ *       404:
+ *         description: Recipe not found
  */
 router.delete("/:id", deleteRecipe);
 
 /**
  * @swagger
- * /api/recipes/{id}:
+ * /api/v1/recipes/{id}:
  *   put:
  *     summary: Update recipe by id
  *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Recipe'
+ *     responses:
+ *       200:
+ *         description: Recipe updated
+ *       404:
+ *         description: Recipe not found
  */
 router.put("/:id", updateRecipe);
 
 /**
  * @swagger
- * /api/recipes/{id}:
+ * /api/v1/recipes/{id}:
  *   patch:
  *     summary: Partially update recipe by id
  *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             description: Partial recipe fields to update
+ *     responses:
+ *       200:
+ *         description: Recipe partially updated
+ *       404:
+ *         description: Recipe not found
  */
 router.patch("/:id", patchRecipe);
 

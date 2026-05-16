@@ -21,7 +21,7 @@ const {
 
 /**
  * @swagger
- * /api/admin/stats:
+ * /api/v1/admin/stats:
  *   get:
  *     summary: Get admin dashboard statistics
  *     tags: [Admin]
@@ -40,7 +40,7 @@ router.get(
 
 /**
  * @swagger
- * /api/admin/recent-recipes:
+ * /api/v1/admin/recent-recipes:
  *   get:
  *     summary: Get recent recipes for admin dashboard
  *     tags: [Admin]
@@ -59,7 +59,7 @@ router.get(
 
 /**
  * @swagger
- * /api/admin/users:
+ * /api/v1/admin/users:
  *   get:
  *     summary: Get all users
  *     tags: [Admin]
@@ -78,7 +78,7 @@ router.get(
 
 /**
  * @swagger
- * /api/admin/most-used-ingredients:
+ * /api/v1/admin/most-used-ingredients:
  *   get:
  *     summary: Get most used ingredients
  *     tags: [Admin]
@@ -97,7 +97,7 @@ router.get(
 
 /**
  * @swagger
- * /api/admin/most-liked-recipes:
+ * /api/v1/admin/most-liked-recipes:
  *   get:
  *     summary: Get most liked recipes
  *     tags: [Admin]

@@ -22,28 +22,39 @@ async function getFavorites(
 /**
  * Calculate pagination offset
  */
-  const skip = (page - 1) * limit;
+  const hasPagination = Number.isFinite(limit) && limit > 0;
+  const skip = hasPagination ? (page - 1) * limit : 0;
 
  /**
- * Fetch paginated favorite recipes
+ * Fetch favorite recipes
  */
-  const favorites = await FavoriteRecipe.find({
+  const allFavoriteDocs = await FavoriteRecipe.find({
     user: userId,
   })
     .populate("recipe")
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
+    .sort({ createdAt: -1 });
+
+  // Filter out favorites where the recipe was deleted (populated recipe is null)
+  const validFavorites = allFavoriteDocs.filter((fav) => fav.recipe !== null);
+
+  const totalFavorites = validFavorites.length;
+
+  if (!hasPagination) {
+    return {
+      favorites: validFavorites,
+      totalFavorites,
+      currentPage: 1,
+      totalPages: totalFavorites > 0 ? 1 : 0,
+    };
+  }
 
   /**
- * Count total favorite recipes
+ * Apply pagination to valid favorites only
  */
-  const totalFavorites = await FavoriteRecipe.countDocuments({
-    user: userId,
-  });
+  const paginatedFavorites = validFavorites.slice(skip, skip + limit);
 
   return {
-    favorites,
+    favorites: paginatedFavorites,
     totalFavorites,
     currentPage: page,
     totalPages: Math.ceil(totalFavorites / limit),

@@ -105,6 +105,35 @@ function MyRecipes() {
   }, [searchTerm]);
 
   useEffect(() => {
+    const handleRefresh = () => {
+      fetchRecipes();
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchRecipes();
+      }
+    };
+
+    const handlePageShow = () => {
+      fetchRecipes();
+    };
+
+    window.addEventListener("focus", handleRefresh);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pageshow", handlePageShow);
+
+    const intervalId = window.setInterval(fetchRecipes, 15000);
+
+    return () => {
+      window.removeEventListener("focus", handleRefresh);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pageshow", handlePageShow);
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
@@ -131,6 +160,17 @@ function MyRecipes() {
       );
 
       setSelectedRecipe(null);
+      // Notify other parts of the app (Favorites, Dashboard) to refresh
+      try {
+        window.dispatchEvent(new CustomEvent("recipeDeleted", { detail: { recipeId: selectedRecipe._id } }));
+      } catch (e) {
+        // ignore
+      }
+      try {
+        window.dispatchEvent(new CustomEvent("favoriteUpdated", { detail: { recipeId: selectedRecipe._id } }));
+      } catch (e) {
+        // ignore
+      }
     } catch (error) {
       console.error("Failed to delete recipe", error);
     }
@@ -146,8 +186,11 @@ function MyRecipes() {
 
       if (recipe.isFavorite) {
         await removeFavorite(id);
+        // notify dashboard to refresh favorite counts
+        try { window.dispatchEvent(new CustomEvent('favoriteUpdated', { detail: { recipeId: id } })); } catch (e) {}
       } else {
         await addFavorite(id);
+        try { window.dispatchEvent(new CustomEvent('favoriteUpdated', { detail: { recipeId: id } })); } catch (e) {}
       }
 
       await fetchRecipes();
@@ -253,6 +296,8 @@ function MyRecipes() {
       );
 
       setEditingRecipe(null);
+      // notify dashboard that a recipe was updated
+      try { window.dispatchEvent(new CustomEvent('recipeUpdated', { detail: { recipeId: editingRecipe._id } })); } catch (e) {}
     } catch (error) {
       console.error(
         "Failed to update recipe",

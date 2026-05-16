@@ -38,6 +38,13 @@ const myRecipeSchema = new mongoose.Schema(
       default: false,
     },
 
+    // Reference to canonical Recipe document when applicable
+    recipe: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Recipe",
+      required: false,
+    },
+
 /**
  * Link recipe to logged-in user
  */

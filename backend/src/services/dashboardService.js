@@ -72,15 +72,32 @@ const getDashboardData = async (user) => {
   const endOfToday = new Date();
   endOfToday.setHours(23, 59, 59, 999);
 
-  // Get recent recipes for this user
-  const myRecipes = await Recipe.find({ createdBy: user._id })
-    .sort({ createdAt: -1 })
-    .limit(3);
+  // Lazy-load MyRecipe model to avoid circular requires elsewhere
+  const MyRecipe = require("../models/MyRecipe");
 
-  // Count all recipes saved by this user
-  const savedRecipesCount = await Recipe.countDocuments({
-    createdBy: user._id,
+  const [allRecipesFromRecipes, allRecipesFromMyRecipes] = await Promise.all([
+    Recipe.find({ createdBy: user._id }).sort({ createdAt: -1 }),
+    MyRecipe.find({ user: user._id }).sort({ createdAt: -1 }),
+  ]);
+
+  const recipeIds = new Set(allRecipesFromRecipes.map((recipe) => String(recipe._id)));
+
+  // Keep only recipes that still have a valid counterpart so the card and count match the page.
+  const validMyRecipes = allRecipesFromMyRecipes.filter((recipe) => {
+    if (recipe.recipe) {
+      return recipeIds.has(String(recipe.recipe));
+    }
+
+    return allRecipesFromRecipes.some(
+      (matchedRecipe) => matchedRecipe.title === recipe.title && String(matchedRecipe.createdBy) === String(user._id)
+    );
   });
+
+  const myRecipes = validMyRecipes.slice(0, 3);
+
+  // Count saved recipes from MyRecipe so the dashboard matches the My Recipes page.
+  // MyRecipe is kept in sync with Recipe for user-facing behavior.
+  const savedRecipesCount = validMyRecipes.length;
 
   // Get user preferences to check generated count today
   const preferences = await getOrCreatePreferences(user._id);
@@ -88,10 +105,10 @@ const getDashboardData = async (user) => {
 
   console.log(`[dashboardService] User ${user._id} - Saved: ${savedRecipesCount}, Generated Today: ${generatedTodayCount}`);
 
-  // Count favorite recipes for this user from FavoriteRecipe collection
-  const favoriteDishCount = await FavoriteRecipe.countDocuments({
-    user: user._id,
-  });
+  // Count valid favorites exactly like the Favorites page data source:
+  // favorite is valid only if populated MyRecipe still exists.
+  const allFavorites = await FavoriteRecipe.find({ user: user._id }).populate("recipe");
+  const favoriteDishCount = allFavorites.filter((fav) => fav.recipe !== null).length;
 
   return {
     user: {

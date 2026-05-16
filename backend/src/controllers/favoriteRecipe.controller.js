@@ -40,11 +40,8 @@ async function addFavorite(req, res, next) {
  */
 async function getFavorites(req, res, next) {
   try {
-    const page =
-      Number(req.query.page) || 1;
-
-    const limit =
-      Number(req.query.limit) || 5;
+    const page = req.query.page ? Number(req.query.page) : 1;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
 
     const result =
       await favoriteRecipeService.getFavorites(

@@ -2,8 +2,9 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Recipe = require("../models/Recipe");
 const MyRecipe = require("../models/MyRecipe");
 const UserPreference = require("../models/UserPreference");
+const FavoriteRecipe = require("../models/FavoriteRecipe");
 
-// تأكدي من استدعاء dotenv في ملف server.js الأساسي
+//
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const allowedDiets = ["Healthy", "Vegan", "Keto", "Any"];
@@ -42,28 +43,7 @@ function generateRecipeImage(recipe) {
   return cuisineImages[recipe.cuisine] || cuisineImages.Any;
 }
 
-/**
- * Helper function to repair malformed JSON
- */
-function repairJSON(jsonString) {
-  try {
-    // First try parsing as-is
-    return JSON.parse(jsonString);
-  } catch (e) {
-    // Remove trailing commas before closing braces/brackets
-    let repaired = jsonString
-      .replace(/,(\s*[}\]])/g, '$1')  // Remove trailing commas before } or ]
-      .replace(/(\w+):/g, '"$1":')    // Ensure all keys are quoted
-      .replace(/:\s*'([^']*)'/g, ': "$1"'); // Convert single quotes to double quotes
-    
-    try {
-      return JSON.parse(repaired);
-    } catch (e2) {
-      // If still fails, throw original error
-      throw e;
-    }
-  }
-}
+
 
 /**
  * AI Recipe Generation - Updated Logic
@@ -124,13 +104,13 @@ Generate the recipe now:`;
     const jsonString = text.substring(jsonStart, jsonEnd);
     console.log("[generateRecipe] Extracted JSON length:", jsonString.length);
 
-    // Try to parse and repair if needed
+    // Parse JSON response
     let recipe;
     try {
       recipe = JSON.parse(jsonString);
     } catch (parseError) {
-      console.log("[generateRecipe] Initial parse failed, attempting repair...");
-      recipe = repairJSON(jsonString);
+      console.error("[generateRecipe] JSON parsing failed:", parseError.message);
+      throw new Error("AI response contains invalid JSON: " + parseError.message);
     }
 
     // Validate required fields
@@ -197,7 +177,8 @@ Return ONLY valid JSON with the modified recipe (same structure as input). No ma
     try {
       updatedRecipe = JSON.parse(jsonString);
     } catch (parseError) {
-      updatedRecipe = repairJSON(jsonString);
+      console.error("[refineRecipe] JSON parsing failed:", parseError.message);
+      throw new Error("AI response contains invalid JSON: " + parseError.message);
     }
     
     updatedRecipe.image = generateRecipeImage(updatedRecipe);
@@ -248,6 +229,7 @@ async function saveRecipe(recipe) {
       calories: parseInt(recipe.calories) || 0,
       isFavorite: recipe.isFavorite || false,
       user: recipe.createdBy,
+      recipe: savedRecipe._id,
     };
     
     const savedMyRecipe = await new MyRecipe(myRecipeData).save();
@@ -319,24 +301,38 @@ async function deleteRecipe(id) {
   // Delete from Recipe collection
   const deletedRecipe = await Recipe.findByIdAndDelete(id);
   
-  // Also delete from MyRecipe collection (find by title and user)
+  // Also delete from MyRecipe collection, prefer linked recipe reference
+  let myRecipe = null;
   try {
-    const myRecipe = await MyRecipe.findOne({
-      title: recipe.title,
-      user: recipe.createdBy
-    });
-    
+    myRecipe = await MyRecipe.findOne({ recipe: id, user: recipe.createdBy });
+
+    if (!myRecipe) {
+      // fallback to title matching for older entries
+      myRecipe = await MyRecipe.findOne({ title: recipe.title, user: recipe.createdBy });
+    }
+
     if (myRecipe) {
       await MyRecipe.findByIdAndDelete(myRecipe._id);
       console.log(`[deleteRecipe] ✅ Recipe deleted from both Recipe and MyRecipe collections`);
     } else {
-      console.log(`[deleteRecipe] ⚠️ MyRecipe entry not found for title: ${recipe.title}`);
+      console.log(`[deleteRecipe] ⚠️ MyRecipe entry not found for recipe id/title: ${id} / ${recipe.title}`);
     }
   } catch (error) {
     console.error("[deleteRecipe] Error deleting from MyRecipe:", error.message);
     // Don't fail the operation if MyRecipe delete fails
   }
-  
+
+  // Remove any FavoriteRecipe entries referencing this recipe or the MyRecipe copy
+  try {
+    await FavoriteRecipe.deleteMany({ recipe: id });
+    if (myRecipe && myRecipe._id) {
+      await FavoriteRecipe.deleteMany({ recipe: myRecipe._id });
+    }
+    console.log(`[deleteRecipe] ✅ Removed favorite references for recipe ${id}`);
+  } catch (err) {
+    console.error("[deleteRecipe] Error cleaning up favorites:", err.message);
+  }
+
   return deletedRecipe;
 }
 

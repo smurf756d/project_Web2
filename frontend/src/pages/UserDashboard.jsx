@@ -166,11 +166,24 @@ const UserDashboard = () => {
 
     // Listen for recipe generated event
     window.addEventListener("recipeGenerated", handleRecipeGenerated);
+    // Also refresh when recipes/favorites change elsewhere
+    window.addEventListener("recipeDeleted", handleRecipeGenerated);
+    window.addEventListener("recipeUpdated", handleRecipeGenerated);
+    window.addEventListener("favoriteUpdated", handleRecipeGenerated);
+
+    window.addEventListener("focus", handleRecipeGenerated);
+
+    const intervalId = window.setInterval(handleRecipeGenerated, 15000);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("pageshow", handlePageShow);
       window.removeEventListener("recipeGenerated", handleRecipeGenerated);
+      window.removeEventListener("recipeDeleted", handleRecipeGenerated);
+      window.removeEventListener("recipeUpdated", handleRecipeGenerated);
+      window.removeEventListener("favoriteUpdated", handleRecipeGenerated);
+      window.removeEventListener("focus", handleRecipeGenerated);
+      window.clearInterval(intervalId);
     };
   }, []);
 

@@ -13,7 +13,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/dashboard:
+ * /api/v1/dashboard:
  *   get:
  *     summary: Get dashboard data for logged-in user
  *     tags: [Dashboard]
@@ -29,7 +29,7 @@ router.get("/", authenticate, getDashboard);
 
 /**
  * @swagger
- * /api/dashboard/preferences:
+ * /api/v1/dashboard/preferences:
  *   put:
  *     summary: Update user's diet preferences
  *     tags: [Dashboard]

@@ -44,6 +44,8 @@ function Favorites() {
 
       id: recipe._id,
 
+      title: recipe.title || "Untitled Recipe",
+
       image: recipe.image || "",
 
       instructions:
@@ -66,6 +68,52 @@ function Favorites() {
 
   useEffect(() => {
     fetchFavorites();
+  }, []);
+
+  // Listen for recipe deletions elsewhere in the app and refresh favorites
+  useEffect(() => {
+    const onRecipeDeleted = (e) => {
+      fetchFavorites();
+    };
+
+    window.addEventListener("recipeDeleted", onRecipeDeleted);
+
+    return () => {
+      window.removeEventListener("recipeDeleted", onRecipeDeleted);
+    };
+  }, []);
+
+  // Refresh when favorites or recipes are updated elsewhere
+  useEffect(() => {
+    const refresh = () => fetchFavorites();
+
+    window.addEventListener("favoriteUpdated", refresh);
+    window.addEventListener("recipeUpdated", refresh);
+    window.addEventListener("focus", refresh);
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchFavorites();
+      }
+    };
+
+    const handlePageShow = () => {
+      fetchFavorites();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pageshow", handlePageShow);
+
+    const intervalId = window.setInterval(fetchFavorites, 15000);
+
+    return () => {
+      window.removeEventListener("favoriteUpdated", refresh);
+      window.removeEventListener("recipeUpdated", refresh);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pageshow", handlePageShow);
+      window.clearInterval(intervalId);
+    };
   }, []);
 
   const fetchFavorites = async () => {
@@ -98,7 +146,7 @@ function Favorites() {
 
   const filteredFavorites = useMemo(() => {
     return favorites.filter((recipe) =>
-      recipe.title
+      (recipe?.title || "")
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
     );
@@ -138,6 +186,8 @@ function Favorites() {
       setFavorites(updatedFavorites);
 
       setSelectedRecipe(null);
+      // notify dashboard/favorites that favorites changed
+      try { window.dispatchEvent(new CustomEvent('favoriteUpdated', { detail: { recipeId: recipe._id } })); } catch (e) {}
     } catch (error) {
       console.error(
         "Failed to remove favorite",
@@ -158,6 +208,7 @@ function Favorites() {
         );
 
       setFavorites(updatedFavorites);
+      try { window.dispatchEvent(new CustomEvent('favoriteUpdated', { detail: { recipeId: id } })); } catch (e) {}
     } catch (error) {
       console.error(
         "Failed to toggle favorite",
@@ -263,6 +314,8 @@ function Favorites() {
       );
 
       setEditingRecipe(null);
+      // notify dashboard that a recipe was updated
+      try { window.dispatchEvent(new CustomEvent('recipeUpdated', { detail: { recipeId: editingRecipe._id } })); } catch (e) {}
     } catch (error) {
       console.error(
         "Failed to update favorite recipe",
